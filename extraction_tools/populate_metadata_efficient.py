@@ -22,25 +22,51 @@ from datetime import datetime
 import gc
 
 
-def detect_available_fields(rtrans_dir: Path) -> list:
+def detect_available_fields(rtrans_dir: Path, metadata_dir: Path) -> tuple:
     """
     Detect which sophisticated fields are available in rtrans files.
-    Reads first file to get schema.
+    Only returns fields that are either:
+    1. Sophisticated analysis fields (not basic metadata like pmcid, doi, etc.)
+    2. New fields not in metadata (like 'funder')
+
+    Returns: (fields_to_populate, fields_skipped)
     """
     rtrans_files = sorted(glob(str(rtrans_dir / "*.parquet")))
     if not rtrans_files:
-        return []
+        return [], []
 
-    # Read schema from first file
+    # Read schema from first rtrans file
     first_file = rtrans_files[0]
-    df_sample = pd.read_parquet(first_file)
-    available = list(df_sample.columns)
+    df_rtrans = pd.read_parquet(first_file)
+    rtrans_fields = set(df_rtrans.columns) - {'pmid'}
 
-    # Remove pmid from list (will add it back explicitly)
-    if 'pmid' in available:
-        available.remove('pmid')
+    # Read schema from first metadata file
+    metadata_files = sorted(glob(str(metadata_dir / "*.parquet")))
+    if not metadata_files:
+        return list(rtrans_fields), []
 
-    return available
+    df_metadata = pd.read_parquet(metadata_files[0])
+    metadata_fields = set(df_metadata.columns)
+
+    # Fields that are "copied" metadata - already populated, don't reload
+    copied_fields = {
+        'pmcid_pmc', 'pmcid_uid', 'doi', 'filename', 'journal', 'publisher',
+        'affiliation_institution', 'affiliation_country', 'year_epub', 'year_ppub',
+        'type', 'coi_text', 'fund_text', 'register_text',
+        'fund_pmc_institute', 'fund_pmc_source', 'fund_pmc_anysource',
+        'file_size', 'chars_in_body'
+    }
+
+    # Fields to populate:
+    # 1. Sophisticated fields (in rtrans, in metadata, not in copied list)
+    # 2. New fields (in rtrans, not in metadata)
+    sophisticated_in_metadata = rtrans_fields & metadata_fields - copied_fields
+    new_fields = rtrans_fields - metadata_fields
+
+    fields_to_populate = list(sophisticated_in_metadata | new_fields)
+    fields_skipped = list((rtrans_fields & metadata_fields & copied_fields))
+
+    return fields_to_populate, fields_skipped
 
 
 def merge_rtrans_files(rtrans_dir: Path, fields: list) -> pd.DataFrame:
@@ -248,27 +274,14 @@ def main():
     # Determine fields to populate
     if args.fields.lower() == 'auto':
         print("\nDetecting available fields from rtrans files...")
-        available_fields = detect_available_fields(rtrans_dir)
+        fields, skipped = detect_available_fields(rtrans_dir, metadata_dir)
 
-        # Read first metadata file to see which fields exist and are blank
-        metadata_files = sorted(glob(str(metadata_dir / "*.parquet")))
-        if not metadata_files:
-            print(f"Error: No metadata files found in {metadata_dir}", file=sys.stderr)
+        print(f"  Found {len(fields)} sophisticated fields to populate")
+        print(f"  Skipped {len(skipped)} copied metadata fields (already in metadata)")
+
+        if len(fields) == 0:
+            print("\nError: No fields to populate!", file=sys.stderr)
             return 1
-
-        sample_metadata = pd.read_parquet(metadata_files[0])
-
-        # Populate existing fields that match rtrans fields
-        fields_to_populate = [f for f in available_fields if f in sample_metadata.columns]
-
-        # Also add new fields if they exist in rtrans but not metadata
-        new_fields = [f for f in available_fields if f not in sample_metadata.columns]
-
-        print(f"  Found {len(available_fields)} fields in rtrans")
-        print(f"  Found {len(fields_to_populate)} matching existing fields in metadata")
-        print(f"  Found {len(new_fields)} new fields to add")
-
-        fields = fields_to_populate + new_fields
     else:
         fields = [f.strip() for f in args.fields.split(',')]
 

@@ -1,0 +1,121 @@
+column_name,category,short_description,detailed_description,data_type,example_values
+pmid,Copied,PubMed ID,"Unique identifier from PubMed database, extracted from <article-id pub-id-type=""pmid"">",object,"['39152694', '39152698']"
+pmcid_pmc,Copied,PubMed Central ID,"PMC identifier extracted from <article-id pub-id-type=""pmc"">",object,"['PMC11529060', 'PMC11529089']"
+pmcid_uid,Copied,PMC UID,Additional PMC identifier field (often empty),object,"['', '']"
+doi,Copied,Digital Object Identifier,"DOI extracted from <article-id pub-id-type=""doi"">",object,"['10.1177/10406387241269043', '10.1177/10406387241267864']"
+filename,Copied,Source filename,Path to the original XML file that was processed,object,"['/in/PMC11529060.xml', '/in/PMC11529089.xml']"
+journal,Copied,Journal name,Full journal name from <journal-title>,object,"['Journal of Veterinary Diagnostic Investigation : Official Publication of the American Association of Veterinary Laboratory Diagnosticians, Inc', 'Journal of Veterinary Diagnostic Investigation : Official Publication of the American Association of Veterinary Laboratory Diagnosticians, Inc']"
+publisher,Copied,Publisher name,Publisher information from <publisher-name> and <publisher-loc>,object,"['SAGE Publications; Sage CA: Los Angeles, CA', 'SAGE Publications; Sage CA: Los Angeles, CA']"
+affiliation_institution,Copied,Author affiliation institution,Institution names from author affiliations in <aff>,object,"['', '']"
+affiliation_country,Copied,Author affiliation country,Country information from author affiliations,object,"['', '']"
+year_epub,Copied,Electronic publication year,"Year from <pub-date pub-type=""epub"">",object,"['2024', '2024']"
+year_ppub,Copied,Print publication year,"Year from <pub-date pub-type=""ppub"">",object,"['2024', '2024']"
+is_coi_pred,Sophisticated,COI section predicted/found,Boolean indicating if a conflict of interest section was identified,bool,"[True, True]"
+coi_text,Copied,COI statement text,"Full text of conflict of interest statement from <fn fn-type=""COI-statement"">",object,"['The authors declared no potential conflicts of interest with respect to the research, authorship, and/or publication of this article.', 'The authors declared no potential conflicts of interest with respect to the research, authorship, and/or publication of this article.']"
+is_coi_pmc_fn,Sophisticated,COI in PMC footnote,Boolean indicating if COI statement found in footnote section,bool,"[True, True]"
+is_coi_pmc_title,Sophisticated,COI in section title,"Indicates if ""conflict of interest"" appears in a section title",object,"[True, True]"
+is_relevant_coi,Sophisticated,COI relevance detected,Boolean indicating if COI section contains relevant disclosure information,bool,"[True, True]"
+is_relevant_coi_hi,Sophisticated,High-confidence relevant COI,High confidence that COI statement is substantive/relevant,bool,"[True, True]"
+is_relevant_coi_lo,Sophisticated,Low-confidence relevant COI,Low confidence relevance indicator,object,"[False, False]"
+is_explicit_coi,Sophisticated,Explicit COI declared,"Boolean indicating if explicit conflicts were declared (vs. ""no conflicts"")",object,N/A
+coi_1,Sophisticated,COI pattern match 1,Text match for general conflict of interest patterns,object,N/A
+coi_2,Sophisticated,COI pattern match 2,Text match for conflict of interest patterns (variant 2),object,N/A
+coi_disclosure_1,Sophisticated,COI disclosure pattern,Matches phrases about conflict disclosure,object,N/A
+commercial_1,Sophisticated,Commercial relationship mention,Matches phrases indicating commercial relationships,object,N/A
+benefit_1,Sophisticated,Financial benefit mention,Matches phrases about financial benefits,object,N/A
+consultant_1,Sophisticated,Consultant role mention,Matches phrases indicating consultant relationships,object,N/A
+grants_1,Sophisticated,Grants mention,Matches phrases about grants or research funding,object,N/A
+brief_1,Sophisticated,Brief financial relationship,Matches phrases about brief/limited financial relationships,object,N/A
+fees_1,Sophisticated,Fees mention,Matches phrases about fees or payments,object,N/A
+consults_1,Sophisticated,Consultation mention,Matches phrases about consultation services,object,N/A
+connect_1,Sophisticated,Connection mention 1,Matches phrases about connections to entities,object,N/A
+connect_2,Sophisticated,Connection mention 2,Matches phrases about connections (variant 2),object,N/A
+commercial_ack_1,Sophisticated,Commercial acknowledgment,Matches commercial relationship acknowledgments,object,N/A
+rights_1,Sophisticated,Rights mention,Matches phrases about ownership rights or intellectual property,object,N/A
+founder_1,Sophisticated,Founder role mention,Matches phrases indicating founder status,object,N/A
+advisor_1,Sophisticated,Advisor role mention,Matches phrases indicating advisory board membership,object,N/A
+paid_1,Sophisticated,Payment mention,Matches phrases about payments received,object,N/A
+board_1,Sophisticated,Board membership mention,Matches phrases about board membership,object,N/A
+no_coi_1,Sophisticated,No COI declaration,Matches phrases explicitly declaring no conflicts,object,N/A
+no_funder_role_1,Sophisticated,No funder role statement,Matches phrases stating funders had no role in research,object,N/A
+is_fund_pred,Sophisticated,Funding section predicted,Boolean indicating if funding section was identified,bool,"[True, True]"
+fund_text,Copied,Funding statement text,Full text of funding statement,object,"['Funding:  Our project was funded by the Canadian Beef Cattle Research Council (BCRC).', 'Funding:  The Townsend Equine Health Research Fund (TEHRF) provided funding for our study (355820).']"
+fund_pmc_institute,Copied,PMC funding institute,Funding institution names from <funding-group> in structured format,object,"['Beef Cattle Research Council', 'Townsend Equine Health Research Fun']"
+fund_pmc_source,Copied,PMC funding source,Complete funding source information from structured XML metadata,object,"['Beef Cattle Research Councilhttps://doi.org/10.13039/501100005019', 'Townsend Equine Health Research Fun']"
+fund_pmc_anysource,Copied,PMC any funding source,Any funding source mentioned in PMC metadata,object,"['', '']"
+is_fund_pmc_group,Sophisticated,PMC funding group exists,Boolean indicating presence of <funding-group> element,bool,"[True, True]"
+is_fund_pmc_title,Sophisticated,Funding in section title,"Boolean indicating if ""funding"" appears in section title",object,"[True, True]"
+is_fund_pmc_anysource,Sophisticated,Any PMC funding source exists,Boolean indicating any funding source in PMC structure,object,"[False, False]"
+is_relevant_fund,Sophisticated,Relevant funding detected,Boolean indicating if funding section contains relevant information,object,"[True, True]"
+is_explicit_fund,Sophisticated,Explicit funding declared,Boolean indicating if explicit funding was declared,object,"[True, True]"
+support_1,Sophisticated,Support mention 1,Matches phrases about financial support,object,"[False, False]"
+support_3,Sophisticated,Support mention 3,Matches support phrases (variant 3),object,"[False, False]"
+support_4,Sophisticated,Support mention 4,Matches support phrases (variant 4),object,"[True, False]"
+support_5,Sophisticated,Support mention 5,Matches support phrases (variant 5),object,"[False, False]"
+support_6,Sophisticated,Support mention 6,Matches support phrases (variant 6),object,"[False, False]"
+support_7,Sophisticated,Support mention 7,Matches support phrases (variant 7),object,"[False, False]"
+support_8,Sophisticated,Support mention 8,Matches support phrases (variant 8),object,"[False, False]"
+support_9,Sophisticated,Support mention 9,Matches support phrases (variant 9),object,"[False, False]"
+support_10,Sophisticated,Support mention 10,Matches support phrases (variant 10),object,"[False, False]"
+developed_1,Sophisticated,Development mention,Matches phrases about development or creation,object,"[False, False]"
+received_1,Sophisticated,Received funding mention 1,Matches phrases about receiving funding,object,"[False, False]"
+received_2,Sophisticated,Received funding mention 2,Matches received funding phrases (variant 2),object,"[False, False]"
+recipient_1,Sophisticated,Recipient mention,Matches phrases identifying funding recipients,object,"[False, False]"
+authors_1,Sophisticated,Author funding mention 1,Matches phrases about authors and funding,object,"[False, False]"
+authors_2,Sophisticated,Author funding mention 2,Matches author funding phrases (variant 2),object,"[False, False]"
+thank_1,Sophisticated,Thank/acknowledge mention 1,Matches acknowledgment phrases,object,"[False, False]"
+thank_2,Sophisticated,Thank/acknowledge mention 2,Matches acknowledgment phrases (variant 2),object,"[False, False]"
+fund_1,Sophisticated,Fund mention 1,Matches phrases about funds or funding,object,"[False, False]"
+fund_2,Sophisticated,Fund mention 2,Matches fund phrases (variant 2),object,"[False, False]"
+fund_3,Sophisticated,Fund mention 3,Matches fund phrases (variant 3),object,"[False, False]"
+supported_1,Sophisticated,Supported by mention,Matches phrases about being supported by entities,object,"[False, False]"
+financial_1,Sophisticated,Financial mention 1,Matches phrases about financial aspects,object,"[False, False]"
+financial_2,Sophisticated,Financial mention 2,Matches financial phrases (variant 2),object,"[False, False]"
+financial_3,Sophisticated,Financial mention 3,Matches financial phrases (variant 3),object,"[False, False]"
+grant_1,Sophisticated,Grant mention,Matches phrases about grants,object,"[False, False]"
+french_1,Sophisticated,French funding phrase,Matches French-language funding phrases,object,"[False, False]"
+common_1,Sophisticated,Common funding phrase 1,Matches common funding acknowledgment phrases,object,"[False, False]"
+common_2,Sophisticated,Common funding phrase 2,Matches common phrases (variant 2),object,"[False, False]"
+common_3,Sophisticated,Common funding phrase 3,Matches common phrases (variant 3),object,"[False, False]"
+common_4,Sophisticated,Common funding phrase 4,Matches common phrases (variant 4),object,"[False, False]"
+common_5,Sophisticated,Common funding phrase 5,Matches common phrases (variant 5),object,"[False, False]"
+acknow_1,Sophisticated,Acknowledgment mention,Matches acknowledgment section phrases,object,"[False, False]"
+disclosure_1,Sophisticated,Disclosure mention 1,Matches disclosure statement phrases,object,"[False, False]"
+disclosure_2,Sophisticated,Disclosure mention 2,Matches disclosure phrases (variant 2),object,"[False, False]"
+fund_ack,Sophisticated,Funding acknowledgment,Matches combined funding and acknowledgment phrases,object,"[True, False]"
+project_ack,Sophisticated,Project acknowledgment,Matches project-related acknowledgment phrases,object,"[False, False]"
+is_register_pred,Sophisticated,Registration section predicted,Boolean indicating if study registration information was identified,bool,"[False, False]"
+register_text,Copied,Registration statement text,Full text of registration statement,object,"['', '']"
+type,Copied,Article type,"Article type from article-type attribute (research-article, review, etc.)",object,"['research-article', 'brief-report']"
+is_research,Sophisticated,Is research article,Boolean indicating if article is a research study,bool,"[True, True]"
+is_review,Sophisticated,Is review article,Boolean indicating if article is a review,bool,"[False, False]"
+is_reg_pmc_title,Sophisticated,Registration in section title,Boolean indicating if registration mentioned in section title,bool,"[False, False]"
+is_relevant_reg,Sophisticated,Relevant registration detected,Boolean indicating if registration section is relevant,object,"[False, False]"
+is_method,Sophisticated,Methods section exists,Boolean indicating presence of methods section,object,"[False, True]"
+is_NCT,Sophisticated,NCT number detected,Boolean indicating if ClinicalTrials.gov NCT identifier found,object,[False]
+is_explicit_reg,Sophisticated,Explicit registration stated,Boolean indicating explicit registration declaration,object,[True]
+prospero_1,Sophisticated,PROSPERO registration,Matches PROSPERO registration system mentions,object,[False]
+registered_1,Sophisticated,Registered mention 1,Matches phrases about registration,object,[False]
+registered_2,Sophisticated,Registered mention 2,Matches registered phrases (variant 2),object,[False]
+registered_3,Sophisticated,Registered mention 3,Matches registered phrases (variant 3),object,[False]
+registered_4,Sophisticated,Registered mention 4,Matches registered phrases (variant 4),object,[False]
+registered_5,Sophisticated,Registered mention 5,Matches registered phrases (variant 5),object,[False]
+not_registered_1,Sophisticated,Not registered statement,Matches phrases about lack of registration,object,[False]
+registration_1,Sophisticated,Registration mention 1,Matches registration phrases,object,[False]
+registration_2,Sophisticated,Registration mention 2,Matches registration phrases (variant 2),object,[False]
+registration_3,Sophisticated,Registration mention 3,Matches registration phrases (variant 3),object,[False]
+registration_4,Sophisticated,Registration mention 4,Matches registration phrases (variant 4),object,[False]
+registry_1,Sophisticated,Registry mention,Matches trial registry mentions,object,[False]
+reg_title_1,Sophisticated,Registration in title 1,Matches registration-related phrases in titles,object,[False]
+reg_title_2,Sophisticated,Registration in title 2,Matches registration title phrases (variant 2),object,[False]
+reg_title_3,Sophisticated,Registration in title 3,Matches registration title phrases (variant 3),object,[False]
+reg_title_4,Sophisticated,Registration in title 4,Matches registration title phrases (variant 4),object,[False]
+funded_ct_1,Sophisticated,Funded clinical trial mention,Matches phrases about funded clinical trials,object,[False]
+ct_2,Sophisticated,Clinical trial mention 2,Matches clinical trial phrases (variant 2),object,[False]
+ct_3,Sophisticated,Clinical trial mention 3,Matches clinical trial phrases (variant 3),object,[False]
+protocol_1,Sophisticated,Protocol mention,Matches study protocol mentions,object,[False]
+is_success,Sophisticated,Successful extraction,Boolean indicating if the article was successfully processed,bool,"[True, True]"
+is_open_data,Sophisticated,Open data detected,Boolean indicating if open data statement or link found,bool,"[False, False]"
+is_open_code,Sophisticated,Open code detected,Boolean indicating if open code/software statement found,bool,"[False, False]"
+is_relevant_code,Sophisticated,Relevant code mention,Boolean indicating if relevant code availability information present,bool,"[True, False]"
+is_relevant_data,Sophisticated,Relevant data mention,Boolean indicating if relevant data availability information present,bool,"[True, True]"

@@ -53,24 +53,27 @@ Data available from:
 
 ## Requirements
 
-### Python
+### Python Dependencies
+
 ```bash
-cd extraction_tools  # or funder_analysis
+# Create virtual environment (optional but recommended)
 python3 -m venv venv
 source venv/bin/activate
+
+# Install required packages
 pip install -r requirements.txt
+
+# For Jupyter notebooks and additional tools
+pip install -r requirements-dev.txt
 ```
 
-Key dependencies:
-- pandas >= 1.3.0
-- pyarrow >= 6.0.0
-- psutil >= 5.8.0
+Core packages: pandas, numpy, pyarrow, matplotlib
 
-### R (optional)
-For running rtransparent package:
-- R >= 4.0
-- xml2, dplyr, stringr, tidyverse
-- rtransparent package
+### Data Access
+
+Analysis scripts expect access to:
+- PMC XML files: https://www.ncbi.nlm.nih.gov/pmc/tools/openftlist/
+- rtransparent output: `~/pmcoaXMLs/rtrans_out_full_parquets/` (1,647 files)
 
 ## Quick Start
 

@@ -128,9 +128,30 @@ def merge_rtrans_files(rtrans_dir: Path, fields: list, batch_size: int = 100) ->
 
     print()  # New line after progress
 
-    # Merge all batches
-    print(f"\n  Concatenating {len(batches)} batches...")
-    merged = pd.concat(batches, ignore_index=True)
+    # Hierarchical merge: merge batches in pairs to avoid memory spike
+    print(f"\n  Hierarchical merge of {len(batches)} batches...")
+    level = 1
+    while len(batches) > 1:
+        print(f"    Level {level}: merging {len(batches)} → {(len(batches) + 1) // 2} batches", end='\r')
+        new_batches = []
+
+        # Merge in pairs
+        for i in range(0, len(batches), 2):
+            if i + 1 < len(batches):
+                # Merge two batches
+                merged_pair = pd.concat([batches[i], batches[i+1]], ignore_index=True)
+                merged_pair = merged_pair.drop_duplicates(subset=['pmid'], keep='last')
+                new_batches.append(merged_pair)
+            else:
+                # Odd one out, keep as-is
+                new_batches.append(batches[i])
+
+        batches = new_batches
+        gc.collect()
+        level += 1
+
+    print(f"\n    Merged to single dataframe")
+    merged = batches[0]
     del batches
     gc.collect()
 

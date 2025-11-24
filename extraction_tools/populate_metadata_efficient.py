@@ -69,48 +69,73 @@ def detect_available_fields(rtrans_dir: Path, metadata_dir: Path) -> tuple:
     return fields_to_populate, fields_skipped
 
 
-def merge_rtrans_files(rtrans_dir: Path, fields: list) -> pd.DataFrame:
+def merge_rtrans_files(rtrans_dir: Path, fields: list, batch_size: int = 100) -> pd.DataFrame:
     """
-    Merge all rtrans parquet files into a single DataFrame.
+    Merge all rtrans parquet files into a single DataFrame using batched concatenation.
     Only load specified fields plus pmid to reduce memory.
+
+    Uses batched approach to avoid OOM errors:
+    - Read and concatenate in batches
+    - Deduplicate each batch
+    - Merge batches at the end
     """
     print("\n" + "="*70)
-    print("PHASE 1: Merging rtrans parquet files")
+    print("PHASE 1: Merging rtrans parquet files (batched)")
     print("="*70)
 
     rtrans_files = sorted(glob(str(rtrans_dir / "*.parquet")))
     print(f"Found {len(rtrans_files)} rtrans files")
+    print(f"Batch size: {batch_size} files")
 
     # Fields to load (only what we need)
     load_fields = ['pmid'] + fields
     print(f"Loading {len(fields)} fields from rtrans files")
 
-    chunks = []
+    batches = []
+    current_batch = []
     start = time.time()
 
     for i, file in enumerate(rtrans_files, 1):
-        if i % 100 == 0 or i == 1 or i == len(rtrans_files):
+        if i % 50 == 0 or i == 1 or i == len(rtrans_files):
             elapsed = time.time() - start
             rate = i / elapsed if elapsed > 0 else 0
             remaining = (len(rtrans_files) - i) / rate if rate > 0 else 0
             print(f"  [{i:4d}/{len(rtrans_files)}] {rate:.1f} files/sec, "
-                  f"ETA: {remaining/60:.1f} min", end='\r')
+                  f"ETA: {remaining/60:.1f} min, {len(batches)} batches ready", end='\r')
 
         try:
             df = pd.read_parquet(file, columns=load_fields)
             df['pmid'] = df['pmid'].astype(str)
-            chunks.append(df)
+            current_batch.append(df)
         except Exception as e:
             print(f"\n  Warning: Failed to read {file}: {e}")
             continue
 
+        # Process batch when it reaches batch_size
+        if len(current_batch) >= batch_size:
+            batch_df = pd.concat(current_batch, ignore_index=True)
+            batch_df = batch_df.drop_duplicates(subset=['pmid'], keep='last')
+            batches.append(batch_df)
+            current_batch = []
+            gc.collect()  # Free memory
+
+    # Process remaining files
+    if current_batch:
+        batch_df = pd.concat(current_batch, ignore_index=True)
+        batch_df = batch_df.drop_duplicates(subset=['pmid'], keep='last')
+        batches.append(batch_df)
+        current_batch = []
+
     print()  # New line after progress
 
-    print(f"\n  Concatenating {len(chunks)} dataframes...")
-    merged = pd.concat(chunks, ignore_index=True)
+    # Merge all batches
+    print(f"\n  Concatenating {len(batches)} batches...")
+    merged = pd.concat(batches, ignore_index=True)
+    del batches
+    gc.collect()
 
-    # Remove duplicates, keeping last occurrence
-    print(f"  Deduplicating by pmid...")
+    # Final deduplication
+    print(f"  Final deduplication by pmid...")
     initial_rows = len(merged)
     merged = merged.drop_duplicates(subset=['pmid'], keep='last')
     final_rows = len(merged)

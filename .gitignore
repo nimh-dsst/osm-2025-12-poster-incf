@@ -1,0 +1,83 @@
+# Data Files (DO NOT commit large files)
+*.tar.gz
+*.xml
+*.parquet
+*.pkl
+*.csv.gz
+
+# PMC Data Directories
+raw_download/
+extracted_metadata_parquet/
+rtrans_out/
+rtrans_out_chunks/
+rtrans_out_full_parquets/
+populated_metadata/
+pmcoaXMLs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Environment variables
+.env
+.env.local
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
+# R
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+
+# Large result files (except small summaries)
+*_results/
+*_output/
+*.h5
+*.hdf5
+
+# Keep small summary files
+!*_summary.csv
+!*_summary.txt
+!*_summary.md

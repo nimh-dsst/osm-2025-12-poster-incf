@@ -1,170 +1,71 @@
-# Metadata Population Tools
+# Metadata Population - Deprecated Approach
 
-## Quick Reference
+## Summary
 
-**For rtrans_out_full_parquets (1,647 files):** Use `populate_metadata_efficient.py` ✅
+**This approach was abandoned as ill-conceived.**
 
-**For rtrans_out_chunks (21 files):** Use `populate_metadata_iterative.py`
+## Problem with Original Approach
 
-## populate_metadata_efficient.py (Recommended)
+The populate_metadata scripts attempted to:
+1. Extract baseline metadata from XMLs (18 fields) → `extracted_metadata_parquet/`
+2. Run rtransparent R package on XMLs (120 fields) → `rtrans_out_full_parquets/`
+3. Merge the two datasets to create complete records
 
-**Use for:** 1,000+ rtrans parquet files
-**Performance:** ~10-15 minutes for 1,647 files
-**Strategy:** Merge all rtrans once, then populate metadata files
+## Why This Failed
 
-### Usage
+**Key realization:** Almost all fields in extracted_metadata are already in rtrans output.
 
-```bash
-cd extraction_tools
-source ../venv/bin/activate
+- extracted_metadata has: pmid, pmcid, doi, journal, year, etc. (18 fields)
+- rtrans output has: All sophisticated fields PLUS pmid, pmcid, doi, journal, year, etc. (120 fields)
+- **Only 2 fields unique to extracted_metadata:** `file_size` and `chars_in_body`
 
-# Auto-detect and populate ALL sophisticated fields (default)
-python populate_metadata_efficient.py \
-    --metadata-dir ~/claude/pmcoaXMLs/extracted_metadata_parquet \
-    --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
-    --output-dir ~/claude/pmcoaXMLs/populated_metadata_full
+**Memory issues:**
+- Merging 1,647 rtrans files (1.8 GB, 6.5M records) caused OOM on 8GB RAM
+- Multiple optimization attempts failed (batched concat, hierarchical merge, streaming)
+- Even with PMCID range filtering, concat of 30-100 files OOM'd
 
-# Or specify specific fields
-python populate_metadata_efficient.py \
-    --metadata-dir ~/claude/pmcoaXMLs/extracted_metadata_parquet \
-    --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
-    --output-dir ~/claude/pmcoaXMLs/populated_metadata_full \
-    --fields is_open_code,is_open_data,funder
-```
+## Correct Approach
 
-### How It Works
+**Use rtrans output directly as the primary dataset.**
 
-**Phase 1: Merge rtrans files (5-10 minutes)**
-- Reads all 1,647 parquet files
-- Loads only needed columns (pmid + fields to populate)
-- Deduplicates by pmid (keeps last occurrence)
-- Shows progress: files/sec and ETA
+Only need to add 2 missing fields:
+1. Look up `file_size` and `chars_in_body` from extracted_metadata by PMCID
+2. Add funder matching (convert funder text → binary grid)
+3. Create compact output (exclude long text fields)
 
-**Phase 2: Populate metadata (2-5 minutes)**
-- For each of 25 metadata files:
-  - Single merge with pre-loaded rtrans data
-  - Populates blank fields
-  - Saves output with all fields
+See new script: `create_compact_rtrans.py` (to be created)
 
-### Auto-Detection Mode (Default)
+## Lessons Learned
 
-When `--fields auto` (the default):
-1. Reads schema from first rtrans file
-2. Identifies all available sophisticated fields (120+ columns)
-3. Matches against metadata file structure
-4. Populates ALL matching fields where destination is blank
-5. Adds new fields (like 'funder') if present in rtrans
+1. **Understand data overlap before designing pipelines**
+   - We had 95% duplicate data between two sources
+   - Should have used rtrans as primary, metadata as supplement
 
-**Result:** All 120+ rtransparent columns populated automatically
+2. **Memory constraints matter**
+   - 1,647 × 4K rows × 120 columns = too much for 8GB RAM
+   - Streaming/chunking doesn't help when final concat still needed
 
-### What Gets Populated
+3. **Check assumptions about data organization**
+   - Discovered files were sorted by PMCID (useful optimization)
+   - But didn't discover data overlap issue until too late
 
-**Existing fields** (where blank in metadata):
-- COI detection: is_coi_pred, is_relevant_coi, is_explicit_coi, etc. (29 fields)
-- Funding: is_fund_pred, is_relevant_fund, is_explicit_fund, etc. (45 fields)
-- Registration: is_register_pred, is_NCT, is_method, etc. (23 fields)
-- Open science: is_open_data, is_open_code, is_relevant_data, etc. (5 fields)
+## Deleted Scripts
 
-**New fields** (created and populated):
-- funder: Array of funding organizations
-- Any other fields in rtrans but not in metadata
+The following scripts have been removed:
+- `populate_metadata_iterative.py` - Iterated through chunks (too slow)
+- `populate_metadata_efficient.py` - Tried to merge all at once (OOM)
+- `populate_metadata_streaming.py` - Streamed files one at a time (slow, OOM)
+- `populate_metadata_optimized.py` - Used PMCID filtering (still OOM)
+- `merge_parquet_*.py` - Three merge utilities (not needed)
+- `split_rtrans.py` - Split merged files (wrong approach)
 
-## populate_metadata_iterative.py (Legacy)
+## Forward Path
 
-**Use for:** <100 rtrans files
-**Performance:** Good for small datasets, slow for 1,647 files
-**Strategy:** For each metadata file, iterate through all rtrans files
+New approach in `create_compact_rtrans.py`:
+- Start with rtrans parquet files (complete sophisticated analysis)
+- Add file_size and chars_in_body by PMCID lookup
+- Convert funder text to binary grid (31 columns for 31 funders)
+- Export only short fields (<30 chars) for efficient storage
+- Output: Compact parquet files ready for analysis
 
-### Usage
-
-```bash
-cd extraction_tools
-source ../venv/bin/activate
-
-# For legacy chunks (21 files)
-python populate_metadata_iterative.py \
-    --metadata-dir ~/claude/pmcoaXMLs/extracted_metadata_parquet \
-    --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_chunks \
-    --output-dir ~/claude/pmcoaXMLs/populated_metadata
-```
-
-### Performance
-
-- **21 rtrans files:** ~5-10 minutes
-- **1,647 rtrans files:** Hours to days ⚠️
-
-**Why slow for 1,647 files:**
-- 25 metadata files × 1,647 rtrans files = 41,175 merge operations
-- Each operation loads a file from disk
-- No caching or optimization
-
-## Field Population Logic
-
-**Existing fields:** Only populate if blank
-- Checks: `field.isna() | (field == '')`
-- Preserves existing non-blank values
-
-**New fields:** Create column and populate all matches
-- Adds column to metadata if it doesn't exist
-- Populates all rows with rtrans values
-
-**Array fields (like 'funder'):**
-- Blank = null or empty array `[]`
-- Populated = non-empty array
-
-**Scalar fields (like 'is_open_data'):**
-- Blank = null or empty string
-- Populated = any non-null, non-empty value
-
-## Output
-
-Populated parquet files with:
-- Same structure as input metadata
-- All blank sophisticated fields populated from rtrans
-- New fields added (like 'funder')
-- Same filename as input
-
-## Troubleshooting
-
-**Memory errors:**
-- Script loads all rtrans data into memory (~2-4 GB)
-- Ensure at least 8 GB RAM available
-- Close other applications
-
-**Process seems hung:**
-- Check CPU usage (should be 90-100%)
-- Phase 1 takes 5-10 minutes (1,647 files)
-- Phase 2 shows progress per file
-
-**Missing fields:**
-- Check that field exists in rtrans files
-- Use `--fields auto` to populate all available
-- Some fields may be legitimately blank in rtrans
-
-## Examples
-
-**Populate everything (recommended):**
-```bash
-python populate_metadata_efficient.py \
-    --metadata-dir ~/claude/pmcoaXMLs/extracted_metadata_parquet \
-    --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
-    --output-dir ~/claude/pmcoaXMLs/populated_metadata_full
-```
-
-**Populate only open science fields:**
-```bash
-python populate_metadata_efficient.py \
-    --metadata-dir ~/claude/pmcoaXMLs/extracted_metadata_parquet \
-    --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
-    --output-dir ~/claude/pmcoaXMLs/populated_metadata_openscience \
-    --fields is_open_code,is_open_data,is_relevant_code,is_relevant_data
-```
-
-**Populate only funding fields:**
-```bash
-python populate_metadata_efficient.py \
-    --metadata-dir ~/claude/pmcoaXMLs/extracted_metadata_parquet \
-    --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
-    --output-dir ~/claude/pmcoaXMLs/populated_metadata_funding \
-    --fields is_fund_pred,is_relevant_fund,is_explicit_fund,funder
-```
+This avoids all memory issues by processing files individually.

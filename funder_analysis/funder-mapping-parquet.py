@@ -216,7 +216,8 @@ def main():
     )
 
     parser.add_argument('parquet_dir', help='Directory containing parquet files')
-    parser.add_argument('--funder-db', default='/home/ec2-user/claude/osm/scripts/biomedical_research_funders.csv',
+    parser.add_argument('--funder-db',
+                        default=str(Path(__file__).parent / 'biomedical_research_funders.csv'),
                         help='Path to funder database CSV')
     parser.add_argument('--output-dir', default='.',
                         help='Output directory for results (default: current directory)')

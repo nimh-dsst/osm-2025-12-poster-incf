@@ -1,0 +1,238 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Repository Overview
+
+This repository contains analysis code for the INCF 2025 conference poster on research transparency metrics. It processes ~6.5M biomedical research articles from PubMed Central Open Access to analyze open data/code sharing, funding sources, COI declarations, and trial registration.
+
+## Project Structure
+
+```
+osm-2025-12-poster-incf/
+├── extraction_tools/           # XML metadata extraction (Python)
+├── funder_analysis/           # Funder mapping and analysis (Python)
+├── analysis/                  # Poster analysis scripts
+├── notebooks/                 # Jupyter notebooks
+├── docs/                      # Documentation and data dictionary
+├── results/                   # Small summary files only
+└── create_compact_rtrans.py   # Main data processing script
+```
+
+## Quick Start
+
+### Setup Python Environment
+
+```bash
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# For Jupyter notebooks and interactive analysis
+pip install -r requirements-dev.txt
+```
+
+### Extract Metadata from PMC Archives
+
+```bash
+cd extraction_tools
+
+# Fast streaming extraction from tar.gz archives (recommended)
+python extract_from_tarballs.py \
+  -f parquet \
+  -o baseline_metadata.parquet \
+  /path/to/pmc/archives/
+
+# File-based extraction (slower, 229 files/sec vs 1,125 files/sec)
+python extract_xml_metadata.py /path/to/xmls/ -o output.parquet -f parquet
+```
+
+### Create Compact Analysis Dataset
+
+The main processing script combines rtransparent R package output with metadata and funder mapping:
+
+```bash
+# First run (builds cache, ~20 minutes total)
+python create_compact_rtrans.py \
+  --input-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
+  --metadata-dir ~/claude/pmcoaXMLs/extracted_metadata_parquet \
+  --output-dir ~/claude/pmcoaXMLs/compact_rtrans
+
+# Subsequent runs use cache (~8 minutes)
+python create_compact_rtrans.py \
+  --input-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
+  --metadata-dir ~/claude/pmcoaXMLs/extracted_metadata_parquet \
+  --output-dir ~/claude/pmcoaXMLs/compact_rtrans
+
+# Test with limited files
+python create_compact_rtrans.py \
+  --input-dir /path/to/rtrans \
+  --metadata-dir /path/to/metadata \
+  --output-dir /path/to/output \
+  --limit 10
+
+# Resume interrupted processing
+python create_compact_rtrans.py ... --resume
+
+# Enable verbose logging
+python create_compact_rtrans.py ... --verbose
+```
+
+### Map Funding Sources
+
+```bash
+cd funder_analysis
+
+python funder-mapping-parquet.py \
+  --input /path/to/rtrans_out_full_parquets/ \
+  --output funder_results/
+```
+
+## Data Architecture
+
+### Data Pipeline Flow
+
+1. **PMC XML Archives** → `extract_from_tarballs.py` → **Baseline Metadata** (122 columns, 18 populated)
+2. **PMC XMLs** → **rtransparent R package** → **Pattern Analysis** (120 columns, all sophisticated fields)
+3. **Baseline Metadata + Pattern Analysis** → `create_compact_rtrans.py` → **Compact Dataset** (142 columns)
+
+### Key Data Characteristics
+
+**Input Data Sources:**
+- PMC XML archives: tar.gz files from https://www.ncbi.nlm.nih.gov/pmc/tools/openftlist/
+- rtransparent output: 1,647 parquet files, 1.8 GB total
+- Metadata extracts: 25 parquet files with file_size and chars_in_body
+
+**Output Schema (142 columns):**
+- 109 short fields from rtrans (max_length ≤ 30)
+- 2 metadata fields: file_size, chars_in_body
+- 31 funder binary columns: funder_nih, funder_ec, funder_nsfc, etc.
+
+**Excluded Long Text Fields (>1000 chars max_length):**
+- coi_text, fund_text, affiliation_institution
+- fund_pmc_source, fund_pmc_institute, register_text
+
+### Data Processing Notes
+
+- **PMCID Matching:** PMCIDs are normalized (strip whitespace, ensure "PMC" prefix) before lookups
+- **Funder Matching:** Case-insensitive name search + case-sensitive acronym search across 4 funding columns
+- **Vectorized Operations:** create_compact_rtrans.py uses pandas vectorized operations for 43x speedup
+- **Memory Efficient:** Processes files individually, ~500 MB peak memory usage
+- **Caching:** 184 MB metadata cache file speeds up subsequent runs significantly
+
+## Common Workflows
+
+### Full Pipeline: Archives to Analysis-Ready Dataset
+
+```bash
+# 1. Extract baseline metadata (fast, for file_size/chars_in_body)
+cd extraction_tools
+python extract_from_tarballs.py \
+  -f parquet -o baseline_metadata.parquet \
+  /path/to/pmc/archives/
+
+# 2. Process XMLs with rtransparent R package (done on HPC)
+# See rtransparent repo for R package usage
+
+# 3. Create compact dataset with funder matching
+cd ..
+python create_compact_rtrans.py \
+  --input-dir /path/to/rtrans_out_full_parquets \
+  --metadata-dir /path/to/extracted_metadata_parquet \
+  --output-dir /path/to/compact_rtrans
+
+# 4. Run analysis
+cd analysis
+jupyter notebook
+```
+
+### Data Quality Validation
+
+```bash
+# Verify column count
+python -c "
+import pandas as pd
+df = pd.read_parquet('output.parquet')
+print(f'{len(df.columns)} columns, {len(df)} records')
+"
+
+# Check metadata coverage
+python -c "
+import pandas as pd
+df = pd.read_parquet('output.parquet')
+print(f'PMCID coverage: {df['pmcid_pmc'].notna().sum()}/{len(df)}')
+print(f'file_size: {df['file_size'].notna().sum()}/{len(df)}')
+"
+
+# Check funder matches
+python -c "
+import pandas as pd
+df = pd.read_parquet('output.parquet')
+funder_cols = [c for c in df.columns if c.startswith('funder_')]
+print(f'{len(funder_cols)} funder columns')
+print(f'{df[funder_cols].sum().sum()} total matches')
+"
+```
+
+## Performance Characteristics
+
+**Extraction Tools:**
+- Streaming extraction: ~1,125 files/sec, no disk footprint
+- File-based extraction: ~229 files/sec
+
+**create_compact_rtrans.py:**
+- Processing rate: ~5.5 files/second
+- First run: ~11 min (cache build) + ~8 min (processing) = 19 min total
+- Cached runs: ~5 sec (cache load) + ~8 min (processing) = 8 min total
+- Output: ~450 MB (vs 1.8 GB rtrans source)
+
+**Memory Requirements:**
+- Batch processing: 4-8 GB RAM
+- Single file processing: ~500 MB peak
+
+## Important Notes
+
+### Data Files
+- Never commit large data files (XMLs, parquets >10 MB, tar.gz)
+- `.gitignore` prevents accidental commits of data directories
+- Small summary CSVs/markdown files (<10 MB) are acceptable in results/
+
+### Branches
+- **main**: Stable, production-ready code for poster
+- **develop**: Active development branch
+
+### Data Dictionary
+- Complete schema documentation: `docs/data_dictionary.csv`
+- 122 columns with category, description, data_type, max_length, median_length
+- Use for field filtering and understanding data structure
+
+### Funder Database
+- 31 major biomedical funders tracked: `funder_analysis/biomedical_research_funders.csv`
+- 10 international funders (NIH, NSFC, EC, Wellcome, MRC, NHMRC, NSF, HHMI, DFG, CRUK)
+- 22 NIH institutes (NCI, NHLBI, NIMH, etc.)
+- Columns: Name, Acronym
+
+## Migration Context
+
+This repository consolidates analysis code from:
+- rtransparent repo (branch: feature/extract-XML-metadata)
+- osm repo (branch: agt-funder-matrix)
+
+Migration completed: 2025-11-24
+
+The related rtransparent R package (for XML pattern analysis) is maintained separately at:
+https://github.com/nimh-dsst/rtransparent
+
+## Documentation
+
+Key documentation files:
+- `README.md` - Project overview and quick start
+- `docs/data_dictionary.csv` - Complete data schema
+- `docs/NEXT_STEPS.md` - Remaining work and timeline
+- `docs/create_compact_rtrans.md` - Detailed script documentation
+- `docs/BENCHMARK_REPORT.md` - Performance analysis
+- `docs/TOOLS_COMPARISON.md` - Tool selection guide
+- `extraction_tools/README*.md` - Extractor documentation

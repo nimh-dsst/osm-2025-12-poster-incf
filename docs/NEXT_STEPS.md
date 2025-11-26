@@ -1,9 +1,17 @@
 # Next Steps for INCF Poster Analysis
 
-**Date:** 2025-11-24
-**Status:** Repository reorganized, ready for compact dataset creation
+**Last Updated:** 2025-11-26
+**Status:** Compact dataset created, ready for visualization development
 
-## Completed Today
+## Completed (2025-11-26)
+
+1. ✅ Created and tested `create_compact_rtrans.py`
+2. ✅ Generated compact parquet files (142 columns, ~370 MB for test dataset)
+3. ✅ Validated output schema: 109 short fields + 31 funder columns + 2 metadata fields
+4. ✅ Confirmed funder matching working correctly (vectorized, 43x speedup)
+5. ✅ Metadata enrichment complete (file_size, chars_in_body added)
+
+## Completed (2025-11-24)
 
 1. ✅ Deleted 8 obsolete populate/merge scripts that failed due to OOM
 2. ✅ Documented why the merge approach failed (95% data overlap between sources)
@@ -21,61 +29,90 @@
 
 **Solution:** Use rtrans as primary source, supplement with 2 missing fields.
 
-## Remaining Task
+## Compact Dataset Schema (142 columns)
 
-### Create `create_compact_rtrans.py`
+**Location:** `~/claude/pmcoaXMLs/compact_rtrans_test/` (test dataset with 1,647 parquet files)
 
-**Purpose:** Process rtrans files individually to create compact analysis-ready datasets
+**Key Columns for Visualization:**
+- **Identifiers:** `pmid`, `pmcid_pmc`, `doi`
+- **Year:** `year_epub` (electronic publication), `year_ppub` (print publication)
+- **Open Science Metrics:**
+  - `is_open_code`: Boolean indicating code sharing
+  - `is_open_data`: Boolean indicating data sharing
+  - `is_relevant_code`: High-confidence code sharing indicator
+  - `is_relevant_data`: High-confidence data sharing indicator
+- **Funder Columns (31 total):** `funder_nih`, `funder_ec`, `funder_nsfc`, `funder_wellcome`, `funder_mrc`, etc.
+  - Binary (0/1) indicating if article was funded by that organization
+  - Based on vectorized pattern matching in funding text fields
+- **Metadata:** `file_size`, `chars_in_body`
+- **Other Analysis Fields:** COI indicators, funding indicators, registration indicators (all boolean)
 
-**Input:** rtrans_out_full_parquets/*.parquet (1,647 files)
+**Funder Column Naming:**
+- Format: `funder_{acronym_lowercase}` (e.g., `funder_nih`, `funder_nsfc`)
+- Extract acronym by removing "funder_" prefix and converting to uppercase for display
 
-**Processing per file:**
-1. Load rtrans parquet file
-2. Look up file_size & chars_in_body from extracted_metadata by PMCID
-3. Apply funder matching algorithm (from funder-mapping-parquet.py)
-4. Filter fields: keep only those with max_length <= X (default 30)
-5. Add funder binary grid (31 columns, one per funder)
-6. Save compact parquet
+## Current Task
 
-**Output:** compact_rtrans/*.parquet
+### Adapt `funder-line-graph_v15.py` for Parquet Input
 
-**Benefits:**
-- No OOM issues (processes files individually)
-- Compact output (~20-30 fields instead of 120)
-- Ready for analysis (funders as binary grid)
-- Includes missing file_size/chars_in_body
+**Purpose:** Create line graphs showing data/code sharing rates by major funders over time
 
-### Script Requirements
+**Previous Version:** `~/claude/osm/scripts/funder-line-graph_v15.py`
+- Designed for CSV input with 31 funder boolean columns
+- Expected columns: 'year', 'is_code_pred', plus 31 funder columns (columns 1-32)
+- Generated count and percentage plots with multiple line styles
 
-**Command line arguments:**
-- `--input-dir`: rtrans_out_full_parquets directory
-- `--metadata-dir`: extracted_metadata_parquet directory
-- `--output-dir`: output directory for compact files
-- `--max-field-length`: maximum field length to include (default: 30)
-- `--funder-db`: path to biomedical_research_funders.csv (default: relative path)
+**Adaptations Needed:**
 
-**Key functions:**
-1. `load_metadata_lookup()` - Create PMCID → (file_size, chars_in_body) dict
-2. `match_funders(row, funder_db)` - Return binary array of 31 funder matches
-3. `filter_short_fields(df, max_length, data_dict)` - Keep only short fields
-4. `process_rtrans_file(file, metadata_lookup, funder_db, max_length)` - Main processing
+1. **Input Format Change:**
+   - OLD: Single CSV file
+   - NEW: Directory of parquet files (`~/claude/pmcoaXMLs/compact_rtrans_test/`)
 
-**Output schema:**
+2. **Schema Differences:**
+   - OLD: `year` column (single integer)
+   - NEW: `year_epub` and `year_ppub` columns (choose primary)
+   - OLD: `is_code_pred` boolean
+   - NEW: `is_open_code` and `is_relevant_code` booleans (choose appropriate metric)
+   - OLD: Funder columns in positions 1-31
+   - NEW: Funder columns with prefix `funder_*` (e.g., `funder_nih`, `funder_ec`)
+
+3. **Data Loading:**
+   - Read all parquet files from directory
+   - Concatenate into single DataFrame
+   - Handle potential memory constraints (142 columns × ~6.5M rows)
+
+4. **Output Requirements:**
+   - Count plot: Number of open code/data articles by funder over time
+   - Percentage plot: Percentage of funder-funded articles with open code/data (2015-2020)
+   - CSV exports: count and percentage data
+   - PNG plots: High-resolution (300 DPI) with legends
+
+**New Script Location:** `analysis/funder_data_sharing_trends.py`
+
+**Command-Line Interface:**
+```bash
+python analysis/funder_data_sharing_trends.py \
+  --input-dir ~/claude/pmcoaXMLs/compact_rtrans_test \
+  --output-prefix results/funder_data_sharing \
+  --year-column year_epub \
+  --metric is_open_code \
+  --year-range 2015 2020 \
+  --log INFO
 ```
-Short fields from rtrans (where max_length <= 30):
-- pmid, pmcid_pmc, doi (identifiers)
-- year_epub, year_ppub (publication dates)
-- Boolean fields (all sophisticated analysis fields)
-- Short text fields
 
-Added fields:
-- file_size (from metadata)
-- chars_in_body (from metadata)
+**Key Adaptations:**
+1. Replace `pd.read_csv()` with batch parquet loading
+2. Map column names: `year` → `year_epub`, `is_code_pred` → `is_open_code`
+3. Dynamically detect funder columns with `funder_*` prefix
+4. Add memory-efficient chunked processing if needed
+5. Update plot titles and labels to reflect "data sharing" or "code sharing"
+6. Optionally support both `is_open_code` and `is_open_data` metrics
 
-Funder grid (31 binary columns):
-- funder_nih, funder_nsfc, funder_ec, funder_wellcome, etc.
-- 1 = funder matched, 0 = no match
-```
+**Testing:**
+- Test on compact_rtrans_test first (smaller dataset)
+- Verify funder acronym extraction works with new naming
+- Confirm plots match expected trends
+- Validate CSV output format
 
 ## Data Dictionary Information
 
@@ -141,20 +178,29 @@ for name, acronym in zip(funders_df['Name'], funders_df['Acronym']):
 
 ## Timeline
 
-- **Now:** Create script skeleton
-- **Week of Nov 25:** Test and validate on sample
-- **Week of Dec 1:** Run full processing, begin analysis
-- **Week of Dec 8:** Finalize poster visualizations
+- ✅ **Week of Nov 25:** Created and tested create_compact_rtrans.py
+- **Week of Dec 1:** Develop visualization scripts, run on full dataset
+- **Week of Dec 2-8:** Generate poster figures and statistics
+- **Dec 9-10:** Finalize poster design
 - **Dec 11:** INCF Conference presentation
 
 ## Success Criteria
 
+### Compact Dataset Creation (✅ COMPLETE)
 1. ✅ All 1,647 rtrans files processed without OOM
 2. ✅ file_size & chars_in_body added for all records with PMCID match
 3. ✅ Funder binary grid correctly identifies 31 funders
-4. ✅ Output files have ~30-40 fields (vs 120 in rtrans)
-5. ✅ Total compact dataset size < 500 MB (vs 1.8 GB rtrans)
+4. ✅ Output files have 142 columns (109 short fields + 31 funders + 2 metadata)
+5. ✅ Total compact dataset size ~450 MB (vs 1.8 GB rtrans)
 6. ✅ Ready for pandas analysis on laptop/desktop
+
+### Visualization Development (IN PROGRESS)
+1. ⏳ Adapt funder line graph script for parquet input
+2. ⏳ Generate trends for both open code AND open data metrics
+3. ⏳ Create publication-quality figures (300 DPI, clear legends)
+4. ⏳ Export summary statistics tables (CSV format)
+5. ⏳ Validate trends match expected patterns
+6. ⏳ Test on full dataset (~6.5M articles)
 
 ## Notes
 

@@ -35,6 +35,10 @@ pip install -r requirements.txt
 pip install -r requirements-dev.txt
 ```
 
+**Important:** The compact dataset generation and analysis scripts have already been run on the full dataset (1,647 files). Results are in:
+- `~/claude/pmcoaXMLs/compact_rtrans/` - Compact parquet files (142 columns, 1.89M funder matches)
+- `results/funder_data_sharing_full_*.{csv,png}` - Full analysis outputs
+
 ### Extract Metadata from PMC Archives
 
 ```bash
@@ -52,20 +56,17 @@ python extract_xml_metadata.py /path/to/xmls/ -o output.parquet -f parquet
 
 ### Create Compact Analysis Dataset
 
-The main processing script combines rtransparent R package output with metadata and funder mapping:
+The main processing script combines rtransparent R package output with metadata and funder matching:
 
 ```bash
-# First run (builds cache, ~20 minutes total)
+# Full run (completed 2025-11-26)
+# Runtime: 21m 11s
+# Output: 1,647 files, 6.55M records, 1.89M funder matches
 python create_compact_rtrans.py \
   --input-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
   --metadata-dir ~/claude/pmcoaXMLs/extracted_metadata_parquet \
-  --output-dir ~/claude/pmcoaXMLs/compact_rtrans
-
-# Subsequent runs use cache (~8 minutes)
-python create_compact_rtrans.py \
-  --input-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
-  --metadata-dir ~/claude/pmcoaXMLs/extracted_metadata_parquet \
-  --output-dir ~/claude/pmcoaXMLs/compact_rtrans
+  --output-dir ~/claude/pmcoaXMLs/compact_rtrans \
+  --overwrite
 
 # Test with limited files
 python create_compact_rtrans.py \
@@ -73,12 +74,31 @@ python create_compact_rtrans.py \
   --metadata-dir /path/to/metadata \
   --output-dir /path/to/output \
   --limit 10
+```
 
-# Resume interrupted processing
-python create_compact_rtrans.py ... --resume
+**Critical Bug Fix (2025-11-26):** Funder matching must occur BEFORE field filtering, otherwise long funding text columns are removed before pattern search can execute.
 
-# Enable verbose logging
-python create_compact_rtrans.py ... --verbose
+### Analyze Data Sharing Trends by Funder
+
+```bash
+# Full dataset analysis (memory-efficient batch processing)
+# Runtime: ~5 minutes
+# Output: 3 CSVs + 3 PNGs (counts, totals, percentages)
+python analysis/funder_data_sharing_trends.py \
+  --input-dir ~/claude/pmcoaXMLs/compact_rtrans \
+  --output-prefix results/funder_data_sharing_full
+
+# Analyze code sharing instead of data sharing
+python analysis/funder_data_sharing_trends.py \
+  --input-dir ~/claude/pmcoaXMLs/compact_rtrans \
+  --output-prefix results/funder_code_sharing_full \
+  --metric is_open_code
+
+# Test with limited files
+python analysis/funder_data_sharing_trends.py \
+  --input-dir ~/claude/pmcoaXMLs/compact_rtrans \
+  --output-prefix results/test \
+  --limit 100
 ```
 
 ### Map Funding Sources
@@ -193,16 +213,36 @@ print(f'{df[funder_cols].sum().sum()} total matches')
 - Batch processing: 4-8 GB RAM
 - Single file processing: ~500 MB peak
 
+## Latest Results (2025-11-26)
+
+### Data Sharing Rates by Major Funder (Full Dataset)
+
+| Funder | Total Funded | With Open Data | % |
+|--------|--------------|----------------|---|
+| **HHMI (USA)** | 11,385 | 5,193 | **45.61%** |
+| **Wellcome Trust (UK)** | 74,506 | 19,935 | 26.76% |
+| **DFG (Germany)** | 78,165 | 19,700 | 25.20% |
+| **AMED (Japan)** | 19,479 | 4,713 | 24.20% |
+| **BMGF (USA)** | 13,338 | 3,145 | 23.58% |
+| **NIH (USA)** | 405,016 | 93,839 | 23.17% |
+| **EC (Europe)** | 136,313 | 31,057 | 22.78% |
+| **MRC (UK)** | 111,426 | 22,443 | 20.14% |
+| **CIHR (Canada)** | 44,401 | 7,426 | 16.72% |
+| **NSFC (China)** | 481,466 | 77,785 | 16.16% |
+
+**Key Finding:** HHMI shows significantly higher data sharing rate than other funders - requires validation to rule out artifacts.
+
 ## Important Notes
 
 ### Data Files
 - Never commit large data files (XMLs, parquets >10 MB, tar.gz)
 - `.gitignore` prevents accidental commits of data directories
 - Small summary CSVs/markdown files (<10 MB) are acceptable in results/
+- Analysis PNG files in results/ are gitignored (regenerate as needed)
 
 ### Branches
 - **main**: Stable, production-ready code for poster
-- **develop**: Active development branch
+- **develop**: Active development branch (current work)
 
 ### Data Dictionary
 - Complete schema documentation: `docs/data_dictionary.csv`

@@ -370,15 +370,16 @@ def process_rtrans_file(file_path, metadata_lookup, funders_df, max_length, data
     # Determine PMCID column
     pmcid_col = 'pmcid_pmc' if 'pmcid_pmc' in df.columns else 'pmcid'
 
-    # Step 1: Filter to short fields (but don't add metadata/funders yet)
-    df = filter_short_fields(df, max_length, data_dict, preserve_fields=[pmcid_col])
-
-    # Step 2: Add metadata fields
-    df, metadata_stats = add_metadata_fields(df, metadata_lookup, pmcid_col)
-
-    # Step 3: Apply funder matching (vectorized, much faster)
+    # Step 1: Apply funder matching FIRST (before filtering removes funding columns)
+    # This needs funding text columns: fund_text, fund_pmc_institute, fund_pmc_source, fund_pmc_anysource
     show_progress = len(df) > 2000
     df = match_funders_vectorized(df, funders_df, show_progress=show_progress)
+
+    # Step 2: Filter to short fields (now safe to remove long funding columns)
+    df = filter_short_fields(df, max_length, data_dict, preserve_fields=[pmcid_col])
+
+    # Step 3: Add metadata fields
+    df, metadata_stats = add_metadata_fields(df, metadata_lookup, pmcid_col)
 
     # Count funder columns
     funder_cols = [col for col in df.columns if col.startswith('funder_')]

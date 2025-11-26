@@ -1,9 +1,20 @@
 # Next Steps for INCF Poster Analysis
 
-**Last Updated:** 2025-11-26
-**Status:** Compact dataset created, ready for visualization development
+**Last Updated:** 2025-11-26 Evening
+**Status:** Full dataset analysis complete, HHMI finding requires validation
 
-## Completed (2025-11-26)
+## Completed (2025-11-26 Evening)
+
+1. ✅ Fixed critical bug in `create_compact_rtrans.py` - funder matching now occurs BEFORE field filtering
+2. ✅ Regenerated all 1,647 compact parquet files with correct funder matching (1.89M total matches)
+3. ✅ Created `funder_data_sharing_trends.py` with memory-efficient batch processing
+4. ✅ Analyzed full dataset (5.6M records) for data sharing trends by funder
+5. ✅ Generated 3 graphs and 3 CSVs: counts, totals, percentages (2003-2025)
+6. ✅ Validated funder match counts against Nov 24 baseline (within 10% - acceptable)
+
+**Key Finding:** HHMI shows 45.61% data sharing rate - significantly higher than other funders (16-27%)
+
+## Completed (2025-11-26 Morning)
 
 1. ✅ Created and tested `create_compact_rtrans.py`
 2. ✅ Generated compact parquet files (142 columns, ~370 MB for test dataset)

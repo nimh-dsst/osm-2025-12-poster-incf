@@ -54,6 +54,28 @@ python extract_from_tarballs.py \
 python extract_xml_metadata.py /path/to/xmls/ -o output.parquet -f parquet
 ```
 
+### Process PMC XMLs with oddpub
+
+oddpub R package detects open data and open code availability statements:
+
+```bash
+cd extraction_tools
+
+# Test run (limited files)
+python process_pmcoa_with_oddpub.py \
+  --pattern "oa_comm_xml.PMC012*.tar.gz" \
+  --batch-size 50 \
+  --max-files 20 \
+  ~/claude/pmcoaXMLs/raw_download/
+
+# Full production run (for HPC)
+python process_pmcoa_with_oddpub.py \
+  --batch-size 500 \
+  ~/claude/pmcoaXMLs/raw_download/
+```
+
+See `extraction_tools/README_ODDPUB.md` for complete documentation.
+
 ### Create Compact Analysis Dataset
 
 The main processing script combines rtransparent R package output with metadata and funder matching:
@@ -244,10 +266,20 @@ print(f'{df[funder_cols].sum().sum()} total matches')
 - **main**: Stable, production-ready code for poster
 - **develop**: Active development branch (current work)
 
-### Data Dictionary
-- Complete schema documentation: `docs/data_dictionary.csv`
-- 122 columns with category, description, data_type, max_length, median_length
-- Use for field filtering and understanding data structure
+### Data Dictionaries
+
+Complete schema documentation for all data outputs:
+
+- **rtransparent outputs**: `docs/data_dictionary_rtrans.csv`
+  - 122/142 columns for rtransparent/compact_rtrans datasets
+  - Includes COI, funding, registration, and open science fields
+
+- **oddpub outputs**: `docs/data_dictionary_oddpub.csv`
+  - 15 columns for oddpub open data/code detection
+  - Includes detection flags, categories, and extracted statements
+
+- **pmcoaXMLs directory structure**: `~/claude/pmcoaXMLs/README.md`
+  - Documentation for all input and output directories
 
 ### Funder Database
 - 31 major biomedical funders tracked: `funder_analysis/biomedical_research_funders.csv`

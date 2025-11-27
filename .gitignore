@@ -2,8 +2,12 @@
 *.tar.gz
 *.xml
 *.parquet
-*.pkl
 *.csv.gz
+
+# Cache files
+*.pkl
+*_cache.pkl
+metadata_lookup_cache.pkl
 
 # PMC Data Directories
 raw_download/

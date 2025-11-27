@@ -77,6 +77,12 @@ env/
 *.h5
 *.hdf5
 
+# Results directory - exclude large visualization files
+results/*.png
+results/*.jpg
+results/*.jpeg
+results/*.pdf
+
 # Keep small summary files
 !*_summary.csv
 !*_summary.txt

@@ -1,0 +1,16 @@
+column_name,data_type,category,description,example_value,source
+article,string,identifier,Filename of the processed article (derived from PMC ID),PMCPMC12000010.txt,process_pmcoa_with_oddpub.py
+is_open_data,boolean,detection,Boolean flag indicating if open data statement was detected,True,oddpub R package
+open_data_category,string,classification,"Categories of open data detected (comma-separated). Common values: 'general-purpose repository', 'unknown/misspecified', 'supplementary material', 'personal website'","general-purpose repository, unknown/misspecified",oddpub R package
+is_reuse,boolean,detection,Boolean flag indicating if data re-use was detected,False,oddpub R package
+is_open_code,boolean,detection,Boolean flag indicating if open code statement was detected,True,oddpub R package
+is_code_supplement,boolean,detection,Boolean flag indicating if code is available as supplementary material,False,oddpub R package
+is_code_reuse,boolean,detection,Boolean flag indicating if code re-use was detected,False,oddpub R package
+is_open_data_das,boolean,detection,Boolean flag indicating if open data was detected in Data Availability Statement (DAS),False,oddpub R package
+is_open_code_cas,boolean,detection,Boolean flag indicating if open code was detected in Code Availability Statement (CAS),False,oddpub R package
+das,float,metadata,Data Availability Statement score or identifier (currently unused by oddpub v7.2.3),NaN,oddpub R package
+open_data_statements,string,extraction,Extracted sentences or text snippets containing open data statements,"after obtaining the weight coefficients corresponding to each indicator...",oddpub R package
+cas,float,metadata,Code Availability Statement score or identifier (currently unused by oddpub v7.2.3),NaN,oddpub R package
+open_code_statements,string,extraction,Extracted sentences or text snippets containing open code statements,"for the visual analysis and data plotting several code...",oddpub R package
+pmid,string,identifier,PubMed ID extracted from XML article-meta,,"XML parsing (extract_article_id)"
+pmcid,string,identifier,PubMed Central ID extracted from XML article-meta,PMC12000010,"XML parsing (extract_article_id)"

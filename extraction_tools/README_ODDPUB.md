@@ -78,8 +78,10 @@ quit(save = "no")
 - All scripts will use the project-local packages
 
 **Troubleshooting**:
-- If `pdftools` fails to install due to system dependencies, contact HPC staff
-- On NIH HPC, system libraries for pdftools may need to be loaded: `module load poppler`
+- If `pdftools` fails to install due to system dependencies:
+  - Try installing from pre-built binary: `install.packages('pdftools', repos='https://packagemanager.posit.co/cran/latest', type='binary')`
+  - Contact HPC staff to install system libraries (poppler-cpp)
+  - Workaround: oddpub can work without pdftools (reduced functionality)
 - Check renv status: `renv::status()`
 - Rebuild packages if needed: `renv::rebuild()`
 

@@ -23,77 +23,70 @@ This directory contains scripts for processing 6.4M PMC XML files with oddpub on
 
 ## Quick Start
 
-### 1. Transfer Scripts to HPC
-
-```bash
-# From local machine
-cd osm-2025-12-poster-incf
-
-scp extraction_tools/process_pmcoa_with_oddpub.py \
-    extraction_tools/renv.lock \
-    extraction_tools/.Rprofile \
-    hpc_scripts/merge_oddpub_results.py \
-    hpc_scripts/create_oddpub_swarm.sh \
-    user@biowulf.nih.gov:/data/oddpub_scripts/
-```
-
-### 2. Setup on HPC
-
-**Using renv (recommended for reproducibility)**:
+### 1. Clone Repository on HPC
 
 ```bash
 # SSH to HPC
 ssh user@biowulf.nih.gov
 
-# Load modules (poppler needed for pdftools)
-module load python/3.9 R/4.2 poppler
+# Clone repository to /data
+cd /data
+git clone https://github.com/YOUR_ORG/osm-2025-12-poster-incf.git oddpub_scripts
+
+# Or update existing repository:
+# cd /data/oddpub_scripts && git pull
+```
+
+### 2. Setup Environment on HPC
+
+**Using uv + renv (recommended for reproducibility)**:
+
+```bash
+# Load modules
+module load python/3.9 R/4.2
 
 # Create user library directory (required on NIH HPC)
 mkdir -p /data/$USER/R/rhel8/4.2
 
-# Install Python packages
-pip install --user pandas pyarrow
-
-# Navigate to project directory
 cd /data/oddpub_scripts
 
-# Initialize renv and install R packages from renv.lock
+# Install uv (fast Python package installer)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source $HOME/.local/bin/env
+
+# Install Python packages
+uv pip install --system -r extraction_tools/requirements-hpc.txt
+
+# Initialize renv for R packages
+cd extraction_tools
 R -e "install.packages('renv', repos='https://cloud.r-project.org'); renv::init(bare=TRUE); renv::restore()"
 
-# Verify R packages
-R -e "library(oddpub); library(future); library(furrr); library(progressr); cat('All packages loaded successfully\n')"
+# Verify installations
+python3 -c "import pandas; import pyarrow; print('Python OK')"
+R -e "library(oddpub); library(future); library(furrr); library(progressr); cat('R OK\n')"
 
 # Make scripts executable
-chmod +x *.sh *.py
+cd /data/oddpub_scripts/hpc_scripts
+chmod +x *.sh
 ```
 
-**Alternative: Manual installation** (if renv fails):
+**Alternative: Manual installation** (if uv/renv unavailable):
 
 ```bash
-# Load modules
-module load python/3.9 R/4.2 poppler
-
-# Create user library directory
+module load python/3.9 R/4.2
 mkdir -p /data/$USER/R/rhel8/4.2
-
-# Install R packages manually
-R -e "install.packages(c('devtools', 'future', 'furrr', 'progressr'), repos='https://cloud.r-project.org'); devtools::install_github('quest-bih/oddpub')"
-
-# Install Python packages
 pip install --user pandas pyarrow
-
-# Make scripts executable
-cd /data/oddpub_scripts
-chmod +x *.sh *.py
+R -e "install.packages(c('devtools', 'future', 'furrr', 'progressr'), repos='https://cloud.r-project.org'); devtools::install_github('quest-bih/oddpub')"
 ```
 
 ### 3. Create Swarm File
 
 ```bash
-bash create_oddpub_swarm.sh /data/pmcoa /data/oddpub_output /data/oddpub_scripts
+cd /data/oddpub_scripts/hpc_scripts
+bash create_oddpub_swarm.sh /data/pmcoa /data/oddpub_output /data/oddpub_scripts/extraction_tools
 ```
 
-This creates `oddpub_swarm.txt` with 268 jobs (one per tar.gz file).
+This creates `oddpub_swarm.txt` with 2,346 jobs (chunked baseline files).
 
 ### 4. Submit Processing Jobs
 
@@ -101,7 +94,7 @@ This creates `oddpub_swarm.txt` with 268 jobs (one per tar.gz file).
 swarm -f oddpub_swarm.txt \
   -g 32 \
   -t 8 \
-  --time 01:00:00 \
+  --time 14:00:00 \
   --module python/3.9 R/4.2 \
   --logdir /data/oddpub_logs
 ```
@@ -114,15 +107,16 @@ jobload -u $USER
 
 # Count completed files
 ls -1 /data/oddpub_output/*.parquet | wc -l
-# Should be 268 when complete
+# Should be 2,346 when complete
 
 # Watch progress
-watch -n 30 'echo "Completed: $(ls -1 /data/oddpub_output/*.parquet 2>/dev/null | wc -l) / 268"'
+watch -n 30 'echo "Completed: $(ls -1 /data/oddpub_output/*.parquet 2>/dev/null | wc -l) / 2346"'
 ```
 
 ### 6. Merge Results
 
 ```bash
+cd /data/oddpub_scripts/hpc_scripts
 python merge_oddpub_results.py \
   /data/oddpub_output \
   /data/oddpub_results_final.parquet \

@@ -1,0 +1,6 @@
+# Python requirements for oddpub HPC processing
+# Minimal dependencies for process_pmcoa_with_oddpub.py and merge_oddpub_results.py
+# Install with: uv pip install -r requirements-hpc.txt
+
+pandas>=1.3.0
+pyarrow>=6.0.0

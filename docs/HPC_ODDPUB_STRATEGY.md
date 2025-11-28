@@ -112,80 +112,78 @@ Expected output: 2,346 parquet files → 1 combined file
 
 ### 1. Setup on HPC
 
-**One-time environment setup using renv** (recommended for reproducibility):
+**One-time environment setup** (recommended for reproducibility):
 
 ```bash
 # SSH to HPC
 ssh user@biowulf.nih.gov
 
 # Load modules
-module load python/3.9 R/4.2 poppler  # poppler needed for pdftools
+module load python/3.9 R/4.2
 
 # Create user library directory (required on NIH HPC)
 mkdir -p /data/$USER/R/rhel8/4.2
 
-# Install Python packages
-pip install --user pandas pyarrow
+# Clone or update repository
+cd /data
+git clone https://github.com/YOUR_ORG/osm-2025-12-poster-incf.git oddpub_scripts
+# Or if already cloned: cd /data/oddpub_scripts && git pull
 
-# Create project directory and transfer files
-mkdir -p /data/oddpub_scripts
-cd /data/oddpub_scripts
+cd oddpub_scripts
 
-# Transfer scripts (from local machine)
-# scp extraction_tools/{process_pmcoa_with_oddpub.py,renv.lock,.Rprofile} \
-#     hpc_scripts/{merge_oddpub_results.py,create_oddpub_swarm.sh} \
-#     user@biowulf.nih.gov:/data/oddpub_scripts/
+# Install uv (fast Python package installer)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source $HOME/.local/bin/env  # Add uv to PATH
 
-# Initialize renv environment
+# Install Python packages with uv (creates isolated environment)
+uv pip install --system -r extraction_tools/requirements-hpc.txt
+
+# Initialize renv for R packages
+cd extraction_tools
 R -e "install.packages('renv', repos='https://cloud.r-project.org'); renv::init(bare=TRUE); renv::restore()"
 
-# Verify R packages loaded correctly
-R -e "library(oddpub); library(future); library(furrr); library(progressr); cat('All packages loaded successfully\n')"
+# Verify installations
+python3 -c "import pandas; import pyarrow; print('Python packages OK')"
+R -e "library(oddpub); library(future); library(furrr); library(progressr); cat('R packages OK\n')"
 ```
 
 **What this does**:
-- `renv::init(bare=TRUE)` creates isolated project library without copying all CRAN packages
-- `renv::restore()` installs exact package versions from `renv.lock` file
-- Packages install to `/data/oddpub_scripts/renv/library/` (no root needed)
-- All subsequent R sessions auto-activate this environment via `.Rprofile`
+- **Python**: uv creates isolated environment with exact package versions
+- **R**: renv creates project-local library in `renv/library/` (no root needed)
+- All packages install to user-accessible locations
+- Subsequent sessions auto-activate via `.Rprofile` (R) and uv cache (Python)
 
-**Alternative: Manual installation (if renv fails)**:
+**On subsequent updates**:
+
+```bash
+cd /data/oddpub_scripts
+git pull
+uv pip install --system -r extraction_tools/requirements-hpc.txt
+cd extraction_tools && R -e "renv::restore()"
+```
+
+**Alternative: Manual installation (if uv/renv unavailable)**:
 
 ```bash
 # Load modules
-module load python/3.9 R/4.2 poppler
+module load python/3.9 R/4.2
 
 # Create user library directory
 mkdir -p /data/$USER/R/rhel8/4.2
 
-# Install R packages manually
-R -e "install.packages(c('devtools', 'future', 'furrr', 'progressr'), repos='https://cloud.r-project.org'); devtools::install_github('quest-bih/oddpub')"
-
 # Install Python packages
 pip install --user pandas pyarrow
+
+# Install R packages manually
+R -e "install.packages(c('devtools', 'future', 'furrr', 'progressr'), repos='https://cloud.r-project.org'); devtools::install_github('quest-bih/oddpub')"
 ```
 
-### 2. Transfer Scripts
+### 2. Create Swarm File
 
 ```bash
-# From local machine
-cd osm-2025-12-poster-incf
-
-# Transfer Python scripts, bash scripts, and renv files
-scp extraction_tools/process_pmcoa_with_oddpub.py \
-    extraction_tools/renv.lock \
-    extraction_tools/.Rprofile \
-    hpc_scripts/merge_oddpub_results.py \
-    hpc_scripts/create_oddpub_swarm.sh \
-    user@biowulf.nih.gov:/data/oddpub_scripts/
-```
-
-### 3. Create Swarm File
-
-```bash
-cd /data/oddpub_scripts
+cd /data/oddpub_scripts/hpc_scripts
 chmod +x create_oddpub_swarm.sh
-bash create_oddpub_swarm.sh /data/pmcoa /data/oddpub_output /data/oddpub_scripts
+bash create_oddpub_swarm.sh /data/pmcoa /data/oddpub_output /data/oddpub_scripts/extraction_tools
 ```
 
 Output:
@@ -199,7 +197,7 @@ Created oddpub_swarm.txt with 2346 jobs
   Single-job files: 4
 ```
 
-### 4. Submit Processing Jobs
+### 3. Submit Processing Jobs
 
 ```bash
 swarm -f oddpub_swarm.txt \
@@ -210,7 +208,7 @@ swarm -f oddpub_swarm.txt \
   --logdir /data/oddpub_logs
 ```
 
-### 5. Monitor Progress
+### 4. Monitor Progress
 
 ```bash
 # Check job status
@@ -224,15 +222,16 @@ ls -1 /data/oddpub_output/*.parquet | wc -l
 watch -n 30 'echo "Completed: $(ls -1 /data/oddpub_output/*.parquet 2>/dev/null | wc -l) / 2346"'
 ```
 
-### 6. Merge Results
+### 5. Merge Results
 
 ```bash
+cd /data/oddpub_scripts/hpc_scripts
 python merge_oddpub_results.py \
   /data/oddpub_output \
   /data/oddpub_results_final.parquet
 ```
 
-### 7. Transfer Results
+### 6. Transfer Results
 
 ```bash
 # From local machine
@@ -362,12 +361,22 @@ R -e "install.packages(c('devtools', 'future', 'furrr', 'progressr'), repos='htt
 **Issue**: pdftools installation fails
 ```
 Error: installation of package 'pdftools' had non-zero exit status
+ERROR: configuration failed for package 'pdftools'
 ```
-**Solution**: Load poppler system library:
+**Cause**: pdftools requires system libraries (poppler-cpp) that may not be available.
+
+**Solution**: Contact HPC staff to install system dependencies, or try installing from pre-built binary:
 ```bash
-module load poppler R/4.2
-cd /data/oddpub_scripts
-R -e "renv::restore()"
+cd /data/oddpub_scripts/extraction_tools
+R -e "install.packages('pdftools', repos='https://packagemanager.posit.co/cran/latest', type='binary')"
+R -e "renv::snapshot()"  # Update renv.lock with successful version
+```
+
+**Workaround**: If pdftools continues to fail, oddpub can work without it (reduced functionality):
+```bash
+# Install oddpub without pdftools dependency
+R -e "install.packages(c('stringr', 'tokenizers'), repos='https://cloud.r-project.org')"
+R -e "devtools::install_github('quest-bih/oddpub')"
 ```
 
 **Issue**: renv not activating
@@ -422,24 +431,29 @@ swarm -f oddpub_swarm.txt -g 32 -t 8 --time 18:00:00 ...
 
 ---
 
-## Files to Transfer to HPC
+## Files in Repository
 
-From `osm-2025-12-poster-incf/`:
+The following files are already in the repository (accessed via git clone/pull):
 
+**Python Scripts:**
 1. `extraction_tools/process_pmcoa_with_oddpub.py` - Main processing script (supports chunking)
-2. `extraction_tools/renv.lock` - R package version lockfile for reproducibility
-3. `extraction_tools/.Rprofile` - Auto-activates renv when R starts
-4. `hpc_scripts/merge_oddpub_results.py` - Merge results
-5. `hpc_scripts/create_oddpub_swarm.sh` - Generate swarm file with automatic chunking
+2. `extraction_tools/requirements-hpc.txt` - Python package dependencies (for uv)
+3. `hpc_scripts/merge_oddpub_results.py` - Merge chunk results
+4. `hpc_scripts/create_oddpub_swarm.sh` - Generate swarm file with automatic chunking
 
-**Transfer Command**:
+**R Configuration:**
+5. `extraction_tools/renv.lock` - R package version lockfile for reproducibility
+6. `extraction_tools/.Rprofile` - Auto-activates renv when R starts
+
+**Workflow**:
 ```bash
-scp extraction_tools/process_pmcoa_with_oddpub.py \
-    extraction_tools/renv.lock \
-    extraction_tools/.Rprofile \
-    hpc_scripts/merge_oddpub_results.py \
-    hpc_scripts/create_oddpub_swarm.sh \
-    user@biowulf.nih.gov:/data/oddpub_scripts/
+# On HPC
+cd /data
+git clone https://github.com/YOUR_ORG/osm-2025-12-poster-incf.git oddpub_scripts
+
+# Or update existing:
+cd /data/oddpub_scripts
+git pull
 ```
 
 ---

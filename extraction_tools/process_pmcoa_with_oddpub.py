@@ -200,9 +200,9 @@ cat("Complete!\\n")
     try:
         logger.info(f"Running oddpub R script on {len(list(text_dir.glob('*.txt')))} files")
 
-        # Run R script (use full path to Rscript)
+        # Run R script (Rscript is in PATH in both container and native environments)
         result = subprocess.run(
-            ['/usr/bin/Rscript', str(r_script_path)],
+            ['Rscript', str(r_script_path)],
             capture_output=True,
             text=True,
             timeout=600  # 10 minute timeout

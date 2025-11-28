@@ -75,6 +75,15 @@ env/
 .Ruserdata
 *.Rproj
 
+# renv (R package manager)
+# Ignore the library directory (contains installed packages)
+renv/library/
+renv/staging/
+renv/local/
+# Keep renv.lock and .Rprofile for reproducibility
+!renv.lock
+!.Rprofile
+
 # Large result files (except small summaries)
 *_results/
 *_output/

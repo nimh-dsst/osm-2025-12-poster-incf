@@ -30,6 +30,8 @@ This directory contains scripts for processing 6.4M PMC XML files with oddpub on
 cd osm-2025-12-poster-incf
 
 scp extraction_tools/process_pmcoa_with_oddpub.py \
+    extraction_tools/renv.lock \
+    extraction_tools/.Rprofile \
     hpc_scripts/merge_oddpub_results.py \
     hpc_scripts/create_oddpub_swarm.sh \
     user@biowulf.nih.gov:/data/oddpub_scripts/
@@ -37,15 +39,45 @@ scp extraction_tools/process_pmcoa_with_oddpub.py \
 
 ### 2. Setup on HPC
 
+**Using renv (recommended for reproducibility)**:
+
 ```bash
 # SSH to HPC
 ssh user@biowulf.nih.gov
 
-# Load modules
-module load python/3.9 R/4.2
+# Load modules (poppler needed for pdftools)
+module load python/3.9 R/4.2 poppler
 
-# Install R packages (one-time)
-R -e "install.packages(c('oddpub', 'future', 'furrr', 'progressr'), repos='https://cloud.r-project.org')"
+# Create user library directory (required on NIH HPC)
+mkdir -p /data/$USER/R/rhel8/4.2
+
+# Install Python packages
+pip install --user pandas pyarrow
+
+# Navigate to project directory
+cd /data/oddpub_scripts
+
+# Initialize renv and install R packages from renv.lock
+R -e "install.packages('renv', repos='https://cloud.r-project.org'); renv::init(bare=TRUE); renv::restore()"
+
+# Verify R packages
+R -e "library(oddpub); library(future); library(furrr); library(progressr); cat('All packages loaded successfully\n')"
+
+# Make scripts executable
+chmod +x *.sh *.py
+```
+
+**Alternative: Manual installation** (if renv fails):
+
+```bash
+# Load modules
+module load python/3.9 R/4.2 poppler
+
+# Create user library directory
+mkdir -p /data/$USER/R/rhel8/4.2
+
+# Install R packages manually
+R -e "install.packages(c('devtools', 'future', 'furrr', 'progressr'), repos='https://cloud.r-project.org'); devtools::install_github('quest-bih/oddpub')"
 
 # Install Python packages
 pip install --user pandas pyarrow

@@ -22,16 +22,76 @@ This script processes PMC Open Access XML files with the oddpub R package to det
 pip install pandas pyarrow
 ```
 
-### R Dependencies
+### R Dependencies (Using renv for HPC)
 
-The oddpub R package must be installed and available:
+This project uses `renv` for reproducible R package management, which is essential for HPC environments where you don't have root access. The `renv.lock` file specifies all required packages and versions.
+
+**Initial Setup on HPC (One-Time)**:
+
+```bash
+# 1. SSH to HPC and load R module
+ssh user@biowulf.nih.gov
+module load R/4.2
+
+# 2. Create user library directory (required on NIH HPC)
+mkdir -p /data/$USER/R/rhel8/4.2
+
+# 3. Navigate to project directory
+cd /data/oddpub_scripts
+
+# 4. Start R and initialize renv
+R
+```
+
+**In R console**:
 
 ```r
-# Install oddpub
-devtools::install_github("quest-bih/oddpub")
+# Install renv (only needed once per R version)
+install.packages("renv", repos = "https://cloud.r-project.org")
 
-# Install supporting packages
-install.packages(c("future", "furrr", "progressr"))
+# Initialize renv for this project (creates renv/ directory)
+renv::init(bare = TRUE)
+
+# Restore packages from renv.lock
+# This installs all required packages to a project-local library
+renv::restore()
+
+# Verify installation
+library(oddpub)  # Should load without errors
+library(future)
+library(furrr)
+library(progressr)
+
+# Exit R
+quit(save = "no")
+```
+
+**What renv does**:
+- Creates isolated, project-specific R library in `renv/library/`
+- Installs packages without needing root/admin access
+- Ensures all users get identical package versions
+- Packages are cached globally but linked per-project
+
+**For subsequent sessions**:
+- renv activates automatically when you start R in the project directory
+- No manual activation needed
+- All scripts will use the project-local packages
+
+**Troubleshooting**:
+- If `pdftools` fails to install due to system dependencies, contact HPC staff
+- On NIH HPC, system libraries for pdftools may need to be loaded: `module load poppler`
+- Check renv status: `renv::status()`
+- Rebuild packages if needed: `renv::rebuild()`
+
+**Alternative: Manual Installation (Not Recommended)**
+
+If you cannot use renv, you can install packages manually:
+
+```r
+# Install to user library
+install.packages(c("devtools", "future", "furrr", "progressr"),
+                 repos = "https://cloud.r-project.org")
+devtools::install_github("quest-bih/oddpub")
 ```
 
 ## Usage

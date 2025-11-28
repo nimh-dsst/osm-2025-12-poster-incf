@@ -1,0 +1,74 @@
+Bootstrap: docker
+From: rocker/r-ver:4.2.0
+
+%labels
+    Author adam.thomas@nih.gov
+    Version 1.0
+    Description Container for oddpub processing of PMC XMLs on NIH HPC
+
+%help
+    This container provides a complete environment for processing PMC XML files
+    with the oddpub R package. It includes all system dependencies, R packages,
+    and Python tools needed for the workflow.
+
+    Usage:
+        apptainer exec oddpub.sif python3 /scripts/process_pmcoa_with_oddpub.py <args>
+        apptainer exec oddpub.sif python3 /scripts/merge_oddpub_results.py <args>
+
+%files
+    # Copy scripts into container
+    ../extraction_tools/process_pmcoa_with_oddpub.py /scripts/
+    ../hpc_scripts/merge_oddpub_results.py /scripts/
+    ../extraction_tools/requirements-hpc.txt /tmp/
+
+%post
+    # Set locale
+    export DEBIAN_FRONTEND=noninteractive
+    export LC_ALL=C.UTF-8
+    export LANG=C.UTF-8
+
+    # Update and install system dependencies
+    apt-get update && apt-get install -y \
+        python3-pip \
+        python3-dev \
+        libicu-dev \
+        libxml2-dev \
+        libssl-dev \
+        libcurl4-openssl-dev \
+        libpoppler-cpp-dev \
+        pkg-config \
+        git \
+        wget \
+        && rm -rf /var/lib/apt/lists/*
+
+    # Install Python packages
+    pip3 install --no-cache-dir \
+        pandas>=1.3.0 \
+        pyarrow>=6.0.0
+
+    # Install R packages
+    R --slave -e "install.packages(c('remotes', 'future', 'furrr', 'progressr'), repos='https://cloud.r-project.org')"
+    R --slave -e "remotes::install_github('quest-bih/oddpub@v7.2.3')"
+
+    # Verify installations
+    echo "Verifying Python packages..."
+    python3 -c "import pandas; import pyarrow; print('Python packages OK')"
+
+    echo "Verifying R packages..."
+    R --slave -e "library(oddpub); library(future); library(furrr); library(progressr); cat('R packages OK\n')"
+
+    # Make scripts executable
+    chmod +x /scripts/*.py
+
+    echo "Container build complete!"
+
+%environment
+    export LC_ALL=C.UTF-8
+    export LANG=C.UTF-8
+    export PATH=/usr/local/bin:/usr/bin:/bin:$PATH
+    export PYTHONPATH=/usr/local/lib/python3.9/site-packages:$PYTHONPATH
+
+%runscript
+    echo "oddpub container for PMC XML processing"
+    echo "Usage: apptainer exec oddpub.sif python3 /scripts/process_pmcoa_with_oddpub.py <args>"
+    exec "$@"

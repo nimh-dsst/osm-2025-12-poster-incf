@@ -140,7 +140,7 @@ uv pip install --system -r extraction_tools/requirements-hpc.txt
 
 # Initialize renv for R packages
 cd extraction_tools
-R -e "install.packages('renv', repos='https://cloud.r-project.org'); renv::init(bare=TRUE); renv::restore()"
+R -e "install.packages('renv', repos='https://cloud.r-project.org'); renv::init(bare=TRUE); options(repos = c(CRAN = 'https://packagemanager.posit.co/cran/__linux__/centos7/latest'), pkgType = 'binary'); renv::restore()"
 
 # Verify installations
 python3 -c "import pandas; import pyarrow; print('Python packages OK')"

@@ -84,6 +84,14 @@ renv/local/
 !renv.lock
 !.Rprofile
 
+# Apptainer/Singularity containers
+*.sif
+*.simg
+apptainer_cache/
+singularity_cache/
+# Keep definition files
+!*.def
+
 # Large result files (except small summaries)
 *_results/
 *_output/

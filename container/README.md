@@ -148,6 +148,11 @@ scp oddpub_v2.sif user@biowulf.nih.gov:/data/$USER/containers/
 
 ## Troubleshooting
 
+**Python type hint error "type object is not subscriptable"**:
+- Fixed in latest version (2025-11-28)
+- Container uses Python 3.9 which requires `Tuple[...]` instead of `tuple[...]`
+- Rebuild container to get the fix
+
 **Build fails with "permission denied"**:
 - You need root/sudo access to build
 - Use Option 2 (cloud VM) or Option 3 (remote build)

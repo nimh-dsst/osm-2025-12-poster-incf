@@ -19,7 +19,7 @@ import sys
 import tarfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 import pandas as pd
 import subprocess
 import tempfile
@@ -89,7 +89,7 @@ def extract_article_id(root: ET.Element, pub_id_type: str) -> str:
     return ''
 
 
-def extract_body_text_from_xml(xml_data: bytes, source_name: str) -> tuple[str, str, str]:
+def extract_body_text_from_xml(xml_data: bytes, source_name: str) -> Tuple[str, str, str]:
     """
     Extract body text from PMC XML.
 

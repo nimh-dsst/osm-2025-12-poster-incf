@@ -251,6 +251,11 @@ scp oddpub_v2.sif user@biowulf.nih.gov:/data/$USER/containers/
 - Rebuild container (packages are baked in at build time)
 - Cannot install packages at runtime in read-only container
 
+**Error: "type object is not subscriptable"**
+- Fixed in latest version (2025-11-28)
+- Was caused by Python 3.10+ type hints in Python 3.9 container
+- Pull latest code and rebuild container
+
 ### Job Failures
 
 Check logs for errors:

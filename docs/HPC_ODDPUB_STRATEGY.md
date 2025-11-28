@@ -1,296 +1,82 @@
-# HPC Strategy for oddpub Processing of 6.4M XMLs
+# HPC Strategy for oddpub Processing of 6.4M XMLs (REVISED)
 
-**Date**: 2025-11-27
+**Date**: 2025-11-27 (Revised - avoids flat directory extraction)
 **Target**: Process 6.4M PMC XML files with oddpub on NIH HPC
 **HPC System**: SLURM with swarm wrapper
 
+## Executive Summary
+
+**Recommended Approach**: Process each tar.gz file in parallel (268 jobs)
+**Wall Time**: ~15-20 minutes with 268 nodes
+**CPU Time**: ~65 CPU-hours total
+
 ## Strategy Overview
 
-Since the HPC system has no disk space constraints and abundant compute resources, we'll use a **parallel batch processing** approach rather than sequential streaming processing.
+Process each tar.gz archive file directly using the existing `process_pmcoa_with_oddpub.py` script, avoiding the filesystem performance issues that would result from extracting 6.4M files to a flat directory structure.
 
-### Key Advantages
+### Why This Approach?
 
-1. **Maximum Parallelization**: 6,400 jobs vs 268 sequential tar.gz processing
-2. **Better Load Balancing**: Uniform batch sizes (~1,000 XMLs each)
-3. **Fault Tolerance**: Failed jobs can be rerun independently
-4. **Optimal Resource Usage**: Leverages HPC's compute capacity
+**Problem with flat extraction**:
+- Extracting 6.4M files to a single directory causes severe filesystem degradation
+- Directory operations (ls, find, glob) become extremely slow or timeout
+- File creation overhead increases dramatically with directory size
+- Inode table fragmentation and metadata overhead
 
-### Estimated Performance
+**Solution - Process tar.gz files directly**:
+-Uses streaming extraction (memory only, no disk writes)
+- Leverages validated `process_pmcoa_with_oddpub.py` script
+- 268-way parallelization is excellent for HPC
+- Simple two-phase workflow
 
-| Approach | Jobs | Parallelization | Wall Time | CPU Time |
-|----------|------|-----------------|-----------|----------|
-| **Sequential (streaming)** | 1 | None | 65 hours | 65 hours |
-| **Parallel by tar.gz** | 268 | 268x | ~15 min | 65 hours |
-| **Parallel by batch (recommended)** | 6,400 | 6400x | ~6 min | 640 hours |
+### Performance Comparison
 
-With sufficient nodes, parallel batch processing completes in **~6 minutes wall time**.
+| Approach | Jobs | Wall Time | Filesystem Impact |
+|----------|------|-----------|-------------------|
+| Sequential | 1 | 65 hours | None |
+| **Parallel tar.gz (recommended)** | **268** | **15-20 min** | **None** |
+| ~~Extract + batch~~ | ~~6,400~~ | ~~Unknown~~ | ~~Severe~~ |
 
-## Four-Phase Workflow
+## Two-Phase Workflow
 
-### Phase 1: Extract tar.gz Archives (One-Time)
+### Phase 1: Process tar.gz Files (Parallel)
 
-Extract all PMC tar.gz files to a working directory on HPC.
-
-**Approach A: Parallel Extraction with swarm**
-```bash
-# Create extraction swarm file
-ls /data/pmcoa/*.tar.gz | while read tarfile; do
-  basename="${tarfile%.tar.gz}"
-  echo "tar -xzf $tarfile -C /scratch/pmcoa_extracted/"
-done > extract_swarm.txt
-
-# Run extraction swarm (268 jobs, ~5 min wall time)
-swarm -f extract_swarm.txt -g 4 -t 4 --time 00:30:00 --module none
-```
-
-**Approach B: Single Job Extraction**
-```bash
-#!/bin/bash
-#SBATCH --time=02:00:00
-#SBATCH --cpus-per-task=8
-#SBATCH --mem=16G
-
-cd /data/pmcoa
-for tarfile in *.tar.gz; do
-  tar -xzf "$tarfile" -C /scratch/pmcoa_extracted/
-done
-```
-
-**Storage Requirements**: ~100-150 GB for 6.4M XMLs (uncompressed from ~140 GB compressed)
-
----
-
-### Phase 2: Create Batch Manifest
-
-Generate a manifest file listing all XMLs and split into batches.
-
-**Script**: `create_batch_manifest.py`
-
-```python
-#!/usr/bin/env python3
-"""Create batch manifest for oddpub processing."""
-
-import os
-import sys
-from pathlib import Path
-
-# Configuration
-XML_DIR = "/scratch/pmcoa_extracted"
-BATCH_SIZE = 1000
-OUTPUT_DIR = "/data/oddpub_batches"
-
-def main():
-    # Find all XML files
-    xml_files = sorted(Path(XML_DIR).rglob("*.xml"))
-    total_files = len(xml_files)
-    num_batches = (total_files + BATCH_SIZE - 1) // BATCH_SIZE
-
-    print(f"Found {total_files:,} XML files")
-    print(f"Creating {num_batches:,} batches of {BATCH_SIZE} files")
-
-    # Create output directory
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-    # Write batch manifest files
-    for batch_idx in range(num_batches):
-        start_idx = batch_idx * BATCH_SIZE
-        end_idx = min((batch_idx + 1) * BATCH_SIZE, total_files)
-        batch_files = xml_files[start_idx:end_idx]
-
-        manifest_file = f"{OUTPUT_DIR}/batch_{batch_idx:05d}.txt"
-        with open(manifest_file, 'w') as f:
-            for xml_file in batch_files:
-                f.write(f"{xml_file}\n")
-
-        if (batch_idx + 1) % 100 == 0:
-            print(f"Created {batch_idx + 1:,} batch manifests...")
-
-    print(f"\nDone! Created {num_batches:,} batch manifest files in {OUTPUT_DIR}")
-    print(f"Each batch file lists {BATCH_SIZE} XML files to process")
-
-if __name__ == "__main__":
-    main()
-```
-
-**Run**:
-```bash
-python create_batch_manifest.py
-# Creates: /data/oddpub_batches/batch_00000.txt through batch_06399.txt
-```
-
----
-
-### Phase 3: Process Batches with oddpub (Parallel)
-
-Process each batch in parallel using swarm.
-
-**Script**: `process_oddpub_batch.py`
-
-```python
-#!/usr/bin/env python3
-"""Process a single batch of XMLs with oddpub."""
-
-import sys
-import os
-import tempfile
-import subprocess
-from pathlib import Path
-import pandas as pd
-import xml.etree.ElementTree as ET
-
-def extract_article_id(root, id_type):
-    """Extract article ID from XML."""
-    for article_id in root.findall(".//article-meta/article-id"):
-        if article_id.get("pub-id-type") == id_type:
-            return article_id.text
-    return ""
-
-def extract_body_text(xml_file):
-    """Extract body text and IDs from XML file."""
-    try:
-        tree = ET.parse(xml_file)
-        root = tree.getroot()
-
-        pmid = extract_article_id(root, 'pmid')
-        pmcid = extract_article_id(root, 'pmc')
-
-        body = root.find(".//body")
-        if body is not None:
-            body_text = ' '.join(body.itertext())
-        else:
-            body_text = ''
-
-        return pmid, pmcid, body_text
-    except Exception as e:
-        return '', '', ''
-
-def run_oddpub(text_dir, output_file):
-    """Run oddpub R package on text files."""
-    r_script = f"""
-library(oddpub)
-library(future)
-library(progressr)
-
-plan(multisession, workers = 4)
-handlers(global = TRUE)
-
-text_corpus <- pdf_load("{text_dir}", lowercase = TRUE)
-results <- open_data_search(text_corpus, extract_sentences = TRUE, screen_das = "priority")
-write.csv(results, "{output_file}", row.names = FALSE)
-"""
-
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.R', delete=False) as f:
-        f.write(r_script)
-        r_script_path = f.name
-
-    try:
-        result = subprocess.run(
-            ['/usr/bin/Rscript', r_script_path],
-            capture_output=True,
-            text=True,
-            timeout=600
-        )
-
-        if result.returncode != 0:
-            raise RuntimeError(f"R script failed: {result.stderr}")
-
-        return True
-    finally:
-        os.unlink(r_script_path)
-
-def main(batch_file, output_file):
-    """Process a batch of XML files with oddpub."""
-
-    # Read batch manifest
-    with open(batch_file) as f:
-        xml_files = [line.strip() for line in f if line.strip()]
-
-    print(f"Processing {len(xml_files)} XML files from {batch_file}")
-
-    # Create temporary directory for text files
-    with tempfile.TemporaryDirectory() as temp_dir:
-        # Extract body text from XMLs
-        records = []
-        for xml_file in xml_files:
-            pmid, pmcid, body_text = extract_body_text(xml_file)
-
-            # Write text file for oddpub
-            filename = Path(xml_file).stem
-            text_file = Path(temp_dir) / f"{filename}.txt"
-            with open(text_file, 'w') as f:
-                f.write(body_text)
-
-            records.append({
-                'filename': filename,
-                'pmid': pmid,
-                'pmcid': pmcid
-            })
-
-        # Run oddpub
-        oddpub_csv = Path(temp_dir) / 'oddpub_results.csv'
-        run_oddpub(temp_dir, oddpub_csv)
-
-        # Load oddpub results
-        oddpub_df = pd.read_csv(oddpub_csv)
-
-        # Merge with PMIDs
-        records_df = pd.DataFrame(records)
-
-        # Clean article column for matching
-        oddpub_df['filename'] = oddpub_df['article'].str.replace('.txt$', '', regex=True)
-
-        # Merge
-        results = oddpub_df.merge(records_df, on='filename', how='left')
-
-        # Drop duplicate filename column
-        results = results.drop(columns=['filename'])
-
-        # Save to parquet
-        results.to_parquet(output_file, index=False)
-
-    print(f"Saved {len(results)} results to {output_file}")
-
-if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: process_oddpub_batch.py <batch_file> <output_file>")
-        sys.exit(1)
-
-    batch_file = sys.argv[1]
-    output_file = sys.argv[2]
-
-    main(batch_file, output_file)
-```
+Process each tar.gz archive in parallel using SLURM swarm.
 
 **Create Swarm File**:
 ```bash
 #!/bin/bash
-# create_swarm.sh
+# create_oddpub_swarm.sh
 
-BATCH_DIR="/data/oddpub_batches"
+TAR_DIR="/data/pmcoa"
 OUTPUT_DIR="/data/oddpub_output"
 
 mkdir -p "$OUTPUT_DIR"
 
-# Create swarm file
-for batch_file in "$BATCH_DIR"/batch_*.txt; do
-  batch_name=$(basename "$batch_file" .txt)
-  output_file="$OUTPUT_DIR/${batch_name}_results.parquet"
-  echo "python process_oddpub_batch.py $batch_file $output_file"
+# Create swarm file - one job per tar.gz
+for tarfile in "$TAR_DIR"/*.tar.gz; do
+  basename=$(basename "$tarfile" .tar.gz)
+  output_file="$OUTPUT_DIR/${basename}_results.parquet"
+
+  # Use existing process_pmcoa_with_oddpub.py script
+  echo "python /data/oddpub_scripts/process_pmcoa_with_oddpub.py --batch-size 500 --output-file $output_file $tarfile"
 done > oddpub_swarm.txt
 
 echo "Created oddpub_swarm.txt with $(wc -l < oddpub_swarm.txt) jobs"
 ```
 
-**Submit Swarm**:
+**Submit Swarm Job**:
 ```bash
-# Create swarm file
-bash create_swarm.sh
+# Transfer script to HPC first
+scp ../extraction_tools/process_pmcoa_with_oddpub.py user@biowulf.nih.gov:/data/oddpub_scripts/
 
-# Submit swarm job
+# Create swarm file
+bash create_oddpub_swarm.sh
+
+# Submit to SLURM
 swarm -f oddpub_swarm.txt \
-  -g 16 \
-  -t 4 \
-  --time 00:30:00 \
+  -g 32 \
+  -t 8 \
+  --time 01:00:00 \
   --module python/3.9 R/4.2 \
   --logdir /data/oddpub_logs
 
@@ -299,138 +85,158 @@ jobload -u $USER
 ```
 
 **Resource Requirements per Job**:
-- Memory: 16 GB (`-g 16`)
-- CPUs: 4 threads (`-t 4`)
-- Time: 30 minutes per batch
-- 6,400 jobs × 4 threads = 25,600 CPU-hours total
+- Memory: 32 GB (`-g 32`)
+- CPUs: 8 threads (`-t 8`)
+- Time: 1 hour max (typically 15-20 min)
+- Total: 268 jobs
 
----
+### Phase 2: Merge Results
 
-### Phase 4: Merge Results
+Combine all tar.gz results into a single parquet file.
 
-Combine all batch results into a single file.
-
-**Script**: `merge_oddpub_results.py`
-
-```python
-#!/usr/bin/env python3
-"""Merge oddpub batch results into single parquet file."""
-
-import pandas as pd
-from pathlib import Path
-import sys
-
-def main(input_dir, output_file):
-    """Merge all parquet files in directory."""
-
-    parquet_files = sorted(Path(input_dir).glob("batch_*_results.parquet"))
-
-    print(f"Found {len(parquet_files)} result files")
-
-    # Read and concatenate
-    dfs = []
-    for i, pf in enumerate(parquet_files):
-        df = pd.read_parquet(pf)
-        dfs.append(df)
-
-        if (i + 1) % 100 == 0:
-            print(f"Loaded {i + 1:,} files...")
-
-    # Concatenate all
-    print("Concatenating all results...")
-    combined = pd.concat(dfs, ignore_index=True)
-
-    print(f"Total records: {len(combined):,}")
-    print(f"Columns: {list(combined.columns)}")
-
-    # Save
-    print(f"Saving to {output_file}...")
-    combined.to_parquet(output_file, index=False)
-
-    # Summary stats
-    print("\nSummary:")
-    print(f"  Total articles: {len(combined):,}")
-    print(f"  Open data detected: {combined['is_open_data'].sum():,} ({100*combined['is_open_data'].mean():.2f}%)")
-    print(f"  Open code detected: {combined['is_open_code'].sum():,} ({100*combined['is_open_code'].mean():.2f}%)")
-    print(f"  Output file: {output_file}")
-    print(f"  File size: {Path(output_file).stat().st_size / 1024**2:.1f} MB")
-
-if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: merge_oddpub_results.py <input_dir> <output_file>")
-        sys.exit(1)
-
-    input_dir = sys.argv[1]
-    output_file = sys.argv[2]
-
-    main(input_dir, output_file)
-```
-
-**Run**:
+**Merge Script**:
 ```bash
-python merge_oddpub_results.py /data/oddpub_output /data/oddpub_results_final.parquet
+python /data/oddpub_scripts/merge_oddpub_results.py \
+  /data/oddpub_output \
+  /data/oddpub_results_final.parquet \
+  --check-missing
 ```
+
+This uses the existing `hpc_scripts/merge_oddpub_results.py` script.
 
 ---
 
-## Complete Workflow Summary
+## Complete Workflow
+
+### 1. Setup on HPC
 
 ```bash
-# Phase 1: Extract tar.gz files (one-time, ~5 minutes wall time)
-ls /data/pmcoa/*.tar.gz | \
-  sed 's|.*|tar -xzf & -C /scratch/pmcoa_extracted/|' > extract_swarm.txt
-swarm -f extract_swarm.txt -g 4 -t 4 --time 00:30:00
+# SSH to HPC
+ssh user@biowulf.nih.gov
 
-# Phase 2: Create batch manifests (~1 minute)
-python create_batch_manifest.py
+# Load modules
+module load python/3.9 R/4.2
 
-# Phase 3: Process batches with oddpub (~6 minutes wall time with full parallelization)
-bash create_swarm.sh
-swarm -f oddpub_swarm.txt -g 16 -t 4 --time 00:30:00 \
-  --module python/3.9 R/4.2 --logdir /data/oddpub_logs
+# Install R packages (one-time)
+R -e "install.packages(c('oddpub', 'future', 'furrr', 'progressr'), repos='https://cloud.r-project.org')"
 
-# Phase 4: Merge results (~5 minutes)
-python merge_oddpub_results.py /data/oddpub_output /data/oddpub_results_final.parquet
+# Install Python packages
+pip install --user pandas pyarrow
 ```
 
-**Total Wall Time**: ~15-20 minutes (with sufficient compute nodes)
+### 2. Transfer Scripts
+
+```bash
+# From local machine
+scp extraction_tools/process_pmcoa_with_oddpub.py user@biowulf.nih.gov:/data/oddpub_scripts/
+scp hpc_scripts/merge_oddpub_results.py user@biowulf.nih.gov:/data/oddpub_scripts/
+scp hpc_scripts/create_oddpub_swarm.sh user@biowulf.nih.gov:/data/oddpub_scripts/
+```
+
+### 3. Create Swarm File
+
+```bash
+cd /data/oddpub_scripts
+chmod +x create_oddpub_swarm.sh
+bash create_oddpub_swarm.sh
+```
+
+### 4. Submit Processing Jobs
+
+```bash
+swarm -f oddpub_swarm.txt \
+  -g 32 \
+  -t 8 \
+  --time 01:00:00 \
+  --module python/3.9 R/4.2 \
+  --logdir /data/oddpub_logs
+```
+
+### 5. Monitor Progress
+
+```bash
+# Check job status
+jobload -u $USER
+
+# Count completed files
+ls -1 /data/oddpub_output/*.parquet | wc -l
+# Should be 268 when complete
+
+# Watch progress
+watch -n 30 'ls -1 /data/oddpub_output/*.parquet | wc -l'
+```
+
+### 6. Merge Results
+
+```bash
+python merge_oddpub_results.py \
+  /data/oddpub_output \
+  /data/oddpub_results_final.parquet \
+  --check-missing
+```
+
+### 7. Transfer Results
+
+```bash
+# From local machine
+scp user@biowulf.nih.gov:/data/oddpub_results_final.parquet ~/
+```
 
 ---
 
-## Fault Tolerance & Monitoring
+## Fault Tolerance
 
 ### Check for Failed Jobs
 
 ```bash
-# Check swarm job status
-jobload -u $USER
+# Expected: 268 files
+expected=268
+completed=$(ls -1 /data/oddpub_output/*.parquet 2>/dev/null | wc -l)
 
-# Find failed batches
-find /data/oddpub_output -name "batch_*_results.parquet" | wc -l
-# Should be 6400 if all succeeded
+echo "Progress: $completed / $expected"
 
-# Identify missing batches
-comm -23 \
-  <(seq -f "batch_%05g_results.parquet" 0 6399 | sort) \
-  <(ls /data/oddpub_output/*.parquet | xargs -n1 basename | sort) \
-  > missing_batches.txt
+if [ "$completed" -lt "$expected" ]; then
+  echo "Missing $((expected - completed)) files"
+fi
+```
+
+### Identify Missing tar.gz Files
+
+```bash
+# Create list of expected output files
+cd /data/pmcoa
+for f in *.tar.gz; do
+  basename="${f%.tar.gz}_results.parquet"
+  echo "$basename"
+done | sort > expected_files.txt
+
+# Create list of actual output files
+cd /data/oddpub_output
+ls -1 *.parquet | sort > actual_files.txt
+
+# Find missing
+comm -23 expected_files.txt actual_files.txt > missing_files.txt
+
+cat missing_files.txt
 ```
 
 ### Rerun Failed Jobs
 
 ```bash
-# Create swarm file for only failed jobs
-while read batch; do
-  batch_num="${batch#batch_}"
-  batch_num="${batch_num%_results.parquet}"
-  batch_file="/data/oddpub_batches/batch_${batch_num}.txt"
-  output_file="/data/oddpub_output/batch_${batch_num}_results.parquet"
-  echo "python process_oddpub_batch.py $batch_file $output_file"
-done < missing_batches.txt > oddpub_retry_swarm.txt
+# Create retry swarm file
+> oddpub_retry_swarm.txt
 
-# Resubmit failed jobs
-swarm -f oddpub_retry_swarm.txt -g 16 -t 4 --time 00:30:00 \
-  --module python/3.9 R/4.2 --logdir /data/oddpub_logs
+while read missing_file; do
+  tarfile="${missing_file%_results.parquet}.tar.gz"
+  output_file="/data/oddpub_output/$missing_file"
+  echo "python /data/oddpub_scripts/process_pmcoa_with_oddpub.py --batch-size 500 --output-file $output_file /data/pmcoa/$tarfile"
+done < missing_files.txt > oddpub_retry_swarm.txt
+
+# Submit retry jobs
+swarm -f oddpub_retry_swarm.txt \
+  -g 32 -t 8 --time 01:00:00 \
+  --module python/3.9 R/4.2 \
+  --logdir /data/oddpub_logs
 ```
 
 ---
@@ -439,74 +245,56 @@ swarm -f oddpub_retry_swarm.txt -g 16 -t 4 --time 00:30:00 \
 
 ### Total Resource Requirements
 
-| Resource | Per Job | Total (6,400 jobs) |
-|----------|---------|-------------------|
-| CPU threads | 4 | 25,600 CPU-hours |
-| Memory | 16 GB | 102,400 GB-hours |
-| Disk (temp) | 50 MB | 320 GB peak |
-| Wall time | 6 min | With 1,000 nodes |
+| Resource | Per Job | Total (268 jobs) |
+|----------|---------|------------------|
+| CPU threads | 8 | 2,144 CPU-hours |
+| Memory | 32 GB | 8,576 GB-hours |
+| Disk (temp) | 100 MB | 26.8 GB peak |
+| Wall time | 15-20 min | With 268 nodes |
 
-### Cost Estimation (NIH HPC)
+### Disk Space
 
-NIH HPC Biowulf is free for NIH users. No cost concerns.
+**Temporary** (during processing):
+- oddpub temp files: ~26 GB peak (auto-cleanup)
+
+**Final Output**:
+- Individual parquet files: ~10-20 MB each × 268 = ~3-5 GB
+- Merged parquet file: ~50-100 MB (compressed)
 
 ---
 
 ## Optimization Options
 
-### Option 1: Smaller Batches for Faster Turnaround
-- Batch size: 500 XMLs
-- Jobs: 12,800
-- Wall time: ~3 minutes (with sufficient nodes)
-- Better fault tolerance
+### Faster Individual Jobs
 
-### Option 2: Larger Batches for Fewer Jobs
-- Batch size: 2,000 XMLs
-- Jobs: 3,200
-- Wall time: ~12 minutes per job
-- Less scheduler overhead
-
-### Option 3: Adaptive Batch Sizing
-- Small batches for large tar.gz files
-- Large batches for small tar.gz files
-- Balanced job completion times
-
-**Recommendation**: Use 1,000 XML batch size (6,400 jobs) for good balance.
-
----
-
-## Alternative: Process by tar.gz File
-
-If extraction is undesirable, process each tar.gz file in parallel:
-
-**Swarm File**:
+Use larger batch size for oddpub:
 ```bash
-ls /data/pmcoa/*.tar.gz | while read tarfile; do
-  output_file="/data/oddpub_output/$(basename $tarfile .tar.gz)_results.parquet"
-  echo "python process_pmcoa_with_oddpub.py --batch-size 500 --output-file $output_file $tarfile"
-done > oddpub_tarfile_swarm.txt
-
-swarm -f oddpub_tarfile_swarm.txt -g 32 -t 8 --time 01:00:00 \
-  --module python/3.9 R/4.2 --logdir /data/oddpub_logs
+--batch-size 1000  # Reduces number of oddpub R restarts
 ```
 
-**Pros**: No extraction phase
-**Cons**: Less parallelization (268 vs 6,400 jobs), uneven job sizes
+**Tradeoff**: Slightly higher memory usage, but faster processing
 
----
+### More Fault Tolerance
 
-## Files to Transfer to HPC
-
-1. `process_oddpub_batch.py` - Batch processing script
-2. `create_batch_manifest.py` - Manifest creation script
-3. `merge_oddpub_results.py` - Results merging script
-4. `create_swarm.sh` - Swarm file generator
-
-**Transfer**:
+Use shorter time limit to get faster restarts on failures:
 ```bash
-scp process_oddpub_batch.py create_batch_manifest.py merge_oddpub_results.py \
-    create_swarm.sh user@biowulf.nih.gov:/data/oddpub_scripts/
+--time 00:30:00  # 30 minutes instead of 1 hour
 ```
+
+**Tradeoff**: May timeout on larger tar.gz files
+
+### Recommended Settings
+
+```bash
+swarm -f oddpub_swarm.txt \
+  -g 32 \
+  -t 8 \
+  --time 01:00:00 \
+  --module python/3.9 R/4.2 \
+  --logdir /data/oddpub_logs
+```
+
+Good balance of resources, fault tolerance, and speed.
 
 ---
 
@@ -514,26 +302,125 @@ scp process_oddpub_batch.py create_batch_manifest.py merge_oddpub_results.py \
 
 **Final File**: `/data/oddpub_results_final.parquet`
 
-**Schema**: 15 columns (see `data_dictionary_oddpub.csv`)
-- article, is_open_data, open_data_category, is_reuse
-- is_open_code, is_code_supplement, is_code_reuse
-- is_open_data_das, is_open_code_cas
-- das, open_data_statements, cas, open_code_statements
-- pmid, pmcid
-
 **Size**: ~50-100 MB (compressed parquet)
-**Records**: 6,400,000
+
+**Records**: ~6,400,000
+
+**Schema**: 15 columns (see `data_dictionary_oddpub.csv`)
+- `article`, `pmid`, `pmcid`
+- `is_open_data`, `is_open_code`
+- `open_data_category`, `open_data_statements`
+- `is_open_data_das`, `is_open_code_cas`
+- `das`, `cas`
+- And more
 
 ---
 
-## Next Steps
+## Troubleshooting
 
-1. Transfer scripts to HPC
-2. Load required modules: `module load python/3.9 R/4.2`
-3. Install R packages: `R -e "install.packages(c('oddpub', 'future', 'furrr', 'progressr'))"`
-4. Run Phase 1: Extract tar.gz files
-5. Run Phase 2: Create batch manifests
-6. Run Phase 3: Submit swarm job
-7. Monitor progress with `jobload -u $USER`
-8. Run Phase 4: Merge results
-9. Transfer final parquet back to local system
+### Check Logs for Errors
+
+```bash
+cd /data/oddpub_logs
+
+# Find error logs
+grep -l "Error\|Failed\|Exception" swarm_*.e | head -20
+
+# View specific error log
+less swarm_12345.e
+```
+
+### Common Issues
+
+**Issue**: R package not found
+```
+Error in library(oddpub) : there is no package called 'oddpub'
+```
+**Solution**:
+```bash
+module load R/4.2
+R -e "install.packages('oddpub', repos='https://cloud.r-project.org')"
+```
+
+**Issue**: Out of memory
+```
+Error: cannot allocate vector of size X GB
+```
+**Solution**: Increase memory allocation:
+```bash
+swarm -f oddpub_swarm.txt -g 64 -t 8 ...  # 64 GB instead of 32 GB
+```
+
+**Issue**: Timeout
+```
+TIMEOUT: job killed after X seconds
+```
+**Solution**: Increase time limit or reduce batch size:
+```bash
+swarm -f oddpub_swarm.txt -g 32 -t 8 --time 02:00:00 ...  # 2 hours
+# Or use --batch-size 250 in the python script
+```
+
+---
+
+## Files to Transfer to HPC
+
+From `osm-2025-12-poster-incf/`:
+
+1. `extraction_tools/process_pmcoa_with_oddpub.py` - Main processing script
+2. `hpc_scripts/merge_oddpub_results.py` - Merge results
+3. `hpc_scripts/create_oddpub_swarm.sh` - Generate swarm file (optional, can create manually)
+
+**Transfer Command**:
+```bash
+scp extraction_tools/process_pmcoa_with_oddpub.py \
+    hpc_scripts/merge_oddpub_results.py \
+    user@biowulf.nih.gov:/data/oddpub_scripts/
+```
+
+---
+
+## Alternative: Split Large tar.gz Files
+
+If some tar.gz files are very large and cause timeouts, you can split them:
+
+```bash
+# Process large files with multiple jobs
+large_tarfile="/data/pmcoa/oa_comm_xml.PMC000xxxxxx.baseline.tar.gz"
+
+# Create multiple output files with different batch ranges
+python process_pmcoa_with_oddpub.py \
+  --batch-size 500 \
+  --limit-batches 0-10 \
+  --output-file output_part1.parquet \
+  $large_tarfile &
+
+python process_pmcoa_with_oddpub.py \
+  --batch-size 500 \
+  --limit-batches 10-20 \
+  --output-file output_part2.parquet \
+  $large_tarfile &
+```
+
+**Note**: This requires modifying `process_pmcoa_with_oddpub.py` to add `--limit-batches` parameter.
+
+---
+
+## Summary
+
+**Workflow**: tar.gz → process with oddpub → merge
+**Time**: ~15-20 minutes wall time
+**Jobs**: 268 parallel jobs
+**Simplicity**: Uses existing validated script
+**Filesystem**: No extraction bottleneck
+
+This approach provides excellent parallelization while avoiding the severe filesystem performance issues that would result from extracting millions of files to a flat directory structure.
+
+---
+
+## Related Documentation
+
+- **oddpub Usage**: `../extraction_tools/README_ODDPUB.md`
+- **Data Dictionary**: `../docs/data_dictionary_oddpub.csv`
+- **Implementation Summary**: `../docs/ODDPUB_IMPLEMENTATION_SUMMARY.md`
+- **NIH HPC Swarm**: https://hpc.nih.gov/apps/swarm.html

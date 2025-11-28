@@ -157,14 +157,13 @@ def write_text_files(records: List[Dict], temp_dir: Path) -> List[Path]:
     return written_files
 
 
-def run_oddpub_r(text_dir: Path, output_file: Path, oddpub_path: Path) -> bool:
+def run_oddpub_r(text_dir: Path, output_file: Path) -> bool:
     """
     Run oddpub R package on text files.
 
     Args:
         text_dir: Directory containing .txt files
         output_file: Path to save results (CSV)
-        oddpub_path: Path to oddpub R package directory
 
     Returns:
         True if successful
@@ -238,7 +237,7 @@ cat("Complete!\\n")
             r_script_path.unlink()
 
 
-def process_batch(records: List[Dict], batch_num: int, output_dir: Path, oddpub_path: Path) -> Optional[pd.DataFrame]:
+def process_batch(records: List[Dict], batch_num: int, output_dir: Path) -> Optional[pd.DataFrame]:
     """
     Process a batch of records with oddpub.
 
@@ -246,7 +245,6 @@ def process_batch(records: List[Dict], batch_num: int, output_dir: Path, oddpub_
         records: List of record dicts
         batch_num: Batch number for logging
         output_dir: Directory for output files
-        oddpub_path: Path to oddpub R package
 
     Returns:
         DataFrame with oddpub results, or None if failed
@@ -269,7 +267,7 @@ def process_batch(records: List[Dict], batch_num: int, output_dir: Path, oddpub_
 
         # Run oddpub
         output_csv = temp_path / f'oddpub_results_batch_{batch_num}.csv'
-        success = run_oddpub_r(temp_path, output_csv, oddpub_path)
+        success = run_oddpub_r(temp_path, output_csv)
 
         if not success:
             logger.error(f"oddpub processing failed for batch {batch_num}")
@@ -299,7 +297,7 @@ def process_batch(records: List[Dict], batch_num: int, output_dir: Path, oddpub_
             return None
 
 
-def process_tarball(tarball_path: Path, batch_size: int, output_dir: Path, oddpub_path: Path, all_results: List[pd.DataFrame],
+def process_tarball(tarball_path: Path, batch_size: int, output_dir: Path, all_results: List[pd.DataFrame],
                     max_files: int = None, start_index: int = 0, chunk_size: int = None) -> int:
     """
     Process one tarball, extracting and processing XMLs in batches.
@@ -308,7 +306,6 @@ def process_tarball(tarball_path: Path, batch_size: int, output_dir: Path, oddpu
         tarball_path: Path to tar.gz file
         batch_size: Number of files to process per batch
         output_dir: Output directory for results
-        oddpub_path: Path to oddpub R package
         all_results: List to append result DataFrames to
         max_files: Maximum files to process
         start_index: Index of first XML to process (0-based, for chunking)
@@ -370,7 +367,7 @@ def process_tarball(tarball_path: Path, batch_size: int, output_dir: Path, oddpu
                     # Process batch when it reaches batch_size
                     if len(batch_records) >= batch_size:
                         batch_num += 1
-                        results_df = process_batch(batch_records, batch_num, output_dir, oddpub_path)
+                        results_df = process_batch(batch_records, batch_num, output_dir)
                         if results_df is not None:
                             all_results.append(results_df)
                         batch_records = []
@@ -386,7 +383,7 @@ def process_tarball(tarball_path: Path, batch_size: int, output_dir: Path, oddpu
             # Process remaining records
             if batch_records:
                 batch_num += 1
-                results_df = process_batch(batch_records, batch_num, output_dir, oddpub_path)
+                results_df = process_batch(batch_records, batch_num, output_dir)
                 if results_df is not None:
                     all_results.append(results_df)
 
@@ -473,13 +470,6 @@ Examples:
     )
 
     parser.add_argument(
-        '--oddpub-path',
-        type=str,
-        default='../../oddpub',
-        help='Path to oddpub R package directory (default: ../../oddpub)'
-    )
-
-    parser.add_argument(
         '--log-level',
         type=str,
         default='INFO',
@@ -496,13 +486,6 @@ Examples:
     logger.info("="*70)
 
     tar_path = Path(args.tar_path)
-    oddpub_path = Path(args.oddpub_path)
-
-    # Validate oddpub path
-    if not oddpub_path.exists():
-        logger.error(f"oddpub path does not exist: {oddpub_path}")
-        logger.error("Please specify correct path with --oddpub-path")
-        return 1
 
     # Determine if processing single file or directory
     if tar_path.is_file() and tar_path.suffix == '.gz':
@@ -552,7 +535,6 @@ Examples:
     print(f"Found {len(tarballs)} tar.gz file(s) to process")
     print(f"Output directory: {output_dir}")
     print(f"Batch size: {args.batch_size}")
-    print(f"oddpub path: {oddpub_path}")
     print("=" * 70)
 
     # Process all tarballs
@@ -564,7 +546,7 @@ Examples:
         print(f"\n[{i}/{len(tarballs)}] Processing: {tarball.name}")
         logger.info(f"[{i}/{len(tarballs)}] Starting tarball: {tarball.name}")
 
-        count = process_tarball(tarball, args.batch_size, output_dir, oddpub_path, all_results,
+        count = process_tarball(tarball, args.batch_size, output_dir, all_results,
                                args.max_files, args.start_index, args.chunk_size)
         total_files += count
 

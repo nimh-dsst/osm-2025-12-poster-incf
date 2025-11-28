@@ -90,10 +90,13 @@ python process_pmcoa_with_oddpub.py \
 |--------|---------|-------------|
 | `tar_directory` | (required) | Directory containing .tar.gz archives |
 | `-o, --output-dir` | `oddpub_out` | Output directory for results |
+| `--output-file` | None | Output file path (for single tar.gz processing) |
 | `--batch-size` | 500 | Number of files to process per oddpub batch |
 | `--limit` | None | Limit number of tar.gz files (for testing) |
+| `--max-files` | None | Maximum total files to process (for testing) |
+| `--start-index` | 0 | Start processing from this XML file index (for chunking) |
+| `--chunk-size` | None | Process only this many XMLs from start-index (for chunking) |
 | `--pattern` | `*.tar.gz` | Glob pattern for tar.gz files |
-| `--oddpub-path` | `../../oddpub` | Path to oddpub R package directory |
 | `--log-level` | INFO | Logging level (DEBUG, INFO, WARNING, ERROR) |
 
 ## How It Works
@@ -193,7 +196,6 @@ Temporary files are created in system temp directory:
 Found 268 tar.gz file(s) to process
 Output directory: oddpub_out
 Batch size: 500
-oddpub path: ../oddpub
 ======================================================================
 
 [1/268] Processing: oa_comm_xml.PMC000xxxxxx.baseline.2024-12-16.tar.gz
@@ -217,16 +219,6 @@ SUMMARY
 ```
 
 ## Troubleshooting
-
-### Error: "oddpub path does not exist"
-
-Make sure the oddpub R package is installed and the path is correct:
-
-```bash
-python process_pmcoa_with_oddpub.py \
-  --oddpub-path /path/to/oddpub \
-  ~/claude/pmcoaXMLs/raw_download/
-```
 
 ### Error: "R script failed"
 

@@ -4,20 +4,22 @@ This directory contains scripts for processing 6.4M PMC XML files with oddpub on
 
 ## Overview
 
-**Strategy**: Process each tar.gz file in parallel (268 jobs)
+**Strategy**: Process baseline tar.gz files with intelligent chunking (2,346 jobs)
 
-**Wall Time**: ~15-20 minutes (with 268 nodes)
+**Scope**: Baseline files only (~7M XMLs from 39 tar.gz files)
 
-**Approach**: Uses existing `process_pmcoa_with_oddpub.py` script to process tar.gz files directly, avoiding filesystem bottlenecks from extracting millions of files.
+**Wall Time**: ~13-14 hours (with 2,346 parallel nodes)
+
+**Approach**: Uses existing `process_pmcoa_with_oddpub.py` script with automatic chunking to keep each job under 14 hours, avoiding filesystem bottlenecks from extracting millions of files.
 
 ## Files
 
 | File | Description |
 |------|-------------|
-| `create_oddpub_swarm.sh` | Generate swarm file for processing tar.gz files |
-| `merge_oddpub_results.py` | Merge all results into single parquet file |
+| `create_oddpub_swarm.sh` | Generate swarm file with automatic chunking (baseline files only) |
+| `merge_oddpub_results.py` | Merge all chunk results into single parquet file |
 
-**Note**: The batch processing scripts (`create_batch_manifest.py`, `process_oddpub_batch.py`) have been removed as they required extracting 6.4M files to a flat directory, which causes severe filesystem performance issues.
+**Critical Finding**: oddpub processes at ~16 seconds per XML file. Without chunking, the largest file (610k XMLs) would take 79 days to process! The swarm script automatically splits large files into 3,000-XML chunks (~13 hours each) to make processing practical.
 
 ## Quick Start
 

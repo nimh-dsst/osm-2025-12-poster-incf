@@ -28,41 +28,22 @@ def main(input_dir, output_file, check_missing=False):
         logger.error(f"Input directory does not exist: {input_dir}")
         sys.exit(1)
 
-    # Find all result files
-    parquet_files = sorted(input_dir.glob("batch_*_results.parquet"))
+    # Find all result files (both chunked and non-chunked)
+    parquet_files = sorted(input_dir.glob("*_results.parquet"))
 
     if len(parquet_files) == 0:
-        logger.error(f"No batch result files found in {input_dir}")
+        logger.error(f"No result files found in {input_dir}")
         sys.exit(1)
 
     logger.info(f"Found {len(parquet_files):,} result files")
 
-    # Check for missing batches if requested
+    # List files if requested
     if check_missing:
-        batch_numbers = set()
-        for pf in parquet_files:
-            # Extract batch number from filename like batch_00123_results.parquet
-            stem = pf.stem  # batch_00123_results
-            parts = stem.split('_')
-            if len(parts) >= 2:
-                try:
-                    batch_num = int(parts[1])
-                    batch_numbers.add(batch_num)
-                except ValueError:
-                    pass
-
-        if batch_numbers:
-            expected_batches = set(range(max(batch_numbers) + 1))
-            missing = expected_batches - batch_numbers
-
-            if missing:
-                logger.warning(f"Missing {len(missing)} batches:")
-                missing_list = sorted(list(missing))[:20]  # Show first 20
-                logger.warning(f"  {missing_list}")
-                if len(missing) > 20:
-                    logger.warning(f"  ... and {len(missing) - 20} more")
-            else:
-                logger.info("All expected batch files are present")
+        logger.info("Result files found:")
+        for pf in sorted(parquet_files)[:20]:
+            logger.info(f"  {pf.name}")
+        if len(parquet_files) > 20:
+            logger.info(f"  ... and {len(parquet_files) - 20} more")
 
     # Read and concatenate
     dfs = []

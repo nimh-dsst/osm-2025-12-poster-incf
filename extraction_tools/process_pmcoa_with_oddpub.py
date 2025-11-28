@@ -299,7 +299,8 @@ def process_batch(records: List[Dict], batch_num: int, output_dir: Path, oddpub_
             return None
 
 
-def process_tarball(tarball_path: Path, batch_size: int, output_dir: Path, oddpub_path: Path, all_results: List[pd.DataFrame], max_files: int = None) -> int:
+def process_tarball(tarball_path: Path, batch_size: int, output_dir: Path, oddpub_path: Path, all_results: List[pd.DataFrame],
+                    max_files: int = None, start_index: int = 0, chunk_size: int = None) -> int:
     """
     Process one tarball, extracting and processing XMLs in batches.
 
@@ -309,11 +310,17 @@ def process_tarball(tarball_path: Path, batch_size: int, output_dir: Path, oddpu
         output_dir: Output directory for results
         oddpub_path: Path to oddpub R package
         all_results: List to append result DataFrames to
+        max_files: Maximum files to process
+        start_index: Index of first XML to process (0-based, for chunking)
+        chunk_size: Number of XMLs to process from start_index (for chunking)
 
     Returns:
         Number of files processed
     """
     logger.info(f"Opening tarball: {tarball_path.name}")
+    if start_index > 0 or chunk_size:
+        logger.info(f"Chunking: processing XMLs {start_index} to {start_index + (chunk_size or 'end')}")
+
     count = 0
     batch_records = []
     batch_num = 0
@@ -323,6 +330,15 @@ def process_tarball(tarball_path: Path, batch_size: int, output_dir: Path, oddpu
             members = tar.getmembers()
             xml_members = [m for m in members if m.name.endswith('.xml') and m.isfile()]
             logger.info(f"Found {len(xml_members)} XML files in {tarball_path.name}")
+
+            # Calculate end index for chunking
+            end_index = len(xml_members)
+            if chunk_size:
+                end_index = min(start_index + chunk_size, len(xml_members))
+
+            # Slice to the chunk we want
+            xml_members = xml_members[start_index:end_index]
+            logger.info(f"Processing {len(xml_members)} XML files (index {start_index} to {end_index-1})")
 
             for i, member in enumerate(xml_members, 1):
                 try:
@@ -395,9 +411,9 @@ Examples:
     )
 
     parser.add_argument(
-        'tar_directory',
+        'tar_path',
         type=str,
-        help='Directory containing .tar.gz archives'
+        help='Directory containing .tar.gz archives, or path to a single .tar.gz file'
     )
 
     parser.add_argument(
@@ -405,6 +421,13 @@ Examples:
         type=str,
         default='../../pmcoaXMLs/oddpub_out',
         help='Output directory (default: ../../pmcoaXMLs/oddpub_out)'
+    )
+
+    parser.add_argument(
+        '--output-file',
+        type=str,
+        default=None,
+        help='Output file path (for single tar.gz processing). Overrides --output-dir.'
     )
 
     parser.add_argument(
@@ -426,6 +449,20 @@ Examples:
         type=int,
         default=None,
         help='Maximum total files to process across all archives (for testing)'
+    )
+
+    parser.add_argument(
+        '--start-index',
+        type=int,
+        default=0,
+        help='Start processing from this XML file index (0-based, for chunking large tar.gz files)'
+    )
+
+    parser.add_argument(
+        '--chunk-size',
+        type=int,
+        default=None,
+        help='Process only this many XMLs starting from start-index (for chunking large tar.gz files)'
     )
 
     parser.add_argument(
@@ -458,37 +495,59 @@ Examples:
     logger.info("PMCOA XML Processing with oddpub")
     logger.info("="*70)
 
-    tar_dir = Path(args.tar_directory)
-    output_dir = Path(args.output_dir)
+    tar_path = Path(args.tar_path)
     oddpub_path = Path(args.oddpub_path)
 
-    # Validate paths
-    if not tar_dir.exists() or not tar_dir.is_dir():
-        logger.error(f"Directory does not exist: {tar_dir}")
-        return 1
-
+    # Validate oddpub path
     if not oddpub_path.exists():
         logger.error(f"oddpub path does not exist: {oddpub_path}")
         logger.error("Please specify correct path with --oddpub-path")
         return 1
 
+    # Determine if processing single file or directory
+    if tar_path.is_file() and tar_path.suffix == '.gz':
+        # Single tar.gz file mode
+        logger.info(f"Processing single tar.gz file: {tar_path}")
+        tarballs = [tar_path]
+
+        # Handle output file
+        if args.output_file:
+            output_file = Path(args.output_file)
+            output_dir = output_file.parent
+        else:
+            output_dir = Path(args.output_dir)
+            output_file = output_dir / f"{tar_path.stem.replace('.tar', '')}_results.parquet"
+
+    elif tar_path.is_dir():
+        # Directory mode
+        tar_dir = tar_path
+        logger.info(f"Processing directory: {tar_dir}")
+
+        # Find tarballs
+        logger.info(f"Searching for files matching pattern: {args.pattern}")
+        tarballs = sorted(tar_dir.glob(args.pattern))
+
+        if not tarballs:
+            logger.error(f"No tar.gz files found matching pattern '{args.pattern}' in {tar_dir}")
+            return 1
+
+        logger.info(f"Found {len(tarballs)} tar.gz file(s)")
+
+        if args.limit:
+            logger.info(f"Limiting to first {args.limit} files")
+            tarballs = tarballs[:args.limit]
+
+        # Output directory mode
+        output_dir = Path(args.output_dir)
+        output_file = output_dir / "oddpub_results_all.parquet"
+    else:
+        logger.error(f"Path is neither a .tar.gz file nor a directory: {tar_path}")
+        return 1
+
     # Create output directory
     output_dir.mkdir(parents=True, exist_ok=True)
     logger.info(f"Output directory: {output_dir}")
-
-    # Find tarballs
-    logger.info(f"Searching for files matching pattern: {args.pattern}")
-    tarballs = sorted(tar_dir.glob(args.pattern))
-
-    if not tarballs:
-        logger.error(f"No tar.gz files found matching pattern '{args.pattern}' in {tar_dir}")
-        return 1
-
-    logger.info(f"Found {len(tarballs)} tar.gz file(s)")
-
-    if args.limit:
-        logger.info(f"Limiting to first {args.limit} files")
-        tarballs = tarballs[:args.limit]
+    logger.info(f"Output file: {output_file}")
 
     print(f"Found {len(tarballs)} tar.gz file(s) to process")
     print(f"Output directory: {output_dir}")
@@ -505,7 +564,8 @@ Examples:
         print(f"\n[{i}/{len(tarballs)}] Processing: {tarball.name}")
         logger.info(f"[{i}/{len(tarballs)}] Starting tarball: {tarball.name}")
 
-        count = process_tarball(tarball, args.batch_size, output_dir, oddpub_path, all_results, args.max_files)
+        count = process_tarball(tarball, args.batch_size, output_dir, oddpub_path, all_results,
+                               args.max_files, args.start_index, args.chunk_size)
         total_files += count
 
         # Check if we've hit max_files limit
@@ -526,7 +586,6 @@ Examples:
         combined_df = pd.concat(all_results, ignore_index=True)
 
         # Save combined results
-        output_file = output_dir / 'oddpub_results_all.parquet'
         combined_df.to_parquet(output_file, index=False)
 
         print(f"Saved {len(combined_df)} results to {output_file}")

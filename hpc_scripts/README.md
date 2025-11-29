@@ -1,199 +1,186 @@
-# HPC Scripts for oddpub Processing
+# HPC Scripts for oddpub Processing with Apptainer Container
 
-This directory contains scripts for processing 6.4M PMC XML files with oddpub on NIH HPC (Biowulf) using SLURM swarm jobs.
+This directory contains scripts for processing ~7M PMC XML files with oddpub on NIH HPC (Biowulf) using Apptainer containers and SLURM swarm jobs.
 
 ## Overview
 
-**Strategy**: Process baseline tar.gz files with intelligent chunking (2,346 jobs)
+**Strategy**: Process baseline tar.gz files with intelligent chunking (~7,000 jobs with 1,000 XMLs per chunk)
 
 **Scope**: Baseline files only (~7M XMLs from 39 tar.gz files)
 
-**Wall Time**: ~13-14 hours (with 2,346 parallel nodes)
+**Performance**: 6.7 seconds per XML file (measured on HPC)
 
-**Approach**: Uses existing `process_pmcoa_with_oddpub.py` script with automatic chunking to keep each job under 14 hours, avoiding filesystem bottlenecks from extracting millions of files.
+**Wall Time**: ~13 hours with 1,000 parallel nodes
+
+**Approach**: Uses Apptainer container with all dependencies pre-installed, avoiding system library issues and ensuring reproducibility.
 
 ## Files
 
 | File | Description |
 |------|-------------|
-| `create_oddpub_swarm.sh` | Generate swarm file with automatic chunking (baseline files only) |
+| `create_oddpub_swarm_container.sh` | Generate swarm file with automatic chunking (1,000 XMLs per chunk) |
 | `merge_oddpub_results.py` | Merge all chunk results into single parquet file |
 
-**Critical Finding**: oddpub processes at ~16 seconds per XML file. Without chunking, the largest file (610k XMLs) would take 79 days to process! The swarm script automatically splits large files into 3,000-XML chunks (~13 hours each) to make processing practical.
+## Prerequisites
 
-## Quick Start
+### On Build Host (curium)
 
-### 1. Clone Repository on HPC
+**Build the Apptainer container** (requires root/sudo, takes ~5 minutes):
+
+```bash
+# SSH to curium
+ssh curium
+
+# Navigate to repository
+cd /data/adamt/osm-2025-12-poster-incf
+
+# Update repository
+gh repo sync --branch develop
+
+# Build container
+cd container
+sudo apptainer build --force oddpub.sif oddpub.def
+
+# Transfer to HPC (helix is the data transfer node)
+scp oddpub.sif helix.nih.gov:/data/$USER/containers/
+```
+
+See `../container/README.md` for detailed build instructions and testing.
+
+## Quick Start on HPC
+
+### 1. Setup Repository on HPC
 
 ```bash
 # SSH to HPC
-ssh user@biowulf.nih.gov
+ssh biowulf.nih.gov
 
-# Clone repository to /data
-cd /data
-git clone https://github.com/YOUR_ORG/osm-2025-12-poster-incf.git oddpub_scripts
+# Navigate to repository
+cd /data/adamt/osm-2025-12-poster-incf
 
-# Or update existing repository:
-# cd /data/oddpub_scripts && git pull
+# Update to latest version
+gh repo sync --branch develop
 ```
 
-### 2. Setup Environment on HPC
-
-**Using uv + renv (recommended for reproducibility)**:
+### 2. Create Swarm File
 
 ```bash
-# Load modules
-module load python/3.9 R/4.2
+cd hpc_scripts
 
-# Create user library directory (required on NIH HPC)
-mkdir -p /data/$USER/R/rhel8/4.2
-
-cd /data/oddpub_scripts
-
-# Install uv (fast Python package installer)
-curl -LsSf https://astral.sh/uv/install.sh | sh
-source $HOME/.local/bin/env
-
-# Install Python packages
-uv pip install --system -r extraction_tools/requirements-hpc.txt
-
-# Initialize renv for R packages
-cd extraction_tools
-R -e "install.packages('renv', repos='https://cloud.r-project.org'); renv::init(bare=TRUE); renv::restore()"
-
-# Verify installations
-python3 -c "import pandas; import pyarrow; print('Python OK')"
-R -e "library(oddpub); library(future); library(furrr); library(progressr); cat('R OK\n')"
-
-# Make scripts executable
-cd /data/oddpub_scripts/hpc_scripts
-chmod +x *.sh
+# Generate swarm commands
+bash create_oddpub_swarm_container.sh \
+    /data/NIMH_scratch/licc/pmcoa/files \
+    /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output/ \
+    /data/adamt/containers/oddpub.sif
 ```
 
-**Alternative: Manual installation** (if uv/renv unavailable):
+**Output**: `oddpub_swarm.txt` with ~7,000 jobs
 
-```bash
-module load python/3.9 R/4.2
-mkdir -p /data/$USER/R/rhel8/4.2
-pip install --user pandas pyarrow
-R -e "install.packages(c('devtools', 'future', 'furrr', 'progressr'), repos='https://cloud.r-project.org'); devtools::install_github('quest-bih/oddpub')"
+**Example output**:
+```
+Found 39 baseline tar.gz files
+  oa_comm_xml.PMC010xxxxxx.baseline.2025-06-26: 610,792 XMLs -> 611 chunks
+  oa_comm_xml.PMC000xxxxxx.baseline.2025-06-26: 3,028 XMLs -> 4 chunks
+  ...
+
+Created oddpub_swarm.txt with 7038 jobs
+  Files split into chunks: 35
+  Single-job files: 4
 ```
 
-### 3. Create Swarm File
-
-```bash
-cd /data/oddpub_scripts/hpc_scripts
-bash create_oddpub_swarm.sh /data/pmcoa /data/oddpub_output /data/oddpub_scripts/extraction_tools
-```
-
-This creates `oddpub_swarm.txt` with 2,346 jobs (chunked baseline files).
-
-### 4. Submit Processing Jobs
+### 3. Submit Processing Jobs
 
 ```bash
 swarm -f oddpub_swarm.txt \
-  -g 32 \
-  -t 8 \
-  --time 14:00:00 \
-  --module python/3.9 R/4.2 \
-  --logdir /data/oddpub_logs
+    -g 32 \
+    -t 8 \
+    --time 03:00:00 \
+    --module apptainer \
+    --logdir /data/NIMH_scratch/adamt/osm/logs/oddpub
 ```
 
-### 5. Monitor Progress
+**Resource Requirements per Job**:
+- Memory: 32 GB (`-g 32`)
+- CPUs: 8 threads (`-t 8`)
+- Time: 3 hours max (typical: 1.9 hours for 1,000 XMLs)
+- Module: apptainer (loads Apptainer runtime)
+
+**Total Resources**:
+- Jobs: ~7,000
+- CPU-hours: ~13,300 total
+- Wall time: ~13 hours with 1,000 nodes, ~26 hours with 500 nodes
+
+### 4. Monitor Progress
 
 ```bash
 # Check job status
 jobload -u $USER
 
 # Count completed files
-ls -1 /data/oddpub_output/*.parquet | wc -l
-# Should be 2,346 when complete
+ls -1 /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output/*.parquet | wc -l
+# Should be ~7,000 when complete
 
 # Watch progress
-watch -n 30 'echo "Completed: $(ls -1 /data/oddpub_output/*.parquet 2>/dev/null | wc -l) / 2346"'
+watch -n 30 'echo "Completed: $(ls -1 /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output/*.parquet 2>/dev/null | wc -l) / 7000"'
 ```
 
-### 6. Merge Results
+### 5. Merge Results
 
 ```bash
-cd /data/oddpub_scripts/hpc_scripts
-python merge_oddpub_results.py \
-  /data/oddpub_output \
-  /data/oddpub_results_final.parquet \
-  --check-missing
+# Source bind paths for container
+. /usr/local/current/apptainer/app_conf/sing_binds
+
+# Merge using container
+apptainer exec /data/adamt/containers/oddpub.sif \
+    python3 /scripts/merge_oddpub_results.py \
+    /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output \
+    /data/NIMH_scratch/adamt/osm/oddpub_results_final.parquet
 ```
 
-### 7. Transfer Results
+### 6. Transfer Results
 
 ```bash
-# From local machine
-scp user@biowulf.nih.gov:/data/oddpub_results_final.parquet ~/
+# From local machine (use helix for data transfer)
+scp helix.nih.gov:/data/NIMH_scratch/adamt/osm/oddpub_results_final.parquet ~/
 ```
 
-## Resource Requirements
+## Performance Estimates
 
-**Per Job** (processing one tar.gz file):
-- Memory: 32 GB (`-g 32`)
-- CPUs: 8 threads (`-t 8`)
-- Time: 1 hour max (typically 15-20 min)
+**Measured Performance** (from HPC test with 10 files):
+- Time per file: 6.7 seconds
+- Time per 1,000-file chunk: 1.9 hours
 
-**Total** (268 jobs):
-- CPU-hours: ~65
-- Wall time: 15-20 minutes (with 268 nodes)
+**Parallelization Scenarios**:
+
+| Parallel Nodes | Wall Time | Total CPU-Hours |
+|----------------|-----------|-----------------|
+| 1,000 nodes | 13.3 hours | 13,300 |
+| 750 nodes | 17.7 hours | 13,300 |
+| 500 nodes | 26.6 hours | 13,300 |
+| 300 nodes | 44.3 hours | 13,300 |
+
+**Recommendation**: Request 750-1,000 nodes for completion in <18 hours.
 
 ## Troubleshooting
 
 ### Check for Failed Jobs
 
 ```bash
-# Expected: 268 files
-expected=268
-completed=$(ls -1 /data/oddpub_output/*.parquet 2>/dev/null | wc -l)
+# Expected: ~7,000 files
+expected=7000
+completed=$(ls -1 /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output/*.parquet 2>/dev/null | wc -l)
 
 echo "Progress: $completed / $expected"
-```
 
-### Identify Missing Files
-
-```bash
-# Create list of expected outputs
-cd /data/pmcoa
-for f in *.tar.gz; do echo "${f%.tar.gz}_results.parquet"; done | sort > /tmp/expected.txt
-
-# Create list of actual outputs
-cd /data/oddpub_output
-ls -1 *.parquet | sort > /tmp/actual.txt
-
-# Find missing
-comm -23 /tmp/expected.txt /tmp/actual.txt > /tmp/missing.txt
-
-echo "Missing $(wc -l < /tmp/missing.txt) files:"
-head -20 /tmp/missing.txt
-```
-
-### Rerun Failed Jobs
-
-```bash
-# Create retry swarm file
-> oddpub_retry_swarm.txt
-
-while read missing_file; do
-  tarfile="/data/pmcoa/${missing_file%_results.parquet}.tar.gz"
-  output_file="/data/oddpub_output/$missing_file"
-  echo "python /data/oddpub_scripts/process_pmcoa_with_oddpub.py --batch-size 500 --output-file $output_file $tarfile"
-done < /tmp/missing.txt > oddpub_retry_swarm.txt
-
-# Submit retry jobs
-swarm -f oddpub_retry_swarm.txt \
-  -g 32 -t 8 --time 01:00:00 \
-  --module python/3.9 R/4.2 \
-  --logdir /data/oddpub_logs
+if [ $completed -lt $expected ]; then
+    echo "WARNING: $(($expected - $completed)) jobs may have failed"
+fi
 ```
 
 ### Check Logs for Errors
 
 ```bash
-cd /data/oddpub_logs
+cd /data/NIMH_scratch/adamt/osm/logs/oddpub
 
 # Find error logs
 grep -l "Error\|Failed\|Exception" swarm_*.e | head -10
@@ -202,12 +189,18 @@ grep -l "Error\|Failed\|Exception" swarm_*.e | head -10
 less swarm_12345.e
 ```
 
-## Common Issues
+### Common Issues
 
-**R package not found**:
+**Container not found**:
 ```bash
-module load R/4.2
-R -e "install.packages('oddpub', repos='https://cloud.r-project.org')"
+ls -lh /data/adamt/containers/oddpub.sif
+# If missing, rebuild and transfer from curium
+```
+
+**Permission denied on /data**:
+```bash
+# Always source bind paths before running Apptainer
+. /usr/local/current/apptainer/app_conf/sing_binds
 ```
 
 **Out of memory**:
@@ -216,25 +209,79 @@ R -e "install.packages('oddpub', repos='https://cloud.r-project.org')"
 swarm -f oddpub_swarm.txt -g 64 -t 8 ...  # 64 GB instead of 32 GB
 ```
 
-**Timeout**:
+**Timeout** (job exceeds 3 hours):
 ```bash
-# Increase time limit
-swarm -f oddpub_swarm.txt -g 32 -t 8 --time 02:00:00 ...  # 2 hours
+# Increase time limit (shouldn't be necessary with 1,000 XMLs per chunk)
+swarm -f oddpub_swarm.txt --time 04:00:00 ...
+```
+
+### Rerun Failed Jobs
+
+```bash
+# Find expected but missing output files
+cd /data/NIMH_scratch/licc/pmcoa/files
+output_dir="/data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output"
+
+> /tmp/oddpub_retry_swarm.txt
+
+for tarfile in *baseline*.tar.gz; do
+    basename="${tarfile%.tar.gz}"
+
+    # Check for chunk outputs
+    if ! ls "$output_dir/${basename}_chunk"*".parquet" &>/dev/null; then
+        echo "# Missing outputs for $basename"
+        echo ". /usr/local/current/apptainer/app_conf/sing_binds && apptainer exec /data/adamt/containers/oddpub.sif python3 /scripts/process_pmcoa_with_oddpub.py --batch-size 500 --output-file $output_dir/${basename}_results.parquet $tarfile" >> /tmp/oddpub_retry_swarm.txt
+    fi
+done
+
+# Submit retry jobs
+if [ -s /tmp/oddpub_retry_swarm.txt ]; then
+    swarm -f /tmp/oddpub_retry_swarm.txt \
+        -g 32 -t 8 --time 03:00:00 \
+        --module apptainer \
+        --logdir /data/NIMH_scratch/adamt/osm/logs/oddpub_retry
+fi
+```
+
+## Test Container Before Large Run
+
+```bash
+# Test with small file (10 XMLs, ~1 minute)
+. /usr/local/current/apptainer/app_conf/sing_binds
+
+apptainer exec /data/adamt/containers/oddpub.sif \
+    python3 /scripts/process_pmcoa_with_oddpub.py \
+    --batch-size 50 --max-files 10 \
+    --output-file /tmp/test_oddpub.parquet \
+    /data/NIMH_scratch/licc/pmcoa/files/oa_comm_xml.incr.2025-08-25.tar.gz
+
+# Check results
+python3 -c "import pandas as pd; df = pd.read_parquet('/tmp/test_oddpub.parquet'); print(f'{len(df)} results, {df.columns.tolist()}')"
 ```
 
 ## Expected Output
 
-**Final File**: `/data/oddpub_results_final.parquet`
+**Final File**: `/data/NIMH_scratch/adamt/osm/oddpub_results_final.parquet`
 
-**Size**: ~50-100 MB (compressed)
+**Size**: ~100-200 MB (compressed)
 
-**Records**: ~6,400,000
+**Records**: ~7,000,000 (one per XML file processed)
 
-**Schema**: 15 columns (see `../docs/data_dictionary_oddpub.csv`)
+**Schema**: 15 columns
+- `article` - Article filename
+- `is_open_data` - Boolean: Open data detected
+- `is_open_code` - Boolean: Open code detected
+- `open_data_category` - Type of repository
+- `das` - Data availability statement
+- `cas` - Code availability statement
+- Plus 9 more columns (see `../docs/data_dictionary_oddpub.csv`)
 
 ## Additional Resources
 
-- **Strategy Document**: `../docs/HPC_ODDPUB_STRATEGY.md`
-- **oddpub Documentation**: `../extraction_tools/README_ODDPUB.md`
+- **Container Documentation**: `../container/README.md`
+- **Container Test Script**: `../container/test_container.sh`
+- **HPC Strategy (Detailed)**: `../docs/HPC_ODDPUB_STRATEGY_CONTAINER.md`
+- **oddpub Documentation**: `../docs/README_ODDPUB.md`
 - **Data Dictionary**: `../docs/data_dictionary_oddpub.csv`
-- **NIH HPC Documentation**: https://hpc.nih.gov/apps/swarm.html
+- **NIH HPC Swarm Guide**: https://hpc.nih.gov/apps/swarm.html
+- **NIH HPC Apptainer Guide**: https://hpc.nih.gov/apps/apptainer.html

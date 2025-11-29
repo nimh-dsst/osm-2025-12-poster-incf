@@ -13,7 +13,7 @@ fi
 TAR_DIR="$1"
 OUTPUT_DIR="$2"
 CONTAINER_SIF="$3"
-CHUNK_SIZE=3000  # 3000 XMLs per chunk = ~13 hours processing time
+CHUNK_SIZE=1000  # 1000 XMLs per chunk = ~1.9 hours processing time
 
 if [ ! -d "$TAR_DIR" ]; then
     echo "Error: TAR_DIR does not exist: $TAR_DIR"

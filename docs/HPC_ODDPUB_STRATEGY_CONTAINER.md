@@ -7,11 +7,12 @@
 
 ## Executive Summary
 
-**Recommended Approach**: Process baseline tar.gz files with chunking using Apptainer container (2,346 jobs)
+**Recommended Approach**: Process baseline tar.gz files with chunking using Apptainer container (~7,000 jobs)
 **Container Benefits**: Bundles all system dependencies (ICU, poppler, libxml2), eliminating installation issues
 **Scope**: Baseline files only (~7M XMLs from 39 tar.gz files)
-**Estimated Wall Time**: ~13-14 hours with 2,346 parallel nodes
-**Estimated CPU Time**: ~31,500 CPU-hours total (~1,311 CPU-days)
+**Chunk Size**: 1,000 XMLs per chunk (~1.9 hours processing time)
+**Estimated Wall Time**: ~13 hours with 1,000 parallel nodes, ~18 hours with 750 nodes
+**Estimated CPU Time**: ~13,300 CPU-hours total
 
 ## Why Use a Container?
 
@@ -274,13 +275,14 @@ Common issues:
 
 ## Performance Characteristics
 
-Same as non-container approach:
-
-**Processing Speed**: ~16 seconds per XML file
-**Chunk Size**: 3,000 XMLs = ~13 hours processing time
-**Total Jobs**: 2,346 (35 files chunked, 4 single-job)
-**Wall Time**: ~13-14 hours with full parallelization
-**CPU Time**: ~31,500 CPU-hours total
+**Processing Speed**: ~6.7 seconds per XML file (measured on HPC)
+**Chunk Size**: 1,000 XMLs = ~1.9 hours processing time
+**Total Jobs**: ~7,000 (35 files chunked, 4 single-job)
+**Wall Time**:
+- 1,000 nodes: ~13 hours
+- 750 nodes: ~18 hours
+- 500 nodes: ~27 hours
+**CPU Time**: ~13,300 CPU-hours total
 
 ---
 

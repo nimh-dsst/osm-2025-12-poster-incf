@@ -47,8 +47,9 @@ From: rocker/r-ver:4.2.0
         pyarrow>=6.0.0
 
     # Install R packages
-    # Use CRAN snapshot from 2022-06-01 for stable package versions compatible with oddpub 7.2.3
-    R --slave -e "options(repos = c(CRAN = 'https://packagemanager.rstudio.com/cran/2022-06-01')); install.packages(c('remotes', 'future', 'furrr', 'progressr', 'dplyr'))"
+    # Use CRAN snapshot from 2023-03-01 for package versions compatible with oddpub 7.2.3
+    # This snapshot has: purrr 1.0.1 (with list_c), dplyr 1.1.0, compatible versions
+    R --slave -e "options(repos = c(CRAN = 'https://packagemanager.rstudio.com/cran/2023-03-01')); install.packages(c('remotes', 'future', 'furrr', 'progressr', 'dplyr', 'purrr'))"
     R --slave -e "remotes::install_github('quest-bih/oddpub@v7.2.3')"
 
     # Verify installations

@@ -251,8 +251,16 @@ def process_batch(records: List[Dict], batch_num: int, output_dir: Path) -> Opti
     """
     logger.info(f"Processing batch {batch_num} ({len(records)} records)")
 
+    # Use /lscratch on HPC if available (faster local SSD), otherwise use default /tmp
+    temp_base = None
+    if 'SLURM_JOB_ID' in os.environ:
+        lscratch_dir = Path(f"/lscratch/{os.environ['SLURM_JOB_ID']}")
+        if lscratch_dir.exists():
+            temp_base = str(lscratch_dir)
+            logger.debug(f"Using /lscratch for temporary files: {temp_base}")
+
     # Create temporary directory for text files
-    with tempfile.TemporaryDirectory(prefix=f'oddpub_batch_{batch_num}_') as temp_dir:
+    with tempfile.TemporaryDirectory(prefix=f'oddpub_batch_{batch_num}_', dir=temp_base) as temp_dir:
         temp_path = Path(temp_dir)
         logger.debug(f"Created temp directory: {temp_path}")
 

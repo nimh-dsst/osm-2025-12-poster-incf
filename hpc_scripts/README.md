@@ -95,6 +95,7 @@ swarm -f oddpub_swarm.txt \
     -g 32 \
     -t 8 \
     --time 03:00:00 \
+    --gres=lscratch:10 \
     --module apptainer \
     --logdir /data/NIMH_scratch/adamt/osm/logs/oddpub
 ```
@@ -103,12 +104,19 @@ swarm -f oddpub_swarm.txt \
 - Memory: 32 GB (`-g 32`)
 - CPUs: 8 threads (`-t 8`)
 - Time: 3 hours max (typical: 1.9 hours for 1,000 XMLs)
+- Local scratch: 10 GB (`--gres=lscratch:10`) - Fast local SSD for temp files
 - Module: apptainer (loads Apptainer runtime)
 
 **Total Resources**:
 - Jobs: ~7,000
 - CPU-hours: ~13,300 total
 - Wall time: ~13 hours with 1,000 nodes, ~26 hours with 500 nodes
+
+**Performance Optimization**:
+- Uses `/lscratch/$SLURM_JOB_ID` for temporary text files (local SSD on compute node)
+- Significantly faster I/O than network storage
+- Reduces load on shared filesystem
+- Script automatically detects and uses lscratch when available
 
 ### 4. Monitor Progress
 
@@ -238,6 +246,7 @@ done
 if [ -s /tmp/oddpub_retry_swarm.txt ]; then
     swarm -f /tmp/oddpub_retry_swarm.txt \
         -g 32 -t 8 --time 03:00:00 \
+        --gres=lscratch:10 \
         --module apptainer \
         --logdir /data/NIMH_scratch/adamt/osm/logs/oddpub_retry
 fi

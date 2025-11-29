@@ -130,7 +130,8 @@ Created oddpub_swarm.txt with 2346 jobs
 swarm -f oddpub_swarm.txt \
     -g 32 \
     -t 8 \
-    --time 14:00:00 \
+    --time 03:00:00 \
+    --gres=lscratch:10 \
     --module apptainer \
     --logdir /data/oddpub_logs
 ```
@@ -138,8 +139,14 @@ swarm -f oddpub_swarm.txt \
 **Resource Requirements per Job**:
 - Memory: 32 GB (`-g 32`)
 - CPUs: 8 threads (`-t 8`)
-- Time: 14 hours max (typical: 9-13 hours)
+- Time: 3 hours max (typical: 1.9 hours for 1,000 XMLs)
+- Local scratch: 10 GB (`--gres=lscratch:10`) - Fast local SSD for temp files
 - Module: apptainer (loads Apptainer runtime)
+
+**Performance Optimization**:
+- Script automatically uses `/lscratch/$SLURM_JOB_ID` for temporary files
+- Local SSD provides significantly faster I/O than network storage
+- Reduces load on shared /data filesystem
 
 **Step 5: Monitor Progress**
 

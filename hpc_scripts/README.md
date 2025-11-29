@@ -14,11 +14,31 @@ This directory contains scripts for processing ~7M PMC XML files with oddpub on 
 
 **Approach**: Uses Apptainer container with all dependencies pre-installed, avoiding system library issues and ensuring reproducibility.
 
+---
+
+## ⚠️ IMPORTANT: Container Rebuild Required
+
+**If you are retrying failed jobs from the initial run (2025-11-29):**
+
+A critical timeout bug was discovered (98.4% job failure rate) and fixed. The container **must be rebuilt** before retrying jobs.
+
+**See detailed instructions**: [`../docs/REBUILD_CONTAINER_GUIDE.md`](../docs/REBUILD_CONTAINER_GUIDE.md)
+
+**Quick summary:**
+1. Cancel running jobs: `scancel -u $USER --name=swarm`
+2. Rebuild container on curium with timeout fix (600s → 3600s)
+3. Deploy to HPC via helix
+4. Run `verify_and_retry_oddpub.sh` to generate retry swarm
+5. Submit ~7,026 retry jobs
+
+---
+
 ## Files
 
 | File | Description |
 |------|-------------|
 | `create_oddpub_swarm_container.sh` | Generate swarm file with automatic chunking (1,000 XMLs per chunk) |
+| `verify_and_retry_oddpub.sh` | Verify output completeness and generate retry swarm for failed jobs |
 | `merge_oddpub_results.py` | Merge all chunk results into single parquet file |
 
 ## Prerequisites

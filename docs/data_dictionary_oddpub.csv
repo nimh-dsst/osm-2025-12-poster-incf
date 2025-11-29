@@ -1,7 +1,7 @@
 column_name,data_type,category,description,example_value,source
 article,string,identifier,Filename of the processed article (derived from PMC ID),PMCPMC12000010.txt,process_pmcoa_with_oddpub.py
 is_open_data,boolean,detection,Boolean flag indicating if open data statement was detected,True,oddpub R package
-open_data_category,string,classification,"Categories of open data detected (comma-separated). Common values: 'general-purpose repository', 'unknown/misspecified', 'supplementary material', 'personal website'","general-purpose repository, unknown/misspecified",oddpub R package
+open_data_category,string,classification,"Categories of open data detected (comma-separated). Common values: 're-use', 'upon request', 'field-specific repository', 'supplement', 'unknown/misspecified source', 'general-purpose repository', 'github'. Can contain combinations like 'field-specific repository, re-use'","field-specific repository, re-use",oddpub R package
 is_reuse,boolean,detection,Boolean flag indicating if data re-use was detected,False,oddpub R package
 is_open_code,boolean,detection,Boolean flag indicating if open code statement was detected,True,oddpub R package
 is_code_supplement,boolean,detection,Boolean flag indicating if code is available as supplementary material,False,oddpub R package

@@ -1,0 +1,13 @@
+metric,value,percentage
+Total articles,66840,100.0
+Articles with open data,3467,5.187013764213046
+Articles with open code,850,1.2716935966487133
+Category: no data,57895,86.61729503291443
+Category: field-specific repository,3459,5.1750448833034115
+Category: re-use,1893,2.83213644524237
+Category: upon request,1654,2.4745661280670257
+Category: supplement,967,1.4467384799521243
+Category: multiple,644,0.9634949132256133
+Category: unknown/misspecified source,319,0.47725912627169365
+Category: general-purpose repository,8,0.011968880909634948
+Category: github,1,0.0014961101137043686

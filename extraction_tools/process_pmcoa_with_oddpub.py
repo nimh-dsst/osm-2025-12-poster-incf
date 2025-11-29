@@ -201,11 +201,12 @@ cat("Complete!\\n")
         logger.info(f"Running oddpub R script on {len(list(text_dir.glob('*.txt')))} files")
 
         # Run R script (Rscript is in PATH in both container and native environments)
+        # Timeout: 3600 sec (60 min) for 500-file batches at ~6.7 sec/file = 55 min typical
         result = subprocess.run(
             ['Rscript', str(r_script_path)],
             capture_output=True,
             text=True,
-            timeout=600  # 10 minute timeout
+            timeout=3600  # 60 minute timeout
         )
 
         if result.returncode != 0:
@@ -225,7 +226,7 @@ cat("Complete!\\n")
         return True
 
     except subprocess.TimeoutExpired:
-        logger.error("R script timed out after 10 minutes")
+        logger.error("R script timed out after 60 minutes")
         return False
     except Exception as e:
         logger.error(f"Error running R script: {e}")

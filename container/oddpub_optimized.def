@@ -30,9 +30,9 @@ From: rocker/r-ver:4.2.0
 
 %files
     # Copy the optimized processing script
-    extraction_tools/process_pmcoa_with_oddpub_optimized.py /scripts/process_pmcoa_with_oddpub.py
+    ../extraction_tools/process_pmcoa_with_oddpub_optimized.py /scripts/process_pmcoa_with_oddpub.py
     # Also include merge script
-    hpc_scripts/merge_oddpub_results.py /scripts/merge_oddpub_results.py
+    ../hpc_scripts/merge_oddpub_results.py /scripts/merge_oddpub_results.py
 
 %environment
     export LC_ALL=C.UTF-8

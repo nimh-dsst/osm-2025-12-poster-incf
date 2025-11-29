@@ -47,7 +47,8 @@ From: rocker/r-ver:4.2.0
         pyarrow>=6.0.0
 
     # Install R packages
-    R --slave -e "install.packages(c('remotes', 'future', 'furrr', 'progressr'), repos='https://cloud.r-project.org')"
+    # Use CRAN snapshot from 2022-06-01 for stable package versions compatible with oddpub 7.2.3
+    R --slave -e "options(repos = c(CRAN = 'https://packagemanager.rstudio.com/cran/2022-06-01')); install.packages(c('remotes', 'future', 'furrr', 'progressr', 'dplyr'))"
     R --slave -e "remotes::install_github('quest-bih/oddpub@v7.2.3')"
 
     # Verify installations

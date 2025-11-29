@@ -59,6 +59,8 @@ apptainer build --remote oddpub.sif oddpub.def
 
 ## Testing the Container Locally
 
+### Quick Tests
+
 ```bash
 # Test container works
 apptainer exec oddpub.sif python3 --version
@@ -69,6 +71,28 @@ apptainer exec oddpub.sif python3 -c "import pandas; import pyarrow; print('OK')
 
 # Test R packages
 apptainer exec oddpub.sif R -e "library(oddpub); library(future); cat('OK\n')"
+```
+
+### Automated Test Script
+
+```bash
+# Run comprehensive test suite
+chmod +x test_container.sh
+bash test_container.sh oddpub.sif
+```
+
+### End-to-End Test with Small Archive
+
+```bash
+# Test with small PMC archive (10 files, ~30 seconds)
+apptainer exec oddpub.sif python3 /scripts/process_pmcoa_with_oddpub.py \
+    --batch-size 50 \
+    --max-files 10 \
+    --output-file /tmp/test_results.parquet \
+    ~/claude/pmcoaXMLs/raw_download/oa_other_xml.incr.2025-07-03.tar.gz
+
+# Check results
+python3 -c "import pandas as pd; df = pd.read_parquet('/tmp/test_results.parquet'); print(f'{len(df)} results'); print(df.columns.tolist())"
 ```
 
 ## Using on NIH HPC

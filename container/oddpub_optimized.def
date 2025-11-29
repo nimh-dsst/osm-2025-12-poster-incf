@@ -1,0 +1,75 @@
+Bootstrap: docker
+From: rocker/r-ver:4.2.0
+
+%labels
+    Author Adam Taylor
+    Version 2.0
+    Description Optimized oddpub container using CSV file lists for 2x speedup on large archives
+
+%post
+    # Update and install system dependencies
+    apt-get update && apt-get install -y \
+        python3-pip \
+        python3-dev \
+        libxml2-dev \
+        libxslt1-dev \
+        && rm -rf /var/lib/apt/lists/*
+
+    # Install Python packages
+    pip3 install --no-cache-dir \
+        pandas==1.5.3 \
+        pyarrow==12.0.0 \
+        lxml==4.9.2 \
+        psutil==5.9.4
+
+    # Install R packages
+    # Use CRAN snapshot from 2023-03-01 for package versions compatible with oddpub 7.2.3
+    # This snapshot has: purrr 1.0.1 (with list_c), dplyr 1.1.0, compatible versions
+    R --slave -e "options(repos = c(CRAN = 'https://packagemanager.rstudio.com/cran/2023-03-01')); install.packages(c('remotes', 'future', 'furrr', 'progressr', 'dplyr', 'purrr'))"
+    R --slave -e "remotes::install_github('quest-bih/oddpub@v7.2.3')"
+
+%files
+    # Copy the optimized processing script
+    extraction_tools/process_pmcoa_with_oddpub_optimized.py /scripts/process_pmcoa_with_oddpub.py
+    # Also include merge script
+    hpc_scripts/merge_oddpub_results.py /scripts/merge_oddpub_results.py
+
+%environment
+    export LC_ALL=C.UTF-8
+    export LANG=C.UTF-8
+    export PATH=/usr/local/bin:$PATH
+
+%runscript
+    exec python3 /scripts/process_pmcoa_with_oddpub.py "$@"
+
+%test
+    # Test Python
+    python3 --version
+    python3 -c "import pandas, pyarrow, lxml, psutil"
+
+    # Test R
+    R --version
+    Rscript -e "library(oddpub); packageVersion('oddpub')"
+    Rscript -e "library(purrr); packageVersion('purrr')"
+
+    echo "All tests passed!"
+
+%help
+    This is an optimized container for running oddpub on PMCOA XML files.
+
+    Key optimization: Uses CSV file lists to avoid repeated tar.gz enumeration
+    Performance gain: ~2x speedup on large archives (600K files)
+
+    Usage:
+        singularity exec oddpub_optimized.sif python3 /scripts/process_pmcoa_with_oddpub.py [options] <input>
+
+    Example:
+        singularity exec oddpub_optimized.sif python3 /scripts/process_pmcoa_with_oddpub.py \
+            --batch-size 500 \
+            --start-index 5000 \
+            --chunk-size 1000 \
+            --output-file results.parquet \
+            /path/to/archive.tar.gz
+
+    The optimization requires .filelist.csv files to exist alongside tar.gz archives.
+    If CSV is missing, it falls back to the original enumeration method.

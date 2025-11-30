@@ -31,6 +31,8 @@ From: rocker/r-ver:4.2.0
 %files
     # Copy the optimized processing script
     ../extraction_tools/process_pmcoa_with_oddpub_optimized.py /scripts/process_pmcoa_with_oddpub.py
+    # Copy the extracted XML processing script
+    ../extraction_tools/process_extracted_xmls_with_oddpub.py /scripts/process_extracted_xmls_with_oddpub.py
     # Also include merge script
     ../hpc_scripts/merge_oddpub_results.py /scripts/merge_oddpub_results.py
 

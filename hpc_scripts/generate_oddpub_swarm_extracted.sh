@@ -1,6 +1,6 @@
 #!/bin/bash
 # Generate swarm file for processing extracted XML files with oddpub
-# This version processes already-extracted XML files (no tar.gz extraction needed)
+# FAST VERSION: Uses .filelist.csv files instead of find command
 
 set -e
 
@@ -12,7 +12,9 @@ if [ "$#" -ne 3 ]; then
     echo "     /data/NIMH_scratch/adamt/osm/oddpub_output \\"
     echo "     /data/adamt/containers/oddpub_optimized.sif"
     echo ""
-    echo "XML base dir should contain subdirectories like PMC000xxxxxx, PMC001xxxxxx, etc."
+    echo "XML base dir should contain:"
+    echo "  - Subdirectories: PMC000xxxxxx, PMC001xxxxxx, etc."
+    echo "  - CSV files: *.filelist.csv (copied from tar.gz location)"
     exit 1
 fi
 
@@ -41,19 +43,30 @@ SWARM_FILE="oddpub_extracted_swarm.txt"
 total_jobs=0
 total_files=0
 
-echo "Scanning subdirectories in $XML_BASE_DIR..."
+echo "Scanning for .filelist.csv files in $XML_BASE_DIR..."
 echo ""
 
-for subdir in "$XML_BASE_DIR"/PMC*; do
-    [ -d "$subdir" ] || continue
+for csv_file in "$XML_BASE_DIR"/*.baseline.*.filelist.csv; do
+    [ -f "$csv_file" ] || continue
 
-    dirname=$(basename "$subdir")
+    # Extract the base name (e.g., oa_comm_xml.PMC005xxxxxx.baseline.2025-06-26)
+    basename=$(basename "$csv_file" .filelist.csv)
 
-    # Count XML files in this subdirectory
-    xml_count=$(find "$subdir" -name "*.xml" -type f | wc -l)
+    # Extract just the PMC directory name (e.g., PMC005xxxxxx)
+    pmc_dir=$(echo "$basename" | grep -oP 'PMC\d+x+')
+
+    # Check if corresponding XML directory exists
+    xml_subdir="$XML_BASE_DIR/$pmc_dir"
+    if [ ! -d "$xml_subdir" ]; then
+        echo "  Warning: XML directory not found for $basename, skipping"
+        continue
+    fi
+
+    # Count XMLs (subtract 1 for header line)
+    xml_count=$(($(wc -l < "$csv_file") - 1))
 
     if [ "$xml_count" -eq 0 ]; then
-        echo "  $dirname: No XML files found, skipping"
+        echo "  $pmc_dir: No files in CSV, skipping"
         continue
     fi
 
@@ -63,41 +76,43 @@ for subdir in "$XML_BASE_DIR"/PMC*; do
     if [ "$xml_count" -le "$FILES_PER_JOB" ]; then
         # Single job for this subdirectory
         num_jobs=1
-        output_file="$OUTPUT_DIR/${dirname}_results.parquet"
+        output_file="$OUTPUT_DIR/${pmc_dir}_results.parquet"
 
-        echo ". /usr/local/current/apptainer/app_conf/sing_binds && apptainer exec $CONTAINER_SIF python3 /scripts/process_extracted_xmls_with_oddpub.py --batch-size 500 --output-file $output_file $subdir" >> "$SWARM_FILE"
+        # Create a temporary file list with full paths
+        temp_filelist="$OUTPUT_DIR/.${pmc_dir}_files.txt"
+
+        # Skip header and prepend XML_BASE_DIR to each path
+        tail -n +2 "$csv_file" | cut -d',' -f1 | sed "s|^|$XML_BASE_DIR/|" > "$temp_filelist"
+
+        # Generate swarm command that reads from file list
+        echo ". /usr/local/current/apptainer/app_conf/sing_binds && cat $temp_filelist | tr '\\n' ' ' | xargs apptainer exec $CONTAINER_SIF python3 /scripts/process_extracted_xmls_with_oddpub.py --batch-size 500 --output-file $output_file" >> "$SWARM_FILE"
 
         total_jobs=$((total_jobs + 1))
-        echo "  $dirname: $xml_count files -> 1 job"
+        echo "  $pmc_dir: $xml_count files -> 1 job"
     else
         # Split into multiple jobs
         num_jobs=$(( (xml_count + FILES_PER_JOB - 1) / FILES_PER_JOB ))
 
-        # Get list of all XML files in sorted order
-        xml_files=( $(find "$subdir" -name "*.xml" -type f | sort) )
-
         # Create jobs for each chunk
         for ((job=0; job<num_jobs; job++)); do
-            start_idx=$((job * FILES_PER_JOB))
-            end_idx=$(( (job + 1) * FILES_PER_JOB ))
+            start_line=$((job * FILES_PER_JOB + 2))  # +2 to skip header
+            end_line=$(( (job + 1) * FILES_PER_JOB + 1))
 
-            # Get this chunk of files
-            chunk_files=("${xml_files[@]:$start_idx:$FILES_PER_JOB}")
+            # Create a file list for this chunk with full paths
+            chunk_list_file="$OUTPUT_DIR/.${pmc_dir}_chunk${job}_files.txt"
 
-            # Create a file list for this chunk
-            chunk_list_file="$OUTPUT_DIR/.${dirname}_chunk${job}_files.txt"
-            printf '%s\n' "${chunk_files[@]}" > "$chunk_list_file"
+            # Extract chunk and prepend XML_BASE_DIR
+            sed -n "${start_line},${end_line}p" "$csv_file" | cut -d',' -f1 | sed "s|^|$XML_BASE_DIR/|" > "$chunk_list_file"
 
-            output_file="$OUTPUT_DIR/${dirname}_chunk${job}_results.parquet"
+            output_file="$OUTPUT_DIR/${pmc_dir}_chunk${job}_results.parquet"
 
             # Add command to swarm file
-            # Use xargs to pass the file list
-            echo ". /usr/local/current/apptainer/app_conf/sing_binds && cat $chunk_list_file | xargs -I {} apptainer exec $CONTAINER_SIF python3 /scripts/process_extracted_xmls_with_oddpub.py --batch-size 500 --output-file $output_file {}" >> "$SWARM_FILE"
+            echo ". /usr/local/current/apptainer/app_conf/sing_binds && cat $chunk_list_file | tr '\\n' ' ' | xargs apptainer exec $CONTAINER_SIF python3 /scripts/process_extracted_xmls_with_oddpub.py --batch-size 500 --output-file $output_file" >> "$SWARM_FILE"
 
             total_jobs=$((total_jobs + 1))
         done
 
-        echo "  $dirname: $xml_count files -> $num_jobs jobs"
+        echo "  $pmc_dir: $xml_count files -> $num_jobs jobs"
     fi
 done
 

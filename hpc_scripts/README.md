@@ -39,6 +39,7 @@ A critical timeout bug was discovered (98.4% job failure rate) and fixed. The co
 |------|-------------|
 | `create_oddpub_swarm_container.sh` | Generate swarm file with automatic chunking (1,000 XMLs per chunk) |
 | `verify_and_retry_oddpub.sh` | Verify output completeness and generate retry swarm for failed jobs |
+| `verify_and_retry_oddpub_packed.sh` | Same as above but packs 8 jobs per swarm line for efficiency |
 | `merge_oddpub_results.py` | Merge all chunk results into single parquet file |
 
 ## Prerequisites
@@ -151,6 +152,41 @@ ls -1 /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output/*.parquet | wc
 # Watch progress
 watch -n 30 'echo "Completed: $(ls -1 /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output/*.parquet 2>/dev/null | wc -l) / 7000"'
 ```
+
+### 4a. Verify Completeness and Generate Retry Swarm
+
+After jobs complete (or if monitoring shows failures), use the verify scripts to check for missing outputs and generate retry commands:
+
+```bash
+# Basic verification and retry generation
+bash verify_and_retry_oddpub.sh \
+    /data/NIMH_scratch/licc/pmcoa/files \
+    /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output \
+    /data/adamt/containers/oddpub.sif
+
+# Or use packed version for better CPU efficiency (8 jobs per node)
+bash verify_and_retry_oddpub_packed.sh \
+    /data/NIMH_scratch/licc/pmcoa/files \
+    /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output \
+    /data/adamt/containers/oddpub.sif
+```
+
+**What these scripts do**:
+1. Check all tar.gz files for corresponding `.filelist.csv` files
+2. Count expected chunks based on XML counts from CSV
+3. Verify each expected output parquet file exists
+4. Generate retry commands for missing outputs
+5. Create swarm file with retry commands
+
+**CSV Filename Handling**:
+- The scripts correctly handle CSV filenames by stripping `.tar.gz` and adding `.filelist.csv`
+- Example: `oa_comm_xml.PMC000xxxxxx.baseline.2025-06-26.tar.gz` → `oa_comm_xml.PMC000xxxxxx.baseline.2025-06-26.filelist.csv`
+- This matches the optimized oddpub processor's expectations
+
+**Output**:
+- Verification summary showing success/failure rates
+- `oddpub_retry_swarm.txt` or `oddpub_retry_packed_swarm.txt` with retry commands
+- If all jobs succeeded, instructions for merging results
 
 ### 5. Merge Results
 

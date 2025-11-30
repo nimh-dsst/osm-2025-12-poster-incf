@@ -155,7 +155,7 @@ cat("Successfully processed", nrow(combined_results), "articles\\n")
             logger.error(f"R stderr: {result.stderr}")
             return False
 
-    except subprocess.TimeoutExpletedError:
+    except subprocess.TimeoutExpired:
         logger.error(f"R script timed out after 60 minutes")
         return False
     except Exception as e:
@@ -308,6 +308,7 @@ def process_tarball_optimized(tarball_path: Path, batch_size: int, output_dir: P
     batch_num = 0
     start_time = time.time()
     last_progress_time = start_time
+    files_not_found = 0
 
     try:
         with tarfile.open(tarball_path, 'r:gz') as tar:
@@ -360,6 +361,12 @@ def process_tarball_optimized(tarball_path: Path, batch_size: int, output_dir: P
                                   f"ETA: {eta/60:.1f} minutes")
                         last_progress_time = current_time
 
+                except KeyError:
+                    # File not found in tar - log only first few to avoid spam
+                    files_not_found += 1
+                    if files_not_found <= 5:
+                        logger.warning(f"File not found in tar: {member_name}")
+                    continue
                 except tarfile.TarError as e:
                     logger.error(f"Error extracting {member_name}: {e}")
                     continue
@@ -378,6 +385,11 @@ def process_tarball_optimized(tarball_path: Path, batch_size: int, output_dir: P
             elapsed = time.time() - start_time
             logger.info(f"Completed processing {count} files in {elapsed/60:.1f} minutes "
                       f"({count/elapsed:.1f} files/sec)")
+
+            if files_not_found > 0:
+                logger.warning(f"WARNING: {files_not_found}/{len(chunk_files)} files not found in tar archive")
+                if files_not_found > 5:
+                    logger.warning(f"(Only first 5 shown above)")
 
     except Exception as e:
         logger.error(f"Error processing tarball {tarball_path}: {e}")

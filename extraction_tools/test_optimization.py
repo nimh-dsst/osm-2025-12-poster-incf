@@ -22,9 +22,9 @@ def test_extraction_methods(tar_file):
         print("Cannot test optimization without CSV file list")
         return
 
-    # Test parameters
-    start_index = 1000  # Start at file 1000
-    chunk_size = 10     # Process only 10 files
+    # Test parameters - use smaller start index for better chance of finding content
+    start_index = 100   # Start at file 100 (more likely to have body text)
+    chunk_size = 50     # Process 50 files (enough for oddpub to work)
 
     print(f"\nTest parameters:")
     print(f"  Start index: {start_index}")
@@ -50,8 +50,31 @@ def test_extraction_methods(tar_file):
     print(f"Time taken: {original_time:.2f} seconds")
 
     if result.returncode != 0:
-        print(f"ERROR: Original method failed")
-        print(f"stderr: {result.stderr}")
+        print(f"ERROR: Original method failed with return code {result.returncode}")
+        print(f"stdout:\n{result.stdout}")
+        print(f"stderr:\n{result.stderr}")
+
+        # Try a simpler test just to extract text
+        print("\nTrying a simple extraction test...")
+        test_result = subprocess.run([
+            sys.executable, "-c",
+            f"""
+import tarfile
+import lxml.etree as etree
+count = 0
+with tarfile.open('{tar_file}', 'r:gz') as tar:
+    for i, member in enumerate(tar):
+        if member.name.endswith('.xml') and i >= {start_index} and i < {start_index + 10}:
+            f = tar.extractfile(member)
+            xml = f.read()
+            root = etree.fromstring(xml)
+            body = root.find('.//body')
+            if body is not None:
+                count += 1
+print(f'Found {{count}} files with body text')
+"""
+        ], capture_output=True, text=True)
+        print(f"Simple test output: {test_result.stdout}")
         return
 
     # Extract timing from output

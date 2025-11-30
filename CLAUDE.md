@@ -256,6 +256,17 @@ print(f'{df[funder_cols].sum().sum()} total matches')
 
 ## Important Notes
 
+### Git Workflow After Context Compaction
+
+**CRITICAL:** After a conversation context compaction, always check for uncommitted changes before continuing work:
+
+```bash
+git status
+git diff
+```
+
+If there are pending changes from the previous session, commit them before starting new work. This ensures no work is lost due to compaction boundaries.
+
 ### Data Files
 - Never commit large data files (XMLs, parquets >10 MB, tar.gz)
 - `.gitignore` prevents accidental commits of data directories

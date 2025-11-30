@@ -13,7 +13,7 @@ import sys
 import tempfile
 import traceback
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 import subprocess
 import time
 
@@ -29,7 +29,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def extract_body_text_from_xml(xml_path: Path) -> tuple[str, str, str]:
+def extract_body_text_from_xml(xml_path: Path) -> Tuple[str, str, str]:
     """
     Extract PMID, PMCID and body text from PMC XML file.
 

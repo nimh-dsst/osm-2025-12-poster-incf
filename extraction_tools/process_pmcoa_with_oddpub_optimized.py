@@ -265,7 +265,7 @@ def process_tarball_optimized(tarball_path: Path, batch_size: int, output_dir: P
         Number of files processed
     """
     # Check for CSV file list
-    csv_path = tarball_path.with_suffix('.filelist.csv')
+    csv_path = tarball_path.with_suffix('').with_suffix('.filelist.csv')
     if not csv_path.exists():
         # Fallback to original method if CSV doesn't exist
         logger.warning(f"CSV file list not found: {csv_path}, falling back to enumeration")

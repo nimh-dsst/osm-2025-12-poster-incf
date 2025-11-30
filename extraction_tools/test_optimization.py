@@ -16,7 +16,7 @@ def test_extraction_methods(tar_file):
     print("=" * 60)
 
     # Check if CSV exists
-    csv_file = Path(tar_file).with_suffix('.filelist.csv')
+    csv_file = Path(tar_file).with_suffix('').with_suffix('.filelist.csv')
     if not csv_file.exists():
         print(f"ERROR: CSV file not found: {csv_file}")
         print("Cannot test optimization without CSV file list")

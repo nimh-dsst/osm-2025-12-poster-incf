@@ -89,6 +89,7 @@ def run_oddpub_r(input_dir: Path, output_file: Path) -> bool:
     """
     # Create R script that processes the files
     # Note: Uses dplyr, purrr, stringr directly (not tidyverse) to match container packages
+    # oddpub v7.2.3: open_data_search returns BOTH data and code columns - no separate open_code_search
     r_script_content = '''
 library(oddpub)
 library(dplyr)
@@ -112,20 +113,13 @@ pdf_text_df <- dplyr::tibble(
     text = purrr::map_chr(text_files, ~ paste(readLines(.x, warn = FALSE), collapse = " "))
 )
 
-# Run oddpub
-open_data_results <- oddpub::open_data_search(pdf_text_df)
-open_code_results <- oddpub::open_code_search(pdf_text_df)
+# Run oddpub - open_data_search returns both data AND code columns in v7.2.3
+results <- oddpub::open_data_search(pdf_text_df)
 
-# Combine results
-combined_results <- pdf_text_df %>%
-    dplyr::select(article) %>%
-    dplyr::left_join(open_data_results, by = "article") %>%
-    dplyr::left_join(open_code_results, by = "article", suffix = c("_data", "_code"))
+# Write results (already includes article, is_open_data, is_open_code, etc.)
+write.csv(results, output_file, row.names = FALSE)
 
-# Write results
-write.csv(combined_results, output_file, row.names = FALSE)
-
-cat("Successfully processed", nrow(combined_results), "articles\\n")
+cat("Successfully processed", nrow(results), "articles\\n")
 '''
 
     # Write R script to temporary file

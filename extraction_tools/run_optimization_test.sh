@@ -11,7 +11,7 @@ if [ "$#" -ne 1 ]; then
 fi
 
 TAR_FILE="$1"
-CONTAINER="/data/adamt/containers/oddpub.sif"
+CONTAINER="/data/adamt/containers/oddpub_optimized.sif"
 
 # Check if container exists
 if [ ! -f "$CONTAINER" ]; then

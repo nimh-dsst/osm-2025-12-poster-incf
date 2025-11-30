@@ -281,15 +281,25 @@ def process_tarball_optimized(tarball_path: Path, batch_size: int, output_dir: P
         logger.error(f"Error reading CSV file list: {e}")
         return 0
 
+    # Determine column name - PMCOA uses 'Article File'
+    if 'Article File' in file_df.columns:
+        file_column = 'Article File'
+    elif 'Member' in file_df.columns:
+        file_column = 'Member'
+    else:
+        # Use first column as fallback
+        file_column = file_df.columns[0]
+        logger.info(f"Using column '{file_column}' for file names")
+
     # Calculate chunk boundaries
-    total_files = len(file_df) - 1  # Subtract header row
+    total_files = len(file_df)
     end_index = total_files
     if chunk_size:
         end_index = min(start_index + chunk_size, total_files)
 
-    # Get files for this chunk (skip header row)
-    chunk_df = file_df.iloc[start_index + 1:end_index + 1]  # +1 to skip header
-    chunk_files = chunk_df['Member'].tolist()
+    # Get files for this chunk
+    chunk_df = file_df.iloc[start_index:end_index]
+    chunk_files = chunk_df[file_column].tolist()
 
     logger.info(f"Processing {len(chunk_files)} files from index {start_index} to {end_index-1}")
 

@@ -312,13 +312,16 @@ def main():
     parser = argparse.ArgumentParser(
         description='Process extracted PMC XML files with oddpub R package'
     )
-    parser.add_argument('xml_dir', help='Directory containing extracted XML files')
+    parser.add_argument('xml_dir', nargs='?', default=None,
+                      help='Directory containing extracted XML files (optional if --file-list is used)')
+    parser.add_argument('--file-list', '-f', type=str, default=None,
+                      help='Path to a text file containing one XML file path per line')
     parser.add_argument('--output-file', '-o', required=True,
                       help='Output parquet file path')
     parser.add_argument('--batch-size', '-b', type=int, default=500,
                       help='Number of files to process per oddpub batch (default: 500)')
     parser.add_argument('--pattern', '-p', default='*.xml',
-                      help='Pattern to match XML files (default: *.xml)')
+                      help='Pattern to match XML files when using xml_dir (default: *.xml)')
     parser.add_argument('--max-files', '-m', type=int, default=None,
                       help='Maximum number of files to process (for testing)')
 
@@ -329,18 +332,35 @@ def main():
     logger.info("PMC XML Processing with oddpub (Extracted Files Version)")
     logger.info("======================================================================")
 
-    # Find XML files
-    xml_dir = Path(args.xml_dir)
-    if not xml_dir.exists():
-        logger.error(f"XML directory not found: {xml_dir}")
-        sys.exit(1)
+    # Determine input mode: file list or directory
+    if args.file_list:
+        # Read file list from text file
+        file_list_path = Path(args.file_list)
+        if not file_list_path.exists():
+            logger.error(f"File list not found: {file_list_path}")
+            sys.exit(1)
 
-    xml_files = sorted(xml_dir.glob(args.pattern))
+        with open(file_list_path, 'r') as f:
+            xml_files = [Path(line.strip()) for line in f if line.strip()]
+
+        logger.info(f"Read {len(xml_files)} file paths from {file_list_path}")
+
+    elif args.xml_dir:
+        # Find XML files in directory
+        xml_dir = Path(args.xml_dir)
+        if not xml_dir.exists():
+            logger.error(f"XML directory not found: {xml_dir}")
+            sys.exit(1)
+
+        xml_files = sorted(xml_dir.glob(args.pattern))
+        logger.info(f"Found {len(xml_files)} XML files in {xml_dir}")
+
+    else:
+        logger.error("Either xml_dir or --file-list must be provided")
+        sys.exit(1)
 
     if args.max_files:
         xml_files = xml_files[:args.max_files]
-
-    logger.info(f"Found {len(xml_files)} XML files in {xml_dir}")
 
     if len(xml_files) == 0:
         logger.error("No XML files found")

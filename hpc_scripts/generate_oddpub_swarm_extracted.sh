@@ -78,14 +78,14 @@ for csv_file in "$XML_BASE_DIR"/*.baseline.*.filelist.csv; do
         num_jobs=1
         output_file="$OUTPUT_DIR/${pmc_dir}_results.parquet"
 
-        # Create a temporary file list with full paths
+        # Create a file list with full paths
         temp_filelist="$OUTPUT_DIR/.${pmc_dir}_files.txt"
 
         # Skip header and prepend XML_BASE_DIR to each path
         tail -n +2 "$csv_file" | cut -d',' -f1 | sed "s|^|$XML_BASE_DIR/|" > "$temp_filelist"
 
-        # Generate swarm command that reads from file list
-        echo ". /usr/local/current/apptainer/app_conf/sing_binds && cat $temp_filelist | tr '\\n' ' ' | xargs apptainer exec $CONTAINER_SIF python3 /scripts/process_extracted_xmls_with_oddpub.py --batch-size 500 --output-file $output_file" >> "$SWARM_FILE"
+        # Generate swarm command using --file-list argument
+        echo ". /usr/local/current/apptainer/app_conf/sing_binds && apptainer exec $CONTAINER_SIF python3 /scripts/process_extracted_xmls_with_oddpub.py --file-list $temp_filelist --batch-size 500 --output-file $output_file" >> "$SWARM_FILE"
 
         total_jobs=$((total_jobs + 1))
         echo "  $pmc_dir: $xml_count files -> 1 job"
@@ -106,8 +106,8 @@ for csv_file in "$XML_BASE_DIR"/*.baseline.*.filelist.csv; do
 
             output_file="$OUTPUT_DIR/${pmc_dir}_chunk${job}_results.parquet"
 
-            # Add command to swarm file
-            echo ". /usr/local/current/apptainer/app_conf/sing_binds && cat $chunk_list_file | tr '\\n' ' ' | xargs apptainer exec $CONTAINER_SIF python3 /scripts/process_extracted_xmls_with_oddpub.py --batch-size 500 --output-file $output_file" >> "$SWARM_FILE"
+            # Add command to swarm file using --file-list argument
+            echo ". /usr/local/current/apptainer/app_conf/sing_binds && apptainer exec $CONTAINER_SIF python3 /scripts/process_extracted_xmls_with_oddpub.py --file-list $chunk_list_file --batch-size 500 --output-file $output_file" >> "$SWARM_FILE"
 
             total_jobs=$((total_jobs + 1))
         done

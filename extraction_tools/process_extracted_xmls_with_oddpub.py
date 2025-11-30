@@ -88,9 +88,12 @@ def run_oddpub_r(input_dir: Path, output_file: Path) -> bool:
     Returns True if successful, False otherwise.
     """
     # Create R script that processes the files
+    # Note: Uses dplyr, purrr, stringr directly (not tidyverse) to match container packages
     r_script_content = '''
 library(oddpub)
-library(tidyverse)
+library(dplyr)
+library(purrr)
+library(stringr)
 
 args <- commandArgs(trailingOnly = TRUE)
 input_dir <- args[1]
@@ -104,9 +107,9 @@ if (length(text_files) == 0) {
 }
 
 # Read all text files into a tibble
-pdf_text_df <- tibble(
-    article = basename(text_files) %>% str_remove("\\\\.txt$"),
-    text = map_chr(text_files, ~ paste(readLines(.x, warn = FALSE), collapse = " "))
+pdf_text_df <- dplyr::tibble(
+    article = basename(text_files) %>% stringr::str_remove("\\\\.txt$"),
+    text = purrr::map_chr(text_files, ~ paste(readLines(.x, warn = FALSE), collapse = " "))
 )
 
 # Run oddpub
@@ -115,12 +118,12 @@ open_code_results <- oddpub::open_code_search(pdf_text_df)
 
 # Combine results
 combined_results <- pdf_text_df %>%
-    select(article) %>%
-    left_join(open_data_results, by = "article") %>%
-    left_join(open_code_results, by = "article", suffix = c("_data", "_code"))
+    dplyr::select(article) %>%
+    dplyr::left_join(open_data_results, by = "article") %>%
+    dplyr::left_join(open_code_results, by = "article", suffix = c("_data", "_code"))
 
 # Write results
-write_csv(combined_results, output_file)
+write.csv(combined_results, output_file, row.names = FALSE)
 
 cat("Successfully processed", nrow(combined_results), "articles\\n")
 '''

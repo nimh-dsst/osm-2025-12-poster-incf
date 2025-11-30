@@ -185,13 +185,19 @@ def process_batch(records: List[Dict], batch_num: int, output_dir: Path) -> Opti
     """Process a batch of records through oddpub."""
     logger.info(f"Processing batch {batch_num} ({len(records)} records)")
 
-    # Use /lscratch on HPC if available (faster local SSD), otherwise use default /tmp
+    # Determine temp directory location
+    # Priority: /lscratch (HPC SLURM) > output_dir (always accessible) > /tmp (may not be bound in container)
     temp_base = None
     if 'SLURM_JOB_ID' in os.environ:
         lscratch_dir = Path(f"/lscratch/{os.environ['SLURM_JOB_ID']}")
         if lscratch_dir.exists():
             temp_base = str(lscratch_dir)
             logger.debug(f"Using /lscratch for temporary files: {temp_base}")
+
+    # If not on SLURM, use output_dir parent to ensure container can access it
+    if temp_base is None:
+        temp_base = str(output_dir)
+        logger.debug(f"Using output directory for temporary files: {temp_base}")
 
     # Create temporary directory for text files
     with tempfile.TemporaryDirectory(prefix=f'oddpub_batch_{batch_num}_', dir=temp_base) as temp_dir:

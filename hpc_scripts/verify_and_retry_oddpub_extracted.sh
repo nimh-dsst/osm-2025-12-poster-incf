@@ -38,7 +38,8 @@ fi
 
 # Count actual output files in both directories
 new_outputs=$(ls "$OUTPUT_DIR"/PMC*.parquet 2>/dev/null | wc -l)
-old_outputs=$(ls "$OLD_OUTPUT_DIR"/oa_comm_xml.PMC*.parquet 2>/dev/null | wc -l)
+# Old directory has oa_comm_xml, oa_noncomm_xml, oa_other_xml, etc.
+old_outputs=$(ls "$OLD_OUTPUT_DIR"/oa_*_xml.PMC*.parquet 2>/dev/null | wc -l)
 echo "Found $new_outputs new-style output files in $OUTPUT_DIR"
 echo "Found $old_outputs old-style output files in $OLD_OUTPUT_DIR"
 echo ""
@@ -90,11 +91,11 @@ for csv_file in "$XML_BASE_DIR"/*.baseline.*.filelist.csv; do
         fi
         [ -f "$new_file" ] && return 0
 
-        # Check old style (glob for date portion)
+        # Check old style (glob for date portion and oa_*_xml prefix)
         if [ -n "$chunk" ]; then
-            old_pattern="$OLD_OUTPUT_DIR/oa_comm_xml.${pmc}.baseline.*_${chunk}_results.parquet"
+            old_pattern="$OLD_OUTPUT_DIR/oa_*_xml.${pmc}.baseline.*_${chunk}_results.parquet"
         else
-            old_pattern="$OLD_OUTPUT_DIR/oa_comm_xml.${pmc}.baseline.*_results.parquet"
+            old_pattern="$OLD_OUTPUT_DIR/oa_*_xml.${pmc}.baseline.*_results.parquet"
         fi
         # Use compgen to check if any files match the glob
         compgen -G "$old_pattern" > /dev/null 2>&1 && return 0

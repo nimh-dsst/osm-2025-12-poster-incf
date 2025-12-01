@@ -1,6 +1,7 @@
 #!/bin/bash
 # Verify oddpub output completeness for extracted XML files and generate retry swarm
 # Uses CSV file lists for fast enumeration, packs 4 jobs per line
+# Checks BOTH old and new output directories for existing results
 # Usage: bash verify_and_retry_oddpub_extracted.sh <xml_base_dir> <output_dir> <container_sif>
 
 set -e
@@ -17,6 +18,9 @@ CONTAINER_SIF="$3"
 FILES_PER_JOB=1000  # Must match the value used in generate script
 JOBS_PER_LINE=4     # Pack 4 jobs per swarm line (reduced from 8 to avoid timeouts)
 
+# Old output directory with different naming convention (from tarball processing)
+OLD_OUTPUT_DIR="/data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output"
+
 if [ ! -d "$XML_BASE_DIR" ]; then
     echo "Error: XML base directory does not exist: $XML_BASE_DIR"
     exit 1
@@ -32,9 +36,11 @@ if [ ! -d "$OUTPUT_DIR" ]; then
     exit 1
 fi
 
-# Count actual output files (new style PMC* only)
-actual_outputs=$(ls "$OUTPUT_DIR"/PMC*.parquet 2>/dev/null | wc -l)
-echo "Found $actual_outputs existing PMC* output files in $OUTPUT_DIR"
+# Count actual output files in both directories
+new_outputs=$(ls "$OUTPUT_DIR"/PMC*.parquet 2>/dev/null | wc -l)
+old_outputs=$(ls "$OLD_OUTPUT_DIR"/oa_comm_xml.PMC*.parquet 2>/dev/null | wc -l)
+echo "Found $new_outputs new-style output files in $OUTPUT_DIR"
+echo "Found $old_outputs old-style output files in $OLD_OUTPUT_DIR"
 echo ""
 
 # Collect retry commands in an array
@@ -69,13 +75,40 @@ for csv_file in "$XML_BASE_DIR"/*.baseline.*.filelist.csv; do
         continue
     fi
 
+    # Helper function to check if output exists in either location
+    # New style: PMC005xxxxxx_chunk0_results.parquet (in OUTPUT_DIR)
+    # Old style: oa_comm_xml.PMC005xxxxxx.baseline.2025-06-26_chunk0_results.parquet (in OLD_OUTPUT_DIR)
+    check_output_exists() {
+        local pmc="$1"
+        local chunk="$2"  # empty string for single-job, "chunk0" etc for multi-job
+
+        # Check new style first
+        if [ -n "$chunk" ]; then
+            new_file="$OUTPUT_DIR/${pmc}_${chunk}_results.parquet"
+        else
+            new_file="$OUTPUT_DIR/${pmc}_results.parquet"
+        fi
+        [ -f "$new_file" ] && return 0
+
+        # Check old style (glob for date portion)
+        if [ -n "$chunk" ]; then
+            old_pattern="$OLD_OUTPUT_DIR/oa_comm_xml.${pmc}.baseline.*_${chunk}_results.parquet"
+        else
+            old_pattern="$OLD_OUTPUT_DIR/oa_comm_xml.${pmc}.baseline.*_results.parquet"
+        fi
+        # Use compgen to check if any files match the glob
+        compgen -G "$old_pattern" > /dev/null 2>&1 && return 0
+
+        return 1
+    }
+
     # Calculate number of jobs needed
     if [ "$xml_count" -le "$FILES_PER_JOB" ]; then
         # Single job for this subdirectory
         total_expected=$((total_expected + 1))
         output_file="$OUTPUT_DIR/${pmc_dir}_results.parquet"
 
-        if [ ! -f "$output_file" ]; then
+        if ! check_output_exists "$pmc_dir" ""; then
             total_missing=$((total_missing + 1))
 
             # Create file list
@@ -94,7 +127,7 @@ for csv_file in "$XML_BASE_DIR"/*.baseline.*.filelist.csv; do
         for ((job=0; job<num_jobs; job++)); do
             output_file="$OUTPUT_DIR/${pmc_dir}_chunk${job}_results.parquet"
 
-            if [ ! -f "$output_file" ]; then
+            if ! check_output_exists "$pmc_dir" "chunk${job}"; then
                 total_missing=$((total_missing + 1))
 
                 start_line=$((job * FILES_PER_JOB + 2))  # +2 to skip header
@@ -111,10 +144,13 @@ for csv_file in "$XML_BASE_DIR"/*.baseline.*.filelist.csv; do
     fi
 done
 
+actual_outputs=$((new_outputs + old_outputs))
+already_done=$((total_expected - total_missing))
+
 echo ""
 echo "==================== VERIFICATION SUMMARY ===================="
 echo "Expected outputs:  $total_expected"
-echo "Actual outputs:    $actual_outputs"
+echo "Already complete:  $already_done (new: $new_outputs, old: $old_outputs)"
 echo "Missing outputs:   $total_missing"
 echo ""
 
@@ -143,10 +179,10 @@ else
     done
 
     packed_lines=$(wc -l < "$RETRY_SWARM_FILE")
-    success_rate=$(awk "BEGIN {printf \"%.1f\", (($actual_outputs / $total_expected) * 100)}")
+    success_rate=$(awk "BEGIN {printf \"%.1f\", (($already_done / $total_expected) * 100)}")
     failure_rate=$(awk "BEGIN {printf \"%.1f\", (($total_missing / $total_expected) * 100)}")
 
-    echo "Success rate:  $success_rate% ($actual_outputs/$total_expected)"
+    echo "Success rate:  $success_rate% ($already_done/$total_expected)"
     echo "Failure rate:  $failure_rate% ($total_missing/$total_expected)"
     echo ""
     echo "⚠️  RETRY NEEDED"

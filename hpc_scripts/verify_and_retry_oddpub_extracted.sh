@@ -22,7 +22,7 @@ usage() {
     echo ""
     echo "Options:"
     echo "  --swarm-dir <path>    Directory containing previous swarm files to check for queued jobs"
-    echo "                        (default: /home/ec2-user/claude/osm-2025-12-poster-incf/hpc_scripts)"
+    echo "                        (default: current working directory)"
     echo "  --jobs-per-line <n>   Jobs to pack per swarm line (default: 4)"
     echo "  --files-per-job <n>   Files per job/chunk (default: 1000)"
     echo "  --dry-run             Show what would be done without creating files"
@@ -47,7 +47,8 @@ shift 3
 # Default values
 FILES_PER_JOB=1000
 JOBS_PER_LINE=4
-SWARM_TRACKING_DIR="/home/ec2-user/claude/osm-2025-12-poster-incf/hpc_scripts"
+# Default swarm tracking directory - use current directory on HPC
+SWARM_TRACKING_DIR="$(pwd)"
 REMOTE_TRACKING_HOST="osm2025"
 REMOTE_TRACKING_DIR="/home/ec2-user/claude/osm-2025-12-poster-incf/hpc_scripts"
 DRY_RUN=false

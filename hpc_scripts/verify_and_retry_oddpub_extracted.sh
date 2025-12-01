@@ -123,12 +123,12 @@ echo "Tolerance:         $TOLERANCE missing records allowed per chunk"
 echo "HPC user:          $HPC_USER"
 echo ""
 
-# Function to count records in a parquet file
+# Function to count records in a parquet file (using metadata for speed)
 count_parquet_records() {
     local parquet_file="$1"
     local count
-    # Use python to count records - fast and reliable
-    count=$(python3 -c "import pyarrow.parquet as pq; print(pq.read_table('$parquet_file').num_rows)" 2>/dev/null) || count="0"
+    # Use pyarrow metadata for fast row count (doesn't read data)
+    count=$(python3 -c "import pyarrow.parquet as pq; print(pq.ParquetFile('$parquet_file').metadata.num_rows)" 2>/dev/null) || count="0"
     echo "${count:-0}"
 }
 
@@ -177,40 +177,43 @@ else
         echo "  Warning: squeue not found. Skipping queue check."
         echo "  (Use --skip-queue-check to suppress this warning)"
     else
-        # Get all jobs for user with their batch script paths
-        # For swarm jobs, Command= points to a batch file we need to read
-        job_info=$(squeue -u "$HPC_USER" -h -o "%i %Z" 2>/dev/null || true)
+        # Get all jobs for user
+        job_ids=$(squeue -u "$HPC_USER" -h -o "%i" 2>/dev/null || true)
 
-        if [ -n "$job_info" ]; then
-            job_count=$(echo "$job_info" | wc -l)
+        if [ -n "$job_ids" ]; then
+            job_count=$(echo "$job_ids" | wc -l)
             echo "  Found $job_count jobs in queue for user $HPC_USER"
 
-            # For swarm jobs, we need to read the batch script to find chunk names
-            # Get unique batch script paths
-            declare -A batch_scripts_checked
+            # For swarm jobs, the batch script references cmd.* files in a swarm directory
+            # We need to find these directories and read ALL cmd.* files
+            declare -A swarm_dirs_checked
 
-            while read -r job_id work_dir; do
-                [ -z "$job_id" ] && continue
-
+            for job_id in $job_ids; do
                 # Get the batch script path from scontrol
                 batch_script=$(scontrol show job "$job_id" 2>/dev/null | grep -oP '(?<=Command=)[^\s]+' || true)
 
-                if [ -n "$batch_script" ] && [ -z "${batch_scripts_checked[$batch_script]}" ]; then
-                    batch_scripts_checked["$batch_script"]=1
+                if [ -n "$batch_script" ]; then
+                    # Extract the swarm directory (parent of swarm.batch)
+                    swarm_dir=$(dirname "$batch_script")
 
-                    # Read the batch script and extract chunk names
-                    if [ -f "$batch_script" ]; then
-                        # Extract chunk names from output file patterns in the script
-                        # Pattern: PMC\d+xxxxxx(_chunk\d+)?_results.parquet
-                        chunks_in_script=$(grep -oP 'PMC\d+x+(_chunk\d+)?(?=_results\.parquet)' "$batch_script" 2>/dev/null || true)
-                        for chunk in $chunks_in_script; do
-                            queued_chunks["$chunk"]=1
+                    if [ -d "$swarm_dir" ] && [ -z "${swarm_dirs_checked[$swarm_dir]}" ]; then
+                        swarm_dirs_checked["$swarm_dir"]=1
+
+                        # Read ALL cmd.* files in this swarm directory
+                        for cmd_file in "$swarm_dir"/cmd.*; do
+                            [ -f "$cmd_file" ] || continue
+                            # Extract chunk names from output file patterns
+                            # Pattern: PMC\d+xxxxxx(_chunk\d+)?_results.parquet
+                            chunks_in_cmd=$(grep -oP 'PMC\d+x+(_chunk\d+)?(?=_results\.parquet)' "$cmd_file" 2>/dev/null || true)
+                            for chunk in $chunks_in_cmd; do
+                                queued_chunks["$chunk"]=1
+                            done
                         done
                     fi
                 fi
-            done <<< "$job_info"
+            done
 
-            echo "  Checked ${#batch_scripts_checked[@]} unique batch scripts"
+            echo "  Checked ${#swarm_dirs_checked[@]} swarm directories"
             echo "  Identified ${#queued_chunks[@]} chunks currently in queue"
         else
             echo "  No jobs found in queue for user $HPC_USER"

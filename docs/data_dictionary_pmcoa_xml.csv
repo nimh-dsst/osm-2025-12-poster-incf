@@ -1,0 +1,69 @@
+field_name,xml_path,data_type,category,description,currently_extracted,extractor
+pmid,front/article-meta/article-id[@pub-id-type='pmid'],string,identifier,PubMed ID - unique identifier in PubMed database,Yes,Python + R
+pmcid_pmc,front/article-meta/article-id[@pub-id-type='pmc'],string,identifier,PMC ID without prefix (e.g. '9004331'),Yes,Python + R
+pmcid_uid,front/article-meta/article-id[@pub-id-type='pmcid'],string,identifier,Full PMC ID with prefix (e.g. 'PMC9004331'),Yes,Python + R
+doi,front/article-meta/article-id[@pub-id-type='doi'],string,identifier,Digital Object Identifier,Yes,Python + R
+pii,front/article-meta/article-id[@pub-id-type='pii'],string,identifier,Publisher Item Identifier,No,R only (not exported)
+article_type,article[@article-type],string,classification,Article type attribute (research-article/review-article/etc),Yes,Python + R (as 'type')
+journal_title,front/journal-meta/journal-title-group/journal-title,string,journal,Full journal name,Yes,Python + R (as 'journal')
+journal_id_nlm,front/journal-meta/journal-id[@journal-id-type='nlm-ta'],string,journal,NLM journal abbreviation (e.g. 'Nat Commun'),No,R only
+journal_id_iso,front/journal-meta/journal-id[@journal-id-type='iso-abbrev'],string,journal,ISO journal abbreviation,No,R only
+journal_id_publisher,front/journal-meta/journal-id[@journal-id-type='publisher-id'],string,journal,Publisher's internal journal ID,No,R only
+issn_print,front/journal-meta/issn[@pub-type='ppub'],string,journal,Print ISSN,No,R only
+issn_electronic,front/journal-meta/issn[@pub-type='epub'],string,journal,Electronic ISSN,No,R only
+publisher_name,front/journal-meta/publisher/publisher-name,string,journal,Publisher name,Yes,Python + R (as 'publisher')
+publisher_loc,front/journal-meta/publisher/publisher-loc,string,journal,Publisher location,Yes,Python (appended to 'publisher')
+article_title,front/article-meta/title-group/article-title,string,content,Full article title,No,R only
+subtitle,front/article-meta/title-group/subtitle,string,content,Article subtitle if present,No,Not extracted
+subject,front/article-meta/article-categories/subj-group/subject,string,classification,Article subject/category keywords,No,R only
+year_epub,front/article-meta/pub-date[@pub-type='epub']/year,integer,date,Electronic publication year,Yes,Python + R
+year_ppub,front/article-meta/pub-date[@pub-type='ppub']/year,integer,date,Print publication year,Yes,Python + R
+month_epub,front/article-meta/pub-date[@pub-type='epub']/month,integer,date,Electronic publication month,No,Not extracted
+day_epub,front/article-meta/pub-date[@pub-type='epub']/day,integer,date,Electronic publication day,No,Not extracted
+volume,front/article-meta/volume,string,citation,Journal volume number,No,Not extracted
+issue,front/article-meta/issue,string,citation,Journal issue number,No,Not extracted
+fpage,front/article-meta/fpage,string,citation,First page number,No,Not extracted
+lpage,front/article-meta/lpage,string,citation,Last page number,No,Not extracted
+elocation_id,front/article-meta/elocation-id,string,citation,Electronic location ID (for online-only articles),No,Not extracted
+abstract,front/article-meta/abstract,text,content,Article abstract text,No,R only (internal use)
+author_names,front/article-meta/contrib-group/contrib[@contrib-type='author']/name,list,author,"Author names (surname, given-names)",No,R only (n_auth count)
+author_affiliations,front/article-meta/contrib-group/contrib[@contrib-type='author']/xref[@ref-type='aff'],list,author,Author affiliation cross-references,No,R only
+affiliation_institution,front/article-meta/aff/institution,string,affiliation,First institution name found,Yes,Python + R
+affiliation_country,front/article-meta/aff/country,string,affiliation,First country found in affiliations,Yes,Python + R
+n_auth,front/article-meta/contrib-group/contrib[@contrib-type='author'],integer,count,Number of authors,No,R only
+n_affiliation,front/article-meta/aff,integer,count,Number of unique affiliations,No,R only
+corresp,front/article-meta/author-notes/corresp,text,contact,Corresponding author information,No,R only
+coi_statement,front/article-meta/fn-group/fn[@fn-type='COI-statement'],text,transparency,Conflict of interest statement,Yes,Python + R (as 'coi_text')
+coi_disclosure,back/fn-group/fn[@fn-type='conflict'],text,transparency,Alternative COI location in back matter,Yes,Python + R (combined in 'coi_text')
+funding_statement,front/article-meta/funding-group,structured,transparency,Structured funding information,Yes,Python + R (multiple fields)
+fund_institution,front/article-meta/funding-group/award-group/funding-source/institution,string,transparency,Funding institution name,Yes,Python + R (as fund_pmc_institute)
+fund_source,front/article-meta/funding-group/award-group/funding-source,text,transparency,Full funding source text,Yes,Python + R (as fund_pmc_source)
+fund_award_id,front/article-meta/funding-group/award-group/award-id,string,transparency,Grant/award number,No,Not extracted
+acknowledgments,back/ack,text,transparency,Acknowledgments section text,No,R only (internal use)
+data_availability,back/sec[@sec-type='data-availability'],text,transparency,Data availability statement,No,oddpub R package
+code_availability,back/sec[@sec-type='code-availability'],text,transparency,Code availability statement,No,oddpub R package
+ethics_statement,front/article-meta/fn-group/fn[@fn-type='ethics-statement'],text,transparency,Ethics approval statement,No,Not extracted
+consent_statement,front/article-meta/fn-group/fn[@fn-type='consent-statement'],text,transparency,Participant consent statement,No,Not extracted
+license,front/article-meta/permissions/license,text,license,License information and text,No,R only (not exported)
+license_type,front/article-meta/permissions/license/@license-type,string,license,License type attribute (open-access/etc),No,Not extracted
+copyright_statement,front/article-meta/permissions/copyright-statement,text,license,Copyright statement text,No,Not extracted
+n_ref,back/ref-list/ref,integer,count,Number of references,No,R only
+n_fig_body,body//fig,integer,count,Number of figures in body,No,R only
+n_fig_floats,floats-group/fig,integer,count,Number of figures in floats group,No,R only
+n_table_body,body//table-wrap,integer,count,Number of tables in body,No,R only
+n_table_floats,floats-group/table-wrap,integer,count,Number of tables in floats group,No,R only
+supplementary_material,back/sec/supplementary-material,structured,content,Supplementary material references,No,R only (is_supplement flag)
+ext_links,body//ext-link,list,content,External links in article body,No,R only (for registration detection)
+custom_meta,front/article-meta/custom-meta-group/custom-meta,structured,metadata,Custom metadata fields (journal-specific),Yes,Python (for registration detection)
+body_text,body,text,content,Full text of article body,No,R only (chars_in_body count)
+methods_section,body/sec[@sec-type='methods'],text,content,Methods section text,No,R only (internal use)
+keywords,front/article-meta/kwd-group/kwd,list,classification,Article keywords (JATS 1.1+),No,Not extracted
+fig_count,front/article-meta/counts/fig-count[@count],integer,count,Number of figures (JATS 1.2+),No,Not extracted
+table_count,front/article-meta/counts/table-count[@count],integer,count,Number of tables (JATS 1.2+),No,Not extracted
+word_count,front/article-meta/counts/word-count[@count],integer,count,Word count (JATS 1.2+),No,Not extracted
+ref_count,front/article-meta/counts/ref-count[@count],integer,count,Reference count (JATS 1.2+),No,Not extracted
+author_roles,front/article-meta/contrib-group/contrib/role[@content-type],list,author,CRediT author roles (JATS 1.2+),No,Not extracted
+license_ref,front/article-meta/permissions/license/ali:license_ref,string,license,Machine-readable license URL (NISO ALI),No,Not extracted
+funder_doi,front/article-meta/funding-group/*/funding-source/institution-wrap/institution-id[@institution-id-type='doi'],string,transparency,Funder DOI from Crossref Funder Registry,No,Not extracted
+dtd_version,article[@dtd-version],string,metadata,JATS DTD version (1.0/1.1/1.2/1.3),No,Not extracted
+processing_meta,processing-meta,structured,metadata,PMC processing metadata (JATS 1.3),No,Not extracted

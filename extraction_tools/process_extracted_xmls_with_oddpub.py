@@ -119,8 +119,16 @@ pdf_text_df <- dplyr::tibble(
     text = purrr::map_chr(text_files, ~ paste(readLines(.x, warn = FALSE), collapse = " "))
 )
 
+cat("Created tibble with", nrow(pdf_text_df), "rows\\n")
+cat("Article column values:", paste(head(pdf_text_df$article, 3), collapse=", "), "...\\n")
+cat("Text column lengths:", paste(head(nchar(pdf_text_df$text), 3), collapse=", "), "...\\n")
+
 # Run oddpub - open_data_search returns both data AND code columns in v7.2.3
+cat("Calling oddpub::open_data_search...\\n")
 results <- oddpub::open_data_search(pdf_text_df)
+
+cat("oddpub returned", nrow(results), "rows\\n")
+cat("Result columns:", paste(names(results), collapse=", "), "\\n")
 
 # Write results (already includes article, is_open_data, is_open_code, etc.)
 write.csv(results, output_file, row.names = FALSE)

@@ -235,6 +235,38 @@ print(f'{df[funder_cols].sum().sum()} total matches')
 - Batch processing: 4-8 GB RAM
 - Single file processing: ~500 MB peak
 
+## Current Processing Status (2025-12-01)
+
+### oddpub HPC Processing
+
+Processing ~6.5M PMC articles with oddpub R package on NIH Biowulf HPC:
+
+| Metric | Value |
+|--------|-------|
+| Expected outputs | 6,581 chunk files |
+| Completed | 6,078 (92.4%) |
+| Retry jobs submitted | 503 |
+
+**Output Locations:**
+- New outputs: `/data/NIMH_scratch/adamt/osm/oddpub_output/` (PMC*_chunk*_results.parquet)
+- Old outputs: `/data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output/` (oa_*_xml.PMC*.baseline.*_results.parquet)
+
+**HPC Scripts:**
+- `hpc_scripts/generate_oddpub_swarm_extracted_packed.sh` - Generate swarm file for extracted XMLs
+- `hpc_scripts/verify_and_retry_oddpub_extracted.sh` - Verify completion, generate retry swarm
+- `hpc_scripts/test_oddpub_extracted.sh` - Quick test script
+
+**Container:** `/data/adamt/containers/oddpub_optimized.sif`
+- R 4.3.2 with oddpub 7.2.3
+- 120-minute timeout for R script execution
+- 4 parallel jobs per swarm line
+
+### Next Steps After oddpub Completes
+
+1. Merge oddpub results from both output directories
+2. Integrate oddpub results into compact_rtrans dataset
+3. Re-run funder analysis with oddpub open_data_category breakdown
+
 ## Latest Results (2025-11-26)
 
 ### Data Sharing Rates by Major Funder (Full Dataset)

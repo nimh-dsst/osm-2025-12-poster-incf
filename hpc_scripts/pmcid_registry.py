@@ -637,10 +637,17 @@ def generate_retry_swarm(
         batch_num += 1
 
         # Create file list for this batch
+        # Rewrite XML paths to use the provided xml_base_dir
+        # Registry stores: /home/ec2-user/.../PMC001xxxxxx/PMC1234567.xml
+        # Need: <xml_base_dir>/PMC001xxxxxx/PMC1234567.xml
         filelist_path = filelist_dir / f"batch_{batch_num:05d}.txt"
         with open(filelist_path, 'w') as f:
-            for xml_path in batch['xml_path']:
-                f.write(f"{xml_path}\n")
+            for _, row in batch.iterrows():
+                # Extract relative path: PMC001xxxxxx/PMC1234567.xml
+                pmc_dir = row['pmc_dir']
+                pmcid = row['pmcid']
+                xml_file = f"{xml_base_dir}/{pmc_dir}/{pmcid}.xml"
+                f.write(f"{xml_file}\n")
 
         # Output file for this batch
         output_file = output_dir / f"retry_{timestamp}_batch_{batch_num:05d}_results.parquet"

@@ -126,8 +126,10 @@ echo ""
 # Function to count records in a parquet file
 count_parquet_records() {
     local parquet_file="$1"
+    local count
     # Use python to count records - fast and reliable
-    python3 -c "import pyarrow.parquet as pq; print(pq.read_table('$parquet_file').num_rows)" 2>/dev/null || echo "0"
+    count=$(python3 -c "import pyarrow.parquet as pq; print(pq.read_table('$parquet_file').num_rows)" 2>/dev/null) || count="0"
+    echo "${count:-0}"
 }
 
 # Function to find output file for a chunk (checks both new and old naming)
@@ -175,36 +177,40 @@ else
         echo "  Warning: squeue not found. Skipping queue check."
         echo "  (Use --skip-queue-check to suppress this warning)"
     else
-        # Get all jobs for user, extract the command/job details
-        # We need to look at the job's command to find which chunks are being processed
-        # Using squeue with format to get job ID and command
+        # Get all jobs for user with their batch script paths
+        # For swarm jobs, Command= points to a batch file we need to read
+        job_info=$(squeue -u "$HPC_USER" -h -o "%i %Z" 2>/dev/null || true)
 
-        # First get job IDs for the user
-        job_ids=$(squeue -u "$HPC_USER" -h -o "%i" 2>/dev/null || true)
-
-        if [ -n "$job_ids" ]; then
-            job_count=$(echo "$job_ids" | wc -l)
+        if [ -n "$job_info" ]; then
+            job_count=$(echo "$job_info" | wc -l)
             echo "  Found $job_count jobs in queue for user $HPC_USER"
 
-            # For each job, try to extract chunk names from the command
-            # Using scontrol to get job details including the command
-            for job_id in $job_ids; do
-                # Get the job's command/script content
-                job_cmd=$(scontrol show job "$job_id" 2>/dev/null | grep -oP '(?<=Command=).*' || true)
+            # For swarm jobs, we need to read the batch script to find chunk names
+            # Get unique batch script paths
+            declare -A batch_scripts_checked
 
-                # Also check the job's working directory for swarm batch scripts
-                job_batch=$(scontrol show job "$job_id" 2>/dev/null | grep -oP '(?<=StdOut=).*\.o' | head -1 || true)
+            while read -r job_id work_dir; do
+                [ -z "$job_id" ] && continue
 
-                # Extract chunk names from the command (looking for output file patterns)
-                # Pattern: PMC\d+xxxxxx(_chunk\d+)?_results.parquet
-                if [ -n "$job_cmd" ]; then
-                    chunks_in_job=$(echo "$job_cmd" | grep -oP 'PMC\d+x+(_chunk\d+)?(?=_results\.parquet)' || true)
-                    for chunk in $chunks_in_job; do
-                        queued_chunks["$chunk"]=1
-                    done
+                # Get the batch script path from scontrol
+                batch_script=$(scontrol show job "$job_id" 2>/dev/null | grep -oP '(?<=Command=)[^\s]+' || true)
+
+                if [ -n "$batch_script" ] && [ -z "${batch_scripts_checked[$batch_script]}" ]; then
+                    batch_scripts_checked["$batch_script"]=1
+
+                    # Read the batch script and extract chunk names
+                    if [ -f "$batch_script" ]; then
+                        # Extract chunk names from output file patterns in the script
+                        # Pattern: PMC\d+xxxxxx(_chunk\d+)?_results.parquet
+                        chunks_in_script=$(grep -oP 'PMC\d+x+(_chunk\d+)?(?=_results\.parquet)' "$batch_script" 2>/dev/null || true)
+                        for chunk in $chunks_in_script; do
+                            queued_chunks["$chunk"]=1
+                        done
+                    fi
                 fi
-            done
+            done <<< "$job_info"
 
+            echo "  Checked ${#batch_scripts_checked[@]} unique batch scripts"
             echo "  Identified ${#queued_chunks[@]} chunks currently in queue"
         else
             echo "  No jobs found in queue for user $HPC_USER"
@@ -296,7 +302,7 @@ for chunk_name in $(echo "${!expected_counts[@]}" | tr ' ' '\n' | sort); do
     fi
 
     # Find output file
-    output_file=$(find_output_file "$chunk_name")
+    output_file=$(find_output_file "$chunk_name" || true)
 
     if [ -z "$output_file" ]; then
         # No output file exists - check if queued

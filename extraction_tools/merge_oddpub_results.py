@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """
-Merge oddpub results from multiple output directories.
+Merge oddpub results from output directories.
 
-This script combines oddpub parquet files from:
-1. New output directory: PMC*_chunk*_results.parquet
-2. Old output directory: oa_*_xml.PMC*.baseline.*_results.parquet
+This script combines oddpub parquet files. It can work with:
+1. A single directory containing all parquet files (--input-dir)
+2. Separate directories for new/old naming conventions (--new-dir, --old-dir)
+
+File naming conventions supported:
+- New style: PMC*_results.parquet, PMC*_chunk*_results.parquet
+- Old style: oa_*_xml.PMC*.baseline.*_results.parquet
 
 The merged output contains all unique records by pmcid.
 """
@@ -73,6 +77,115 @@ def normalize_pmcid(pmcid: str) -> str:
     return pmcid
 
 
+def extract_pmcid_from_article(article: str) -> str:
+    """
+    Extract PMCID from article column.
+
+    Article column format: 'PMCPMC544856.txt' or 'PMC544856.txt' or 'PMC544856'
+    """
+    if pd.isna(article) or article == '':
+        return ''
+
+    article = str(article).strip()
+
+    # Remove .txt extension
+    if article.endswith('.txt'):
+        article = article[:-4]
+
+    # Handle 'PMCPMC' prefix (doubled)
+    if article.startswith('PMCPMC'):
+        return article[3:]  # Remove first 'PMC', keep 'PMCxxxxxx'
+
+    # Handle normal 'PMC' prefix
+    if article.startswith('PMC'):
+        return article
+
+    # Try to find PMC pattern anywhere in string
+    import re
+    match = re.search(r'PMC\d+', article)
+    if match:
+        return match.group()
+
+    return ''
+
+
+def _process_and_save(combined: pd.DataFrame, output_file: Path, file_count: int) -> Tuple[int, int]:
+    """
+    Process combined dataframe: extract PMCIDs, deduplicate, and save.
+
+    Returns:
+        Tuple of (file_count, total_unique_records)
+    """
+    logger.info(f"Combined: {len(combined):,} total records (before dedup)")
+
+    # Extract PMCID from article column if pmcid is empty
+    # The article column has format 'PMCPMC544856.txt'
+    if 'article' in combined.columns:
+        combined['pmcid_extracted'] = combined['article'].apply(extract_pmcid_from_article)
+        # Use extracted PMCID if the pmcid column is empty
+        if 'pmcid' not in combined.columns:
+            combined['pmcid'] = ''
+        empty_pmcid_mask = combined['pmcid'].isna() | (combined['pmcid'] == '')
+        combined.loc[empty_pmcid_mask, 'pmcid'] = combined.loc[empty_pmcid_mask, 'pmcid_extracted']
+        combined = combined.drop(columns=['pmcid_extracted'])
+        logger.info(f"Filled {empty_pmcid_mask.sum():,} empty PMCIDs from article column")
+
+    # Normalize pmcid for deduplication
+    combined['pmcid_norm'] = combined['pmcid'].apply(normalize_pmcid)
+
+    # Check for duplicates
+    dup_count = combined.duplicated(subset=['pmcid_norm'], keep='first').sum()
+    if dup_count > 0:
+        logger.info(f"Found {dup_count:,} duplicate PMCIDs - keeping first occurrence")
+        combined = combined.drop_duplicates(subset=['pmcid_norm'], keep='first')
+
+    # Remove normalization column
+    combined = combined.drop(columns=['pmcid_norm'])
+
+    # Sort by pmcid for consistent output
+    combined = combined.sort_values('pmcid').reset_index(drop=True)
+
+    total_unique = len(combined)
+    logger.info(f"Final: {total_unique:,} unique records")
+
+    # Save output
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    combined.to_parquet(output_file, index=False)
+
+    file_size_mb = output_file.stat().st_size / (1024 * 1024)
+    logger.info(f"Saved to {output_file} ({file_size_mb:.1f} MB)")
+
+    return file_count, total_unique
+
+
+def merge_oddpub_results_single_dir(
+    input_dir: Path,
+    output_file: Path
+) -> Tuple[int, int]:
+    """
+    Merge oddpub results from a single directory containing all parquet files.
+
+    Returns:
+        Tuple of (total_files, total_unique_records)
+    """
+    # Find all parquet files ending with _results.parquet
+    all_files = find_parquet_files(input_dir, "*_results.parquet")
+
+    logger.info(f"Found {len(all_files)} total parquet files")
+
+    if not all_files:
+        logger.error(f"No parquet files found in {input_dir}")
+        return 0, 0
+
+    # Load and concatenate all files
+    combined = load_and_concat_parquets(all_files, "input directory")
+
+    if combined.empty:
+        return len(all_files), 0
+
+    return _process_and_save(combined, output_file, len(all_files))
+
+
 def merge_oddpub_results(
     new_dir: Path,
     old_dir: Path,
@@ -114,6 +227,16 @@ def merge_oddpub_results(
 
     logger.info(f"Combined: {len(combined):,} total records (before dedup)")
 
+    # Extract PMCID from article column if pmcid is empty
+    # The article column has format 'PMCPMC544856.txt'
+    if 'article' in combined.columns:
+        combined['pmcid_extracted'] = combined['article'].apply(extract_pmcid_from_article)
+        # Use extracted PMCID if the pmcid column is empty
+        empty_pmcid_mask = combined['pmcid'].isna() | (combined['pmcid'] == '')
+        combined.loc[empty_pmcid_mask, 'pmcid'] = combined.loc[empty_pmcid_mask, 'pmcid_extracted']
+        combined = combined.drop(columns=['pmcid_extracted'])
+        logger.info(f"Filled {empty_pmcid_mask.sum():,} empty PMCIDs from article column")
+
     # Normalize pmcid for deduplication
     combined['pmcid_norm'] = combined['pmcid'].apply(normalize_pmcid)
 
@@ -144,18 +267,28 @@ def merge_oddpub_results(
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Merge oddpub results from multiple output directories'
+        description='Merge oddpub results from output directories'
     )
+
+    # Single directory mode (recommended when all files are in one place)
+    parser.add_argument(
+        '--input-dir',
+        type=Path,
+        default=None,
+        help='Single directory containing all oddpub parquet files (use this when files are in one directory)'
+    )
+
+    # Legacy two-directory mode
     parser.add_argument(
         '--new-dir',
         type=Path,
-        default=Path('/data/NIMH_scratch/adamt/osm/oddpub_output'),
+        default=None,
         help='Directory with new-style outputs (PMC*_results.parquet)'
     )
     parser.add_argument(
         '--old-dir',
         type=Path,
-        default=Path('/data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output'),
+        default=None,
         help='Directory with old-style outputs (oa_*_xml.PMC*_results.parquet)'
     )
     parser.add_argument(
@@ -175,43 +308,78 @@ def main():
     logger.info("=" * 60)
     logger.info("Merging oddpub results")
     logger.info("=" * 60)
-    logger.info(f"New directory: {args.new_dir}")
-    logger.info(f"Old directory: {args.old_dir}")
-    logger.info(f"Output file: {args.output}")
 
-    if not args.new_dir.exists():
-        logger.error(f"New directory does not exist: {args.new_dir}")
+    # Determine mode: single directory or two directories
+    if args.input_dir:
+        # Single directory mode
+        logger.info(f"Input directory: {args.input_dir}")
+        logger.info(f"Output file: {args.output}")
+
+        if not args.input_dir.exists():
+            logger.error(f"Input directory does not exist: {args.input_dir}")
+            sys.exit(1)
+
+        if args.dry_run:
+            all_files = list(args.input_dir.glob("*_results.parquet"))
+            logger.info(f"Dry run - would merge {len(all_files)} parquet files")
+            return
+
+        file_count, total = merge_oddpub_results_single_dir(
+            args.input_dir,
+            args.output
+        )
+
+        logger.info("")
+        logger.info("=" * 60)
+        logger.info("MERGE SUMMARY")
+        logger.info("=" * 60)
+        logger.info(f"Files processed: {file_count:,}")
+        logger.info(f"Total unique records: {total:,}")
+        logger.info("=" * 60)
+
+    elif args.new_dir and args.old_dir:
+        # Two directory mode (legacy)
+        logger.info(f"New directory: {args.new_dir}")
+        logger.info(f"Old directory: {args.old_dir}")
+        logger.info(f"Output file: {args.output}")
+
+        if not args.new_dir.exists():
+            logger.error(f"New directory does not exist: {args.new_dir}")
+            sys.exit(1)
+
+        if not args.old_dir.exists():
+            logger.error(f"Old directory does not exist: {args.old_dir}")
+            sys.exit(1)
+
+        if args.dry_run:
+            new_files = list(args.new_dir.glob("PMC*_results.parquet"))
+            new_files.extend(args.new_dir.glob("PMC*_chunk*_results.parquet"))
+            old_files = list(args.old_dir.glob("oa_*_xml.PMC*_results.parquet"))
+            old_files.extend(args.old_dir.glob("oa_*_xml.PMC*_chunk*_results.parquet"))
+
+            logger.info(f"Dry run - would merge:")
+            logger.info(f"  {len(new_files)} new-style files")
+            logger.info(f"  {len(old_files)} old-style files")
+            return
+
+        new_count, old_count, total = merge_oddpub_results(
+            args.new_dir,
+            args.old_dir,
+            args.output
+        )
+
+        logger.info("")
+        logger.info("=" * 60)
+        logger.info("MERGE SUMMARY")
+        logger.info("=" * 60)
+        logger.info(f"Records from new directory: {new_count:,}")
+        logger.info(f"Records from old directory: {old_count:,}")
+        logger.info(f"Total unique records: {total:,}")
+        logger.info("=" * 60)
+
+    else:
+        logger.error("Must specify either --input-dir or both --new-dir and --old-dir")
         sys.exit(1)
-
-    if not args.old_dir.exists():
-        logger.error(f"Old directory does not exist: {args.old_dir}")
-        sys.exit(1)
-
-    if args.dry_run:
-        new_files = list(args.new_dir.glob("PMC*_results.parquet"))
-        new_files.extend(args.new_dir.glob("PMC*_chunk*_results.parquet"))
-        old_files = list(args.old_dir.glob("oa_*_xml.PMC*_results.parquet"))
-        old_files.extend(args.old_dir.glob("oa_*_xml.PMC*_chunk*_results.parquet"))
-
-        logger.info(f"Dry run - would merge:")
-        logger.info(f"  {len(new_files)} new-style files")
-        logger.info(f"  {len(old_files)} old-style files")
-        return
-
-    new_count, old_count, total = merge_oddpub_results(
-        args.new_dir,
-        args.old_dir,
-        args.output
-    )
-
-    logger.info("")
-    logger.info("=" * 60)
-    logger.info("MERGE SUMMARY")
-    logger.info("=" * 60)
-    logger.info(f"Records from new directory: {new_count:,}")
-    logger.info(f"Records from old directory: {old_count:,}")
-    logger.info(f"Total unique records: {total:,}")
-    logger.info("=" * 60)
 
 
 if __name__ == '__main__':

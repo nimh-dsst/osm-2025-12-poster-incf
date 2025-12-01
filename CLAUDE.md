@@ -237,35 +237,70 @@ print(f'{df[funder_cols].sum().sum()} total matches')
 
 ## Current Processing Status (2025-12-01)
 
-### oddpub HPC Processing
+### PMCID Registry
 
-Processing ~6.5M PMC articles with oddpub R package on NIH Biowulf HPC:
+A DuckDB-based tracking system (`hpc_scripts/pmcid_registry.py`) tracks processing status:
 
 | Metric | Value |
 |--------|-------|
-| Expected outputs | 6,581 chunk files |
-| Completed | 6,078 (92.4%) |
-| Retry jobs submitted | 503 |
+| Total PMCIDs in registry | 6,980,244 |
+| oddpub v7.2.3 processed | 4,186,201 (60.0%) |
+| Missing/retry needed | 2,794,043 |
+
+**Registry Commands:**
+```bash
+# Show status
+python hpc_scripts/pmcid_registry.py status
+
+# Update from oddpub output
+python hpc_scripts/pmcid_registry.py update-oddpub-v7 ~/claude/osm-oddpub-out/
+
+# Generate retry swarm for missing PMCIDs
+python hpc_scripts/pmcid_registry.py generate-retry oddpub_v7 \
+    --xml-base-dir /data/NIMH_scratch/adamt/pmcoa \
+    --output-dir /data/NIMH_scratch/adamt/osm/oddpub_output \
+    --container /data/adamt/containers/oddpub_optimized.sif \
+    --batch-size 1000
+```
+
+### oddpub HPC Processing
+
+Processing ~7M PMC articles with oddpub R package v7.2.3 on NIH Biowulf HPC:
+
+**Issue Discovered (2025-12-01):** XMLs from `oa_other_*.tar.gz` archives had not been extracted, causing many missing results. Now resolved - retry jobs submitted.
 
 **Output Locations:**
-- New outputs: `/data/NIMH_scratch/adamt/osm/oddpub_output/` (PMC*_chunk*_results.parquet)
-- Old outputs: `/data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output/` (oa_*_xml.PMC*.baseline.*_results.parquet)
+- Primary: `/data/NIMH_scratch/adamt/osm/oddpub_output/` (PMC*_chunk*_results.parquet)
+- Legacy: `/data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output/` (oa_*_xml.PMC*.baseline.*_results.parquet)
+- Local sync: `~/claude/osm-oddpub-out/`
 
 **HPC Scripts:**
+- `hpc_scripts/pmcid_registry.py` - DuckDB registry for tracking processing status
 - `hpc_scripts/generate_oddpub_swarm_extracted_packed.sh` - Generate swarm file for extracted XMLs
-- `hpc_scripts/verify_and_retry_oddpub_extracted.sh` - Verify completion, generate retry swarm
-- `hpc_scripts/test_oddpub_extracted.sh` - Quick test script
+- `hpc_scripts/verify_and_retry_oddpub_extracted.sh` - Verify completion, generate retry swarm (legacy)
 
 **Container:** `/data/adamt/containers/oddpub_optimized.sif`
 - R 4.3.2 with oddpub 7.2.3
-- 120-minute timeout for R script execution
+- Python script for processing extracted XMLs
 - 4 parallel jobs per swarm line
 
-### Next Steps After oddpub Completes
+### oddpub v5 vs v7.2.3 Comparison
 
-1. Merge oddpub results from both output directories
-2. Integrate oddpub results into compact_rtrans dataset
-3. Re-run funder analysis with oddpub open_data_category breakdown
+Analysis completed comparing rtransparent's embedded oddpub v5 with standalone v7.2.3:
+
+| Metric | v5 | v7.2.3 | Difference |
+|--------|-----|--------|------------|
+| Detection rate | 11.25% | 5.37% | -5.89% |
+| Agreement | 91.95% | - | - |
+
+Key finding: v7.2.3 is significantly stricter, detecting ~50% fewer open data statements. See `docs/ODDPUB_V5_VS_V7_COMPARISON.md` for details.
+
+### Next Steps
+
+1. Wait for retry jobs to complete (~2.79M PMCIDs)
+2. Merge all oddpub results and update registry
+3. Run funder analysis with oddpub v7.2.3 results
+4. Create final poster figures
 
 ## Latest Results (2025-11-26)
 

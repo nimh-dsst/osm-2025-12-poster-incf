@@ -1,7 +1,46 @@
 # Next Steps for INCF Poster Analysis
 
-**Last Updated:** 2025-11-26 Evening
-**Status:** Full dataset analysis complete, HHMI finding requires validation
+**Last Updated:** 2025-12-01 Evening
+**Status:** oddpub retry jobs submitted, interim analysis possible on 4.19M processed records
+
+## Completed (2025-12-01)
+
+1. ✅ Created DuckDB-based PMCID registry (`hpc_scripts/pmcid_registry.py`)
+   - Tracks 6,980,244 PMCIDs across 5 processing pipelines
+   - Boolean flags: oddpub_v7, oddpub_v5, rtransparent, metadata, compact
+   - Commands: init, update-*, status, generate-retry, export-missing
+
+2. ✅ Initialized registry and updated oddpub v7.2.3 status
+   - 4,186,201 PMCIDs processed (60.0%)
+   - 2,794,043 PMCIDs need retry
+
+3. ✅ Discovered missing XMLs from `oa_other_*.tar.gz` archives
+   - These had not been extracted, causing many failures
+   - Now extracted and included in retry jobs
+
+4. ✅ Generated and submitted retry swarm for missing PMCIDs
+   - 27,941 batches of 100 PMCIDs each
+   - 6,986 swarm lines submitted to Biowulf HPC
+
+5. ✅ Completed oddpub v5 vs v7.2.3 comparison analysis
+   - v7.2.3 is ~50% stricter (5.37% vs 11.25% detection rate)
+   - 91.95% agreement between versions
+   - See `docs/ODDPUB_V5_VS_V7_COMPARISON.md`
+
+## In Progress
+
+1. ⏳ HPC retry jobs running (~2.79M PMCIDs)
+2. ⏳ Can proceed with interim analysis on existing 4.19M records
+
+## Next Steps
+
+1. Monitor retry job completion on HPC
+2. Rsync new results and update registry: `python pmcid_registry.py update-oddpub-v7 ~/claude/osm-oddpub-out/`
+3. Merge all oddpub results for final dataset
+4. Run funder analysis with oddpub v7.2.3 `is_open_data` field
+5. Create poster figures comparing v5 vs v7.2.3 by funder
+
+---
 
 ## Completed (2025-11-26 Evening)
 

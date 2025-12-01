@@ -100,8 +100,14 @@ args <- commandArgs(trailingOnly = TRUE)
 input_dir <- args[1]
 output_file <- args[2]
 
+cat("R script starting\\n")
+cat("Input directory:", input_dir, "\\n")
+cat("Output file:", output_file, "\\n")
+cat("Directory exists:", dir.exists(input_dir), "\\n")
+
 # Get all text files
 text_files <- list.files(input_dir, pattern = "\\\\.txt$", full.names = TRUE)
+cat("Found", length(text_files), "text files\\n")
 
 if (length(text_files) == 0) {
     stop("No text files found in input directory")
@@ -138,6 +144,8 @@ cat("Successfully processed", nrow(results), "articles\\n")
 
         if result.returncode == 0:
             logger.info(f"R script completed successfully")
+            if result.stdout:
+                logger.info(f"R stdout: {result.stdout}")
             return True
         else:
             logger.error(f"R script failed with return code {result.returncode}")
@@ -197,15 +205,20 @@ def process_batch(records: List[Dict], batch_num: int, output_dir: Path) -> Opti
     # If not on SLURM, use output_dir parent to ensure container can access it
     if temp_base is None:
         temp_base = str(output_dir)
-        logger.debug(f"Using output directory for temporary files: {temp_base}")
+        logger.info(f"Using output directory for temporary files: {temp_base}")
 
     # Create temporary directory for text files
     with tempfile.TemporaryDirectory(prefix=f'oddpub_batch_{batch_num}_', dir=temp_base) as temp_dir:
         temp_path = Path(temp_dir)
+        logger.info(f"Created temp directory: {temp_path}")
 
         # Write text files
         written_files = write_text_files(records, temp_path)
-        logger.info(f"Wrote {len(written_files)} text files")
+        logger.info(f"Wrote {len(written_files)} text files to {temp_path}")
+
+        # List files for debugging
+        txt_files = list(temp_path.glob("*.txt"))
+        logger.info(f"Text files in temp dir: {len(txt_files)} files")
 
         if len(written_files) == 0:
             logger.warning("No text files written - skipping batch")

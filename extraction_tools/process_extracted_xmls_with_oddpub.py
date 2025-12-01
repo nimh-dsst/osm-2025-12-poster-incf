@@ -127,12 +127,12 @@ cat("Successfully processed", nrow(results), "articles\\n")
 
     try:
         # Run R script (Rscript is in PATH in container)
-        # Timeout: 3600 sec (60 min) for 500-file batches
+        # Timeout: 7200 sec (120 min) for 500-file batches - increased for parallel job contention
         result = subprocess.run(
             ['Rscript', str(r_script_path), str(input_dir), str(output_file)],
             capture_output=True,
             text=True,
-            timeout=3600  # 60 minute timeout
+            timeout=7200  # 120 minute timeout
         )
 
         if result.returncode == 0:

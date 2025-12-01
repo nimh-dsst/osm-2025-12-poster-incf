@@ -121,8 +121,8 @@ write.csv(results, output_file, row.names = FALSE)
 cat("Successfully processed", nrow(results), "articles\\n")
 '''
 
-    # Write R script to temporary file
-    r_script_path = input_dir / 'run_oddpub.R'
+    # Write R script to parent directory (not input_dir) so pdf_load doesn't pick it up
+    r_script_path = input_dir.parent / 'run_oddpub.R'
     r_script_path.write_text(r_script_content)
 
     try:

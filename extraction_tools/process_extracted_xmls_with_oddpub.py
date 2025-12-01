@@ -88,13 +88,9 @@ def run_oddpub_r(input_dir: Path, output_file: Path) -> bool:
     Returns True if successful, False otherwise.
     """
     # Create R script that processes the files
-    # Note: Uses dplyr, purrr, stringr directly (not tidyverse) to match container packages
-    # oddpub v7.2.3: open_data_search returns BOTH data and code columns - no separate open_code_search
+    # Uses pdf_load() to load text files - this is what oddpub expects
     r_script_content = '''
 library(oddpub)
-library(dplyr)
-library(purrr)
-library(stringr)
 
 args <- commandArgs(trailingOnly = TRUE)
 input_dir <- args[1]
@@ -103,34 +99,23 @@ output_file <- args[2]
 cat("R script starting\\n")
 cat("Input directory:", input_dir, "\\n")
 cat("Output file:", output_file, "\\n")
-cat("Directory exists:", dir.exists(input_dir), "\\n")
 
-# Get all text files
-text_files <- list.files(input_dir, pattern = "\\\\.txt$", full.names = TRUE)
-cat("Found", length(text_files), "text files\\n")
+# Load text files using oddpub's pdf_load function
+cat("Loading text files with pdf_load...\\n")
+text_corpus <- pdf_load(input_dir)
+cat("Loaded", length(text_corpus), "documents\\n")
 
-if (length(text_files) == 0) {
-    stop("No text files found in input directory")
+if (length(text_corpus) == 0) {
+    stop("No text files loaded from input directory")
 }
 
-# Read all text files into a tibble
-pdf_text_df <- dplyr::tibble(
-    article = basename(text_files) %>% stringr::str_remove("\\\\.txt$"),
-    text = purrr::map_chr(text_files, ~ paste(readLines(.x, warn = FALSE), collapse = " "))
-)
-
-cat("Created tibble with", nrow(pdf_text_df), "rows\\n")
-cat("Article column values:", paste(head(pdf_text_df$article, 3), collapse=", "), "...\\n")
-cat("Text column lengths:", paste(head(nchar(pdf_text_df$text), 3), collapse=", "), "...\\n")
-
-# Run oddpub - open_data_search returns both data AND code columns in v7.2.3
-cat("Calling oddpub::open_data_search...\\n")
-results <- oddpub::open_data_search(pdf_text_df)
+# Run open data search
+cat("Running open_data_search...\\n")
+results <- open_data_search(text_corpus, extract_sentences = TRUE, screen_das = "priority")
 
 cat("oddpub returned", nrow(results), "rows\\n")
-cat("Result columns:", paste(names(results), collapse=", "), "\\n")
 
-# Write results (already includes article, is_open_data, is_open_code, etc.)
+# Write results
 write.csv(results, output_file, row.names = FALSE)
 
 cat("Successfully processed", nrow(results), "articles\\n")

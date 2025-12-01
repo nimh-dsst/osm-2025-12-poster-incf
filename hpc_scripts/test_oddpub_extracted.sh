@@ -47,9 +47,9 @@ echo "=============================================="
 echo "Checking output..."
 echo "=============================================="
 
-# Check output
+# Check output using container's Python (HPC system Python lacks pyarrow)
 if [ -f "$OUTPUT_FILE" ]; then
-    python3 -c "
+    apptainer exec "$CONTAINER_SIF" python3 -c "
 import pandas as pd
 df = pd.read_parquet('$OUTPUT_FILE')
 print(f'Shape: {df.shape}')

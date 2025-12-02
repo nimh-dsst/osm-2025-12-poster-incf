@@ -1,0 +1,101 @@
+======================================================================
+OPENSS EXPLORATORY FUNDER ANALYSIS
+======================================================================
+
+Total matched open data records: 206,222
+Funding texts extracted: 346,209
+Unique potential funders found: 92,653
+
+----------------------------------------------------------------------
+TOP POTENTIAL NOVEL FUNDERS (not in our known list)
+----------------------------------------------------------------------
+  18666  National Science Foundation
+   8046  ANR
+   7104  National Cancer Institute
+   6620  Japan Society
+   6620  National Research Foundation
+   6034  HHS
+   5947  JSPS
+   5774  NRF
+   5725  ERC
+   4687  USDA
+   4451  BBSRC
+   4001  Swiss National Science Foundation
+   3848  FEDER
+   3527  Spanish Ministry
+   3495  the Ministry
+   3432  MEXT
+   3219  DOE
+   3199  NSERC
+   3126  III
+   3049  National Center
+   2987  CAPES
+   2977  FCT
+   2873  FAPESP
+   2577  Blood Institute
+   2551  Italian Ministry
+   2476  Austrian Science Fund
+   2469  BMBF
+   2402  China Postdoctoral Science Foundation
+   2376  CARS
+   2221  NWO
+
+----------------------------------------------------------------------
+TOP KNOWN FUNDERS (already in our list)
+----------------------------------------------------------------------
+  52322  National Natural Science Foundation
+  43412  NIH
+  37200  National Institute
+  18376  Natural Science Foundation
+  11776  Wellcome Trust
+   9767  Medical Research Council
+   9126  NSF
+   8951  European Research Council
+   7640  DFG
+   6185  NCI
+   4964  German Research Foundation
+   4950  Science Foundation
+   4858  Biological Sciences Research Council
+   4694  Engineering Research Council
+   4476  NIAID
+   4103  NSFC
+   4001  MRC
+   3931  Research Council
+   3858  Swedish Research Council
+   3638  NIHR
+
+----------------------------------------------------------------------
+TOP FUNDER-RELATED N-GRAMS
+----------------------------------------------------------------------
+  99743  science foundation
+  76998  foundation of
+  69632  the national
+  67161  natural science
+  66449  science foundation of
+  65078  natural science foundation
+  53131  funded by
+  51346  foundation of china
+  48889  science and
+  45390  research council
+  44317  national natural
+  43839  national natural science
+  42708  institutes of
+  41960  funding this
+  40854  institute of
+  40632  science and technology
+  40050  institutes of health
+  36213  ministry of
+  34633  national institutes
+  34515  national institutes of
+  33363  was funded
+  32818  research and
+  32551  national institute
+  30873  funded by the
+  30546  was funded by
+  30180  this research
+  28916  of science
+  26239  national institute of
+  26003  national science
+  25776  by the national
+
+======================================================================

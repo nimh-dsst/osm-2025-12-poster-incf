@@ -1,0 +1,126 @@
+======================================================================
+OPENSS JOURNALS & INSTITUTIONS ANALYSIS
+======================================================================
+
+Total open data records analyzed: 206,382
+Records with journal info: 206,382
+Records with affiliation info: 206,382
+Records with publisher info: 206,382
+
+----------------------------------------------------------------------
+TOP 30 JOURNALS
+----------------------------------------------------------------------
+   16891  PLoS ONE
+    9874  Scientific Reports
+    7951  Frontiers in Microbiology
+    5098  Nature Communications
+    4573  BMC Genomics
+    4179  Nucleic Acids Research
+    4080  Genome Announcements
+    3823  Frontiers in Plant Science
+    3352  International Journal of Molecular Sciences
+    2966  Frontiers in Immunology
+    2750  iScience
+    2388  Microbiology Resource Announcements
+    2300  Scientific Data
+    2167  Data in Brief
+    2067  eLife
+    2002  Mitochondrial DNA. Part B, Resources
+    1627  Microorganisms
+    1623  PeerJ
+    1594  Frontiers in Genetics
+    1496  PLoS Genetics
+    1487  bioRxiv
+    1467  Heliyon
+    1407  Ecology and Evolution
+    1394  Proceedings of the National Academy of Sciences of the United States of America
+    1352  Genome Research
+    1312  Frontiers in Cellular and Infection Microbiology
+    1302  Viruses
+    1243  Frontiers in Psychology
+    1240  Cell reports
+    1201  Molecules
+
+----------------------------------------------------------------------
+TOP 30 INSTITUTIONS
+----------------------------------------------------------------------
+   15781  School of Medicine
+    7559  Chinese Academy of Sciences
+    6395  University School of Medicine
+    5556  University of California
+    4403  University Hospital
+    4124  College of Medicine
+    3314  University of Science and Technology
+    2909  School of Life Sciences
+    2846  University Medical Center
+    2591  Institute of Technology
+    2551  School of Public Health
+    2364  University of
+    2346  University of Oxford
+    2170  Max Planck Institute
+    2053  Harvard Medical School
+    1908  College of Life Sciences
+    1864  Stanford University
+    1851  University of Cambridge
+    1841  University of Chinese Academy of Sciences
+    1741  University of Technology
+    1543  INSERM
+    1523  University of Medical Sciences
+    1515  College of Veterinary Medicine
+    1471  University of Toronto
+    1409  University of Copenhagen
+    1394  University of Tokyo
+    1325  National Institutes of Health
+    1323  University of Washington
+    1310  University of Hong Kong
+    1308  Karolinska Institute
+
+----------------------------------------------------------------------
+TOP 20 COUNTRIES
+----------------------------------------------------------------------
+   22831  China
+   17785  USA
+    7636  UK
+    6871  Germany
+    3616  France
+    3223  Japan
+    3208  Canada
+    3114  Australia
+    2688  Italy
+    2667  Spain
+    2609  Netherlands
+    2065  Switzerland
+    1920  India
+    1883  Sweden
+    1486  Brazil
+    1289  South Korea
+    1214  Denmark
+    1130  Austria
+    1129  Belgium
+     874  Norway
+
+----------------------------------------------------------------------
+TOP 20 PUBLISHERS
+----------------------------------------------------------------------
+   28205  Frontiers Media S.A.
+   17006  MDPI
+   15716  Nature Publishing Group UK; London
+   14300  BioMed Central; London
+   13836  Elsevier
+   12306  Public Library of Science; San Francisco, CA USA
+   11107  Public Library of Science; San Francisco, USA
+    9677  American Society for Microbiology; 1752 N St., N.W., Washington, DC
+    9210  Oxford University Press
+    7005  John Wiley and Sons Inc.; Hoboken
+    6898  BioMed Central
+    4509  Nature Publishing Group
+    3281  Taylor & Francis
+    2519  Cold Spring Harbor Laboratory Press
+    2067  eLife Sciences Publications, Ltd
+    1979  
+    1688  Cold Spring Harbor Laboratory
+    1614  Springer Berlin Heidelberg; Berlin/Heidelberg
+    1394  National Academy of Sciences
+    1342  Centers for Disease Control and Prevention
+
+======================================================================

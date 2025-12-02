@@ -295,11 +295,35 @@ Analysis completed comparing rtransparent's embedded oddpub v5 with standalone v
 
 Key finding: v7.2.3 is significantly stricter, detecting ~50% fewer open data statements. See `docs/ODDPUB_V5_VS_V7_COMPARISON.md` for details.
 
+### OpenSS Analysis (Open Data Subset)
+
+Analysis of publications with `is_open_data=true` from oddpub v7.2.3 completed 2025-12-02:
+
+**Dataset:**
+- 206,382 matched open data records (5.34% of 3.97M total)
+- 346,209 funding texts extracted
+- 92,653 unique potential funders discovered
+
+**Scripts:**
+- `analysis/openss_explore_funders.py` - NLP-based funder discovery
+- `analysis/openss_journals_institutions.py` - Journals/institutions analysis
+
+**Output:**
+- `results/openss_explore/` - Funder analysis (all_potential_funders.csv, OPENSS_FINDINGS_SUMMARY.md)
+- `results/openss_journals/` - Journals/institutions (top_journals.csv, top_countries.csv, etc.)
+
+**Key Findings:**
+- **Top journals:** PLoS ONE (16,891), Scientific Reports (9,874), Frontiers in Microbiology (7,951)
+- **Top countries:** China (22,831), USA (17,785), UK (7,636)
+- **Missing funders discovered:** National Science Foundation (18,666!), ANR (8,046), JSPS (12,567), NRF (12,394)
+
+See `results/openss_explore/OPENSS_FINDINGS_SUMMARY.md` for complete analysis.
+
 ### Next Steps
 
-1. Wait for retry jobs to complete (~2.79M PMCIDs)
-2. Merge all oddpub results and update registry
-3. Run funder analysis with oddpub v7.2.3 results
+1. Update oddpub results with completed HPC retry jobs
+2. Re-merge oddpub results with new data
+3. Update funder database with newly discovered funders (NSF, ANR, JSPS, etc.)
 4. Create final poster figures
 
 ## Latest Results (2025-11-26)

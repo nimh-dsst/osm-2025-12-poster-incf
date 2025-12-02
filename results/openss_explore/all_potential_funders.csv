@@ -1,0 +1,501 @@
+name,count,is_known
+National Natural Science Foundation,52322,True
+NIH,43412,True
+National Institute,37200,True
+National Science Foundation,18666,False
+Natural Science Foundation,18376,True
+Wellcome Trust,11776,True
+Medical Research Council,9767,True
+NSF,9126,True
+European Research Council,8951,True
+ANR,8046,False
+DFG,7640,True
+National Cancer Institute,7104,False
+Japan Society,6620,False
+National Research Foundation,6620,False
+NCI,6185,True
+HHS,6034,False
+JSPS,5947,False
+NRF,5774,False
+ERC,5725,False
+German Research Foundation,4964,True
+Science Foundation,4950,True
+Biological Sciences Research Council,4858,True
+Engineering Research Council,4694,True
+USDA,4687,False
+NIAID,4476,True
+BBSRC,4451,False
+NSFC,4103,True
+Swiss National Science Foundation,4001,False
+MRC,4001,True
+Research Council,3931,True
+Swedish Research Council,3858,True
+FEDER,3848,False
+NIHR,3638,True
+Spanish Ministry,3527,False
+the Ministry,3495,False
+MEXT,3432,False
+Australian Research Council,3340,True
+NIGMS,3251,True
+DOE,3219,False
+NSERC,3199,False
+III,3126,False
+European Commission,3053,True
+National Center,3049,False
+CAPES,2987,False
+FCT,2977,False
+European Regional Development Fund,2976,True
+FAPESP,2873,False
+Howard Hughes Medical Institute,2835,True
+Melinda Gates Foundation,2624,True
+Blood Institute,2577,False
+NHMRC,2562,True
+Italian Ministry,2551,False
+Research Foundation,2537,True
+Austrian Science Fund,2476,False
+BMBF,2469,False
+China Postdoctoral Science Foundation,2402,False
+CARS,2376,False
+Japan Agency,2260,True
+NWO,2221,False
+ARC,2157,True
+CIHR,2148,True
+MOST,2105,False
+Russian Science Foundation,2102,False
+AMED,2093,True
+Royal Society,2020,False
+DEB,2005,False
+CNRS,1947,False
+German Federal Ministry,1880,False
+NHLBI,1859,True
+CAS,1802,False
+FWF,1712,False
+FWO,1616,False
+AEI,1602,False
+American Heart Association,1599,False
+ERDF,1577,False
+DEAL,1577,False
+National Science Centre,1572,False
+grants from the National Natural Science Foundation,1558,False
+National Human Genome Research Institute,1524,False
+Technology Commission,1516,True
+National Key Research and Development Program,1510,False
+Research Institute,1499,False
+China Scholarship Council,1484,True
+DBT,1467,False
+Innovation Fund,1454,False
+JST,1390,False
+NHS,1389,False
+ICT,1373,False
+SFB,1354,False
+Max Planck Society,1344,False
+NIFA,1342,False
+Federal Ministry,1305,False
+Czech Science Foundation,1263,True
+MINECO,1263,True
+IOS,1260,False
+AIRC,1246,False
+ISCIII,1240,False
+NINDS,1224,True
+CSIR,1210,False
+Cancer Center,1189,False
+Technology Agency,1179,True
+EPSRC,1159,False
+DST,1145,False
+NIDDK,1145,True
+American Cancer Society,1133,False
+AIDS,1133,False
+Israel Science Foundation,1123,False
+SFRH,1107,False
+French National Research Agency,1097,False
+Novo Nordisk Foundation,1094,False
+COVID,1093,False
+DBI,1093,False
+UKRI,1089,False
+Cancer Institute,1082,False
+LABX,1071,False
+Special Fund,1051,True
+MCB,1044,False
+NASA,1028,False
+European Social Fund,1027,True
+National Key R&D Program,1025,False
+Russian Foundation,1021,False
+EMBL,1019,False
+EMBO,1015,False
+ARS,1013,False
+Natural Environment Research Council,984,True
+Canadian Institute,982,True
+NHGRI,975,True
+Applied Basic Research Foundation,972,False
+NIA,962,True
+National Council,961,True
+NMR,954,False
+Indian Council,943,True
+FNRS,936,False
+ERA,936,False
+NERC,934,False
+Physical Sciences Research Council,932,True
+NIMH,930,True
+Alice Wallenberg Foundation,914,False
+National Nature Science Foundation,914,False
+HHMI,895,True
+Research Fund,893,False
+MIUR,891,False
+CRUK,882,False
+MCIN,873,False
+British Heart Foundation,867,False
+the Department,843,False
+COST,842,False
+INSERM,837,False
+LLC,835,True
+CAMS,834,False
+PTDC,833,False
+Burroughs Wellcome Fund,804,True
+Simons Foundation,802,False
+RGPIN,797,False
+National Research Council,791,True
+OCE,790,False
+Paulo Research Foundation,784,False
+CPRIT,782,False
+CDC,769,False
+Biomedical Research Centre,768,False
+UNAM,760,False
+Betty Moore Foundation,759,False
+DOD,757,False
+Zhejiang Provincial Natural Science Foundation,745,True
+RCUK,733,False
+CSIC,728,False
+MOF,722,False
+UGC,708,False
+NICHD,707,True
+Eunice Kennedy Shriver National Institute,704,True
+UCLA,700,False
+National Eye Institute,695,False
+Canada Foundation,695,False
+INRA,692,False
+HPC,691,False
+MARA,691,False
+NIEHS,688,True
+CREST,687,False
+RIKEN,677,False
+ANID,676,False
+Research Center,670,False
+CSC,669,False
+DAAD,669,False
+FAPERJ,667,False
+UIDB,663,False
+STAR,661,False
+IDEX,652,False
+grants from the National Institute,649,False
+DGE,648,False
+HIV,648,False
+PRIN,644,False
+CRC,644,False
+Takeda Science Foundation,639,False
+MOP,639,False
+Korea Institute,638,False
+Beijing Natural Science Foundation,633,False
+BBS,629,False
+MOE,628,False
+BRC,621,False
+MIT,615,False
+MEC,614,True
+UCSF,612,False
+Swedish Cancer Society,610,False
+CAAS,597,False
+UCL,595,False
+Social Research Council,594,True
+ETH,588,False
+Youth Innovation Promotion Association,588,False
+INBS,585,False
+PICT,585,False
+EXC,584,False
+MSCA,583,False
+PAPD,577,False
+HEALTH,575,True
+MSIT,571,False
+German Ministry,562,False
+NIDCR,561,True
+Foundation Trust,561,False
+SFI,560,False
+National Science Council,560,True
+ICAR,558,False
+ALS,556,False
+Slovenian Research Agency,556,True
+ITN,553,False
+Research Grants Council,553,True
+Earmarked Fund,552,False
+Leverhulme Trust,549,False
+SNSF,548,False
+Welch Foundation,548,False
+APC,547,False
+NGS,545,True
+SERB,543,False
+French Ministry,541,False
+Scientific Institution Basal Research Fund,530,False
+BIO,522,False
+FACS,518,False
+Science Fund,518,False
+SNF,517,False
+German Center,517,False
+FRM,516,False
+UID,515,False
+NET,509,False
+ISF,509,False
+Grant Agency,508,False
+Scientific Research Foundation,506,False
+a Wellcome Trust,505,True
+NMRC,504,True
+National Medical Research Council,502,True
+Technology Foundation,502,True
+MICINN,502,False
+NCATS,501,False
+NSW,501,False
+Norwegian Research Council,497,True
+UNC,496,True
+Biotechnology and Biological Sciences Research Council,496,True
+Thailand Research Fund,489,False
+Higher Education Commission,488,False
+Sloan Foundation,485,False
+Polish Ministry,485,False
+Broad Institute,483,False
+Singapore Ministry,476,False
+POCI,476,False
+ASTIP,474,False
+NSC,473,True
+Italian Association,468,False
+Chinese Ministry,466,False
+Dutch Cancer Society,465,False
+National Science Center,458,False
+Swedish Foundation,455,False
+NCRR,455,False
+Technology Development Fund,452,True
+Humboldt Foundation,451,False
+ESF,449,False
+American Society,447,False
+FKZ,446,False
+Postdoctoral Science Foundation,445,False
+The National Natural Science Foundation,442,False
+NOAA,439,False
+University Grants Commission,437,False
+National Centre,436,False
+Energy Joint Genome Institute,435,False
+NIDA,431,True
+Cystic Fibrosis Foundation,428,False
+ESRF,426,False
+Danish Council,425,True
+CSIRO,422,False
+FIS,412,False
+SPORE,412,False
+Lymphoma Society,411,False
+KAUST,410,False
+NIAMS,409,True
+Humanities Research Council,408,True
+Technology Council,404,True
+Lundbeck Foundation,404,True
+GFP,403,False
+CAREER,401,False
+CRIS,400,False
+USAID,400,False
+Portuguese Foundation,397,False
+BPD,397,False
+PAPIIT,395,False
+Francis Crick Institute,395,True
+Ontario Ministry,395,False
+PJT,394,False
+TCGA,394,False
+CHE,393,True
+URL,393,False
+RSF,388,False
+Fox Foundation,388,False
+Natural Sciences and Engineering Research Council,387,True
+National Basic Research Program,386,False
+the Fund,377,False
+Fundamental Research Fund,377,False
+Hughes Medical Institute,374,True
+The Wellcome Trust,372,True
+CTSA,372,False
+Breast Cancer Research Foundation,372,False
+GRANT,370,False
+EUROPE,369,True
+Max Planck Institute,368,False
+Polish National Science Centre,368,False
+INBRE,367,False
+RGC,365,False
+Dutch Ministry,365,False
+Technology Innovation Fund,363,True
+RAS,363,False
+Helmholtz Association,362,False
+California Institute,362,True
+Shandong Provincial Natural Science Foundation,362,True
+FDA,361,False
+AHA,359,False
+MUR,359,False
+National Natural Sciences Foundation,357,False
+ALF,355,False
+CERCA,353,False
+SARS,353,False
+The Ministry,351,False
+FPI,351,False
+INV,351,False
+CAT,350,False
+ICMR,349,False
+RRID,347,False
+Danish National Research Foundation,347,False
+FRQS,345,False
+AGAUR,345,False
+NYU,343,False
+Defense Threat Reduction Agency,341,False
+Intramural Research Program,340,False
+SGR,339,False
+BIA,339,False
+BES,337,False
+PNRR,337,False
+Prostate Cancer Foundation,337,False
+UIDP,336,False
+STDF,333,False
+Technology Fund,333,True
+Medical Research Foundation,332,False
+SNP,332,False
+any funding agency,331,False
+John Templeton Foundation,331,False
+NUS,330,False
+MRI,330,False
+UMO,329,False
+RFBR,328,False
+Anderson Cancer Center,326,False
+OTKA,326,False
+the Center,325,False
+KWF,323,False
+NEI,323,True
+Cancer Foundation,322,False
+Uehara Memorial Foundation,320,False
+CIFMS,320,False
+Korea Health Industry Development Institute,320,False
+GSK,320,False
+Family Planning Commission,317,False
+UCSD,317,False
+BER,316,False
+Chinese Scholarship Council,315,True
+SNIC,315,False
+TRR,315,False
+MOHE,315,False
+INCT,315,False
+Shanghai Municipal Education Commission,313,False
+LOEWE,313,False
+ADNI,313,False
+HIR,313,False
+Defense Advanced Research Projects Agency,310,True
+PEOPLE,310,False
+Common Fund,309,False
+DGAPA,309,False
+Israel Binational Science Foundation,308,False
+National Health and Medical Research Council,308,True
+CGIAR,307,False
+HFSP,306,False
+MEYS,306,False
+BHF,305,False
+EMR,304,False
+VIDI,302,False
+Fogarty International Center,301,False
+DARPA,299,False
+Canadian Foundation,298,False
+INRAE,298,False
+INST,298,True
+CUP,298,False
+ALTF,297,False
+CRG,297,False
+MSD,297,False
+COBRE,297,False
+MCTI,295,False
+Health Commission,295,False
+DMR,295,False
+American Association,295,False
+Basic Science Research Program through the National Research Foundation,294,False
+Development Fund,294,False
+National Geographic Society,293,False
+MED,293,True
+Open Fund,292,False
+FSE,291,False
+Damon Runyon Cancer Research Foundation,290,False
+SEM,290,False
+WHO,289,False
+FPU,287,False
+German Science Foundation,286,False
+RVO,286,False
+AECC,286,True
+CNR,286,False
+RSG,285,False
+BCS,285,False
+grants from the Ministry,285,False
+NLM,285,True
+Oxford Biomedical Research Centre,284,False
+Cancer Council,284,True
+CAFS,278,False
+NCN,276,False
+NCBI,276,False
+CEA,274,False
+a National Science Foundation,272,False
+Irish Research Council,272,True
+United States Agency,271,False
+a grant from the National Institute,271,False
+Dutch Research Council,270,True
+EFPIA,269,False
+SPP,268,False
+BOF,268,False
+National Science Fund,268,False
+Open Access Publication Fund,267,False
+AFM,266,False
+MSIP,266,False
+AGR,266,False
+KBBE,265,False
+Cancer Society,265,False
+the Program,264,False
+ELIXIR,264,False
+IWT,264,False
+APS,263,False
+DTP,263,False
+TEM,262,False
+GWAS,262,False
+Behavior Research Foundation,260,False
+JDRF,258,False
+EPA,258,False
+National Natural Science Fund,258,False
+KHIDI,257,False
+FORMAS,257,False
+NIAAA,257,True
+NBI,256,False
+NGI,256,False
+LABEX,255,False
+German Research Council,254,True
+Estonian Research Council,254,True
+Guangxi Natural Science Foundation,253,False
+EKB,253,False
+Medical Research Fund,253,False
+DZIF,253,False
+FRGS,252,False
+CRP,252,False
+NRSA,251,False
+Wellcome Trust Sanger Institute,250,True
+Strategic Priority Research Program,249,False
+NTNU,248,False
+Environmental Protection Agency,248,True
+Michael Smith Foundation,248,False
+DKFZ,248,False
+USC,248,False
+IBS,247,False
+Chinese National Natural Science Foundation,247,False
+NIDCD,247,False
+a National Institute,247,False
+SSRL,245,False
+UAB,245,False
+Sigrid Juselius Foundation,244,False
+Croatian Science Foundation,244,False
+CFI,243,False
+NCCR,242,False
+US Department,242,False
+University Medical Center,241,False
+UK Medical Research Council,240,True
+General Research Fund,239,False
+MCTES,239,False
+National Agency,239,False

@@ -28,12 +28,29 @@ logger = logging.getLogger(__name__)
 
 
 def normalize_pmcid(pmcid: str) -> str:
-    """Normalize PMCID to PMC######### format."""
+    """Normalize PMCID to PMC######### format.
+
+    Handles various formats:
+    - PMC12345
+    - 12345
+    - PMCPMC12345.txt (from oddpub article column)
+    """
     if pd.isna(pmcid):
         return None
     pmcid = str(pmcid).strip().upper()
+
+    # Handle PMCPMC12345.txt format from oddpub
+    if pmcid.startswith('PMCPMC'):
+        pmcid = pmcid[3:]  # Remove first "PMC" prefix
+
+    # Remove .txt suffix
+    if pmcid.endswith('.TXT'):
+        pmcid = pmcid[:-4]
+
+    # Ensure PMC prefix
     if not pmcid.startswith('PMC'):
         pmcid = 'PMC' + pmcid
+
     return pmcid
 
 
@@ -245,9 +262,9 @@ def load_open_data_pmcids(oddpub_file: str) -> set:
     open_data_df = df[df['is_open_data'] == True]
     logger.info(f"Found {len(open_data_df):,} with is_open_data=true ({len(open_data_df)/len(df)*100:.2f}%)")
 
-    # Get unique PMCIDs
+    # Get unique PMCIDs - check article column first (has PMCPMC format)
     pmcids = set()
-    for col in ['pmcid', 'filename']:
+    for col in ['article', 'pmcid', 'filename']:
         if col in open_data_df.columns:
             for val in open_data_df[col].dropna().unique():
                 pmcid = normalize_pmcid(val)

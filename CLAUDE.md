@@ -305,17 +305,25 @@ Analysis of publications with `is_open_data=true` from oddpub v7.2.3:
 - Open code detected: 141,909 (2.03%)
 - Merged file: `~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet` (409 MB)
 
-**Initial OpenSS Exploration (206,382 records):**
-- 346,209 funding texts extracted
-- 92,653 unique potential funders discovered
+**OpenSS Funder Discovery v2 (2025-12-02):**
+- Input: 374,906 open data articles from oddpub v7.2.3
+- 335,457 matched open data records with funding text
+- 581,626 funding texts extracted
+- 124,556 unique potential funders discovered
+- 58,896 funders exported (count >= 2)
+- 26,180 novel funders (not in original 31-funder database)
 
 **Scripts:**
-- `analysis/openss_explore_funders.py` - NLP-based funder discovery
+- `analysis/openss_explore_funders.py` - NLP-based funder discovery (exports ALL funders, not just top 500)
 - `analysis/openss_journals_institutions.py` - Journals/institutions analysis
+- `analysis/build_canonical_funder_totals.py` - Build corpus totals for 43 canonical funders
+- `analysis/count_canonical_funders_openss.py` - Count canonical funders in open data subset
 
 **Output:**
-- `results/openss_explore/` - Funder analysis (all_potential_funders.csv, OPENSS_FINDINGS_SUMMARY.md)
-- `results/openss_journals/` - Journals/institutions (top_journals.csv, top_countries.csv, etc.)
+- `results/openss_explore_v2/` - Full funder discovery (all_potential_funders.csv with 58,896 funders)
+- `results/openss_percentages_v2/` - Journal/country/publisher percentages
+- `results/canonical_funder_corpus_totals.parquet` - Corpus totals for canonical funders (denominator)
+- `results/canonical_funder_openss_counts.parquet` - Open data counts (numerator)
 
 **Key Findings:**
 - **Top journals:** PLoS ONE (16,891), Scientific Reports (9,874), Frontiers in Microbiology (7,951)
@@ -326,10 +334,11 @@ See `results/openss_explore/OPENSS_FINDINGS_SUMMARY.md` for complete analysis.
 
 ### Next Steps
 
-1. Update oddpub results with completed HPC retry jobs
-2. Re-merge oddpub results with new data
-3. Update funder database with newly discovered funders (NSF, ANR, JSPS, etc.)
-4. Create final poster figures
+1. ~~Update oddpub results with completed HPC retry jobs~~ (Done)
+2. ~~Re-merge oddpub results with new data~~ (Done - 6,994,457 articles)
+3. ~~Update funder database with newly discovered funders~~ (Done - funder_aliases.csv)
+4. Calculate funder open data percentages with canonical funders (in progress)
+5. Create final poster figures
 
 ## Latest Results (2025-11-26)
 
@@ -393,6 +402,29 @@ Complete schema documentation for all data outputs:
 - 10 international funders (NIH, NSFC, EC, Wellcome, MRC, NHMRC, NSF, HHMI, DFG, CRUK)
 - 22 NIH institutes (NCI, NHLBI, NIMH, etc.)
 - Columns: Name, Acronym
+
+### Funder Alias Mapping (2025-12-02)
+
+To handle funder name variants and avoid double-counting:
+
+- **Alias file:** `funder_analysis/funder_aliases.csv`
+  - 43 canonical funders with 65+ variant mappings
+  - Columns: canonical_name, variant, variant_type, country, notes
+  - Handles: acronyms (NSF), full names, spelling variants, translations
+
+- **Normalizer module:** `funder_analysis/normalize_funders.py`
+  - `FunderNormalizer` class for alias lookups
+  - `mentions_funder(text, canonical)` - searches for any variant at article level
+  - Avoids double-counting when article mentions both "NSF" and "National Science Foundation"
+
+**Key canonical funders:**
+- National Institutes of Health (NIH)
+- National Science Foundation (NSF) - US basic science
+- National Natural Science Foundation of China (NSFC)
+- European Commission (EC, EU, ERC)
+- Deutsche Forschungsgemeinschaft (DFG)
+- Wellcome Trust
+- And 37 more...
 
 ## Migration Context
 

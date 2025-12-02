@@ -1,0 +1,101 @@
+======================================================================
+OPENSS EXPLORATORY FUNDER ANALYSIS
+======================================================================
+
+Total matched open data records: 335,457
+Funding texts extracted: 581,626
+Unique potential funders found: 124,556
+
+----------------------------------------------------------------------
+TOP POTENTIAL NOVEL FUNDERS (not in our known list)
+----------------------------------------------------------------------
+  89214  National Natural Science Foundation
+  71044  NIH
+  63193  National Institute
+  31150  Natural Science Foundation
+  30741  National Science Foundation
+  20201  Wellcome Trust
+  16958  Medical Research Council
+  15744  European Research Council
+  14825  NSF
+  13195  ANR
+  12851  DFG
+  11390  Japan Society
+  11148  National Cancer Institute
+  10876  National Research Foundation
+  10338  HHS
+  10099  JSPS
+   9920  ERC
+   9719  NCI
+   9395  NRF
+   8542  Science Foundation
+   8491  German Research Foundation
+   8471  Biological Sciences Research Council
+   7912  Engineering Research Council
+   7857  NIAID
+   7773  USDA
+   7583  BBSRC
+   7224  NSFC
+   6955  MRC
+   6826  Research Council
+   6817  Swiss National Science Foundation
+
+----------------------------------------------------------------------
+TOP KNOWN FUNDERS (already in our list)
+----------------------------------------------------------------------
+  89214  National Natural Science Foundation
+  71044  NIH
+  63193  National Institute
+  31150  Natural Science Foundation
+  20201  Wellcome Trust
+  16958  Medical Research Council
+  15744  European Research Council
+  14825  NSF
+  12851  DFG
+   9719  NCI
+   8542  Science Foundation
+   8491  German Research Foundation
+   8471  Biological Sciences Research Council
+   7912  Engineering Research Council
+   7857  NIAID
+   7224  NSFC
+   6955  MRC
+   6826  Research Council
+   6747  NIHR
+   6286  Swedish Research Council
+
+----------------------------------------------------------------------
+TOP FUNDER-RELATED N-GRAMS
+----------------------------------------------------------------------
+  169302  science foundation
+  130729  foundation of
+  114509  natural science
+  114359  the national
+  113246  science foundation of
+  110989  natural science foundation
+  88415  funded by
+  87268  foundation of china
+  81840  science and
+  78377  research council
+  75585  national natural
+  74788  national natural science
+  70867  institutes of
+  69686  institute of
+  69617  funding this
+  68075  science and technology
+  66361  institutes of health
+  59630  ministry of
+  56953  national institutes
+  56894  research and
+  56753  national institutes of
+  56081  national institute
+  55479  was funded
+  51469  funded by the
+  50757  was funded by
+  50106  this research
+  48526  of science
+  44976  national institute of
+  43040  national science
+  42875  by the national
+
+======================================================================

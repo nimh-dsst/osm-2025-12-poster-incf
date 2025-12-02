@@ -1,0 +1,68 @@
+canonical_name,variant,variant_type,country,notes
+National Institutes of Health,NIH,acronym,USA,Primary US biomedical funder
+National Institutes of Health,National Institute of Health,spelling_variant,USA,Common singular form
+National Science Foundation,NSF,acronym,USA,US basic science funder
+National Science Foundation,US National Science Foundation,full_with_country,USA,
+National Natural Science Foundation of China,NSFC,acronym,China,Primary Chinese science funder
+National Natural Science Foundation of China,National Natural Science Foundation,partial,China,Without country suffix
+National Natural Science Foundation of China,NNSFC,acronym,China,Alternative acronym
+Japan Society for the Promotion of Science,JSPS,acronym,Japan,Japanese research council
+Japan Society for the Promotion of Science,Japan Society for Promotion of Science,spelling_variant,Japan,Missing "the"
+Deutsche Forschungsgemeinschaft,DFG,acronym,Germany,German Research Foundation
+Deutsche Forschungsgemeinschaft,German Research Foundation,english_name,Germany,
+Wellcome Trust,Wellcome,short_form,UK,
+Wellcome Trust,The Wellcome Trust,article_prefix,UK,
+Medical Research Council,MRC,acronym,UK,UK Medical Research Council
+Medical Research Council,UK Medical Research Council,full_with_country,UK,
+European Commission,EC,acronym,EU,
+European Commission,European Union,related_org,EU,Often used interchangeably in funding context
+European Commission,EU,acronym,EU,
+European Research Council,ERC,acronym,EU,Part of EC funding
+Agence Nationale de la Recherche,ANR,acronym,France,French National Research Agency
+Agence Nationale de la Recherche,French National Research Agency,english_name,France,
+Canadian Institutes of Health Research,CIHR,acronym,Canada,
+Canadian Institutes of Health Research,Canadian Institutes for Health Research,spelling_variant,Canada,for vs of
+National Health and Medical Research Council,NHMRC,acronym,Australia,
+National Health and Medical Research Council,NHMRC Australia,with_country,Australia,
+Howard Hughes Medical Institute,HHMI,acronym,USA,
+Howard Hughes Medical Institute,Howard Hughes,short_form,USA,
+Bill and Melinda Gates Foundation,BMGF,acronym,USA,
+Bill and Melinda Gates Foundation,Gates Foundation,short_form,USA,
+Bill and Melinda Gates Foundation,Bill & Melinda Gates Foundation,ampersand,USA,
+Cancer Research UK,CRUK,acronym,UK,
+Cancer Research UK,Cancer Research United Kingdom,full_country,UK,
+Japan Agency for Medical Research and Development,AMED,acronym,Japan,
+Korea National Research Foundation,NRF,acronym,South Korea,Note: NRF also used by South Africa
+Korea National Research Foundation,National Research Foundation of Korea,word_order,South Korea,
+Swiss National Science Foundation,SNSF,acronym,Switzerland,
+Swiss National Science Foundation,SNF,acronym,Switzerland,German acronym
+Swiss National Science Foundation,Schweizerischer Nationalfonds,german_name,Switzerland,
+Netherlands Organisation for Scientific Research,NWO,acronym,Netherlands,
+Netherlands Organisation for Scientific Research,Dutch Research Council,english_name,Netherlands,
+Austrian Science Fund,FWF,acronym,Austria,German acronym
+Austrian Science Fund,Fonds zur Förderung der wissenschaftlichen Forschung,german_name,Austria,
+Swedish Research Council,VR,acronym,Sweden,
+Swedish Research Council,Vetenskapsrådet,swedish_name,Sweden,
+Biotechnology and Biological Sciences Research Council,BBSRC,acronym,UK,
+Engineering and Physical Sciences Research Council,EPSRC,acronym,UK,
+Natural Environment Research Council,NERC,acronym,UK,
+Economic and Social Research Council,ESRC,acronym,UK,
+Science and Technology Facilities Council,STFC,acronym,UK,
+Fundação de Amparo à Pesquisa do Estado de São Paulo,FAPESP,acronym,Brazil,São Paulo state funder
+Fundação de Amparo à Pesquisa do Estado de São Paulo,Sao Paulo Research Foundation,english_name,Brazil,
+Conselho Nacional de Desenvolvimento Científico e Tecnológico,CNPq,acronym,Brazil,
+National Cancer Institute,NCI,acronym,USA,NIH institute
+National Heart Lung and Blood Institute,NHLBI,acronym,USA,NIH institute
+National Institute of Mental Health,NIMH,acronym,USA,NIH institute
+National Institute of General Medical Sciences,NIGMS,acronym,USA,NIH institute
+National Institute of Allergy and Infectious Diseases,NIAID,acronym,USA,NIH institute
+National Institute of Diabetes and Digestive and Kidney Diseases,NIDDK,acronym,USA,NIH institute
+National Institute of Neurological Disorders and Stroke,NINDS,acronym,USA,NIH institute
+National Institute on Aging,NIA,acronym,USA,NIH institute
+National Eye Institute,NEI,acronym,USA,NIH institute
+National Institute on Drug Abuse,NIDA,acronym,USA,NIH institute
+National Institute of Environmental Health Sciences,NIEHS,acronym,USA,NIH institute
+National Institute of Child Health and Human Development,NICHD,acronym,USA,NIH institute
+National Institute of Arthritis and Musculoskeletal and Skin Diseases,NIAMS,acronym,USA,NIH institute
+National Institute on Alcohol Abuse and Alcoholism,NIAAA,acronym,USA,NIH institute
+National Center for Advancing Translational Sciences,NCATS,acronym,USA,NIH center

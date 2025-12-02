@@ -62,6 +62,33 @@ FUNDER_PATTERNS = [
 ]
 
 
+def normalize_pmcid(pmcid: str) -> str:
+    """Normalize PMCID to PMC######### format.
+
+    Handles various formats:
+    - PMC12345
+    - 12345
+    - PMCPMC12345.txt (from oddpub article column)
+    """
+    if pd.isna(pmcid):
+        return None
+    pmcid = str(pmcid).strip().upper()
+
+    # Handle PMCPMC12345.txt format from oddpub
+    if pmcid.startswith('PMCPMC'):
+        pmcid = pmcid[3:]  # Remove first "PMC" prefix
+
+    # Remove .txt suffix
+    if pmcid.endswith('.TXT'):
+        pmcid = pmcid[:-4]
+
+    # Ensure PMC prefix
+    if not pmcid.startswith('PMC'):
+        pmcid = 'PMC' + pmcid
+
+    return pmcid
+
+
 def load_open_data_pmcids(oddpub_file: Path) -> set:
     """Load PMCIDs from oddpub output where is_open_data=true."""
     logger.info(f"Loading oddpub results from {oddpub_file}")
@@ -72,12 +99,14 @@ def load_open_data_pmcids(oddpub_file: Path) -> set:
     open_data_df = df[df['is_open_data'] == True]
     logger.info(f"Found {len(open_data_df):,} with is_open_data=true ({100*len(open_data_df)/len(df):.2f}%)")
 
+    # Extract PMCIDs - check article column first (has PMCPMC format)
     pmcids = set()
-    for pmcid in open_data_df['pmcid'].dropna():
-        pmcid_str = str(pmcid).strip()
-        if not pmcid_str.startswith('PMC'):
-            pmcid_str = f'PMC{pmcid_str}'
-        pmcids.add(pmcid_str)
+    for col in ['article', 'pmcid', 'filename']:
+        if col in open_data_df.columns:
+            for val in open_data_df[col].dropna().unique():
+                pmcid = normalize_pmcid(val)
+                if pmcid:
+                    pmcids.add(pmcid)
 
     logger.info(f"Got {len(pmcids):,} unique PMCIDs with open data")
     return pmcids
@@ -308,8 +337,11 @@ def generate_report(results: dict, output_dir: Path):
     logger.info(f"  Saved novel_funders.csv ({len(novel_funders)} entries)")
 
     # 2. All potential funders (including known, for comparison)
+    # Export ALL funders with count >= 2 (not just top 500)
     all_funders = []
-    for name, count in results['potential_funders'].most_common(500):
+    for name, count in results['potential_funders'].most_common():
+        if count < 2:
+            break
         all_funders.append({
             'name': name,
             'count': count,

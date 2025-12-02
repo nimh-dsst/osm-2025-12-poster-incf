@@ -1,0 +1,116 @@
+================================================================================
+OPEN DATA PERCENTAGES BY CATEGORY
+================================================================================
+
+Corpus total: 6,470,793 articles
+Minimum count for percentage: 100
+
+--------------------------------------------------------------------------------
+TOP 20 JOURNALS BY OPEN DATA PERCENTAGE
+--------------------------------------------------------------------------------
+   93.06%    (92.4-93.6%)   6,137/   6,595  Genome Announcements
+   82.93%    (80.8-84.9%)   1,088/   1,312  Microbial Genomics
+   75.55%    (73.7-77.3%)   1,727/   2,286  Genome Research
+   70.99%    (69.8-72.2%)   4,027/   5,673  Microbiology Resource Announcements
+   66.38%    (65.2-67.6%)   3,972/   5,984  Scientific Data
+   66.09%    (63.2-68.8%)     731/   1,106  Molecular & Cellular Proteomics : MCP
+   64.38%    (61.8-66.9%)     853/   1,325  GigaScience
+   52.40%    (49.9-54.9%)     796/   1,519  Cell Reports Medicine
+   48.89%    (47.3-50.5%)   1,763/   3,606  Cell reports
+   46.11%    (44.9-47.3%)   2,954/   6,406  Mitochondrial DNA. Part B, Resources
+   43.12%    (41.5-44.8%)   1,483/   3,439  BMC Evolutionary Biology
+   41.23%    (40.5-42.0%)   6,437/  15,613  BMC Genomics
+   40.28%    (38.4-42.2%)   1,053/   2,614  JCI Insight
+   38.40%    (37.9-38.9%)  13,817/  35,984  Frontiers in Microbiology
+   38.33%    (37.5-39.2%)   4,581/  11,950  iScience
+   38.27%    (36.3-40.3%)     892/   2,331  mSystems
+   37.03%    (35.5-38.5%)   1,481/   4,000  G3: Genes|Genomes|Genetics
+   36.83%    (34.8-38.9%)     761/   2,066  The Journal of Clinical Investigation
+   35.76%    (33.5-38.1%)     609/   1,703  Genes & Development
+   35.66%    (33.3-38.1%)     562/   1,576  Cell Reports
+
+TOP 10 JOURNALS BY ABSOLUTE COUNT:
+  25,098  (  9.16%)  PLoS ONE
+  15,825  (  6.42%)  Scientific Reports
+  13,817  ( 38.40%)  Frontiers in Microbiology
+   8,653  ( 12.43%)  Nature Communications
+   6,697  ( 22.39%)  Frontiers in Plant Science
+   6,437  ( 41.23%)  BMC Genomics
+   6,137  ( 93.06%)  Genome Announcements
+   5,847  ( 25.05%)  Nucleic Acids Research
+   5,507  (  5.70%)  International Journal of Molecular Sciences
+   5,368  ( 12.61%)  Frontiers in Immunology
+
+--------------------------------------------------------------------------------
+TOP 20 COUNTRIES BY OPEN DATA PERCENTAGE
+--------------------------------------------------------------------------------
+   35.52%    (33.5-37.6%)     752/   2,117  Chile
+   29.69%    (28.4-31.1%)   1,328/   4,473  Czech Republic
+   28.70%    (27.2-30.3%)     924/   3,220  Mexico
+   25.37%    (23.9-26.9%)     831/   3,276  New Zealand
+   25.27%    (25.1-25.5%)  39,346/ 155,728  China
+   25.13%    (23.4-26.9%)     578/   2,300  Argentina
+   25.12%    (23.9-26.4%)   1,108/   4,410  Russia
+   24.89%    (24.5-25.3%)  11,723/  47,094  Germany
+   24.39%    (23.9-24.9%)   6,150/  25,217  France
+   23.47%    (22.6-24.4%)   2,010/   8,565  Austria
+   23.16%    (22.1-24.2%)   1,507/   6,506  Norway
+   22.92%    (22.4-23.5%)   5,342/  23,310  Australia
+   22.74%    (21.1-24.4%)     571/   2,511  Hungary
+   22.32%    (21.6-23.1%)   2,550/  11,425  Brazil
+   22.07%    (20.0-24.3%)     305/   1,382  Kenya
+   22.03%    (21.2-22.9%)   2,100/   9,533  Denmark
+   21.96%    (21.4-22.5%)   4,599/  20,942  Spain
+   21.33%    (19.7-23.1%)     487/   2,283  Colombia
+   21.26%    (20.8-21.8%)   5,451/  25,639  Canada
+   21.21%    (20.4-22.1%)   1,987/   9,369  Belgium
+
+TOP 10 COUNTRIES BY ABSOLUTE COUNT:
+  39,346  ( 25.27%)  China
+  30,231  ( 20.40%)  USA
+  13,300  ( 18.93%)  UK
+  11,723  ( 24.89%)  Germany
+   6,150  ( 24.39%)  France
+   5,451  ( 21.26%)  Canada
+   5,342  ( 22.92%)  Australia
+   5,336  ( 15.63%)  Japan
+   4,599  ( 21.96%)  Spain
+   4,599  ( 18.49%)  Italy
+
+--------------------------------------------------------------------------------
+TOP 20 PUBLISHERS BY OPEN DATA PERCENTAGE
+--------------------------------------------------------------------------------
+   46.68%    (45.0-48.3%)   1,652/   3,539  Microbiology Society
+   46.48%    (45.3-47.6%)   3,261/   7,016  Cold Spring Harbor Laboratory Press
+   45.65%    (45.1-46.2%)  16,414/  35,956  American Society for Microbiology; 1752 N St., N.W
+   39.07%    (37.3-40.9%)   1,115/   2,854  American Association for Cancer Research
+   38.76%    (37.4-40.2%)   1,814/   4,680  American Society for Clinical Investigation
+   37.30%    (36.0-38.6%)   2,095/   5,617  Cell Press
+   35.87%    (34.2-37.6%)   1,076/   3,000  Genetics Society of America
+   35.02%    (33.9-36.1%)   2,422/   6,917  American Society for Biochemistry and Molecular Bi
+   22.21%    (21.4-23.1%)   2,026/   9,121  F1000 Research Limited; London, UK
+   21.88%    (21.3-22.5%)   3,879/  17,726  eLife Sciences Publications, Ltd
+   20.25%    (19.0-21.6%)     714/   3,526  Nature Pub. Group
+   18.22%    (17.5-18.9%)   2,232/  12,252  Pensoft Publishers
+   14.70%    (13.8-15.6%)     846/   5,757  PeerJ Inc.; San Francisco, USA
+   12.82%    (12.3-13.3%)   2,033/  15,864  PeerJ Inc.; San Diego, USA
+   12.31%    (11.9-12.7%)   2,851/  23,165  Cold Spring Harbor Laboratory
+   11.37%    (11.2-11.6%)  13,369/ 117,584  Oxford University Press
+   10.68%    (10.2-11.1%)   2,037/  19,065  Centers for Disease Control and Prevention
+   10.57%    (10.4-10.7%)  14,983/ 141,759  Public Library of Science; San Francisco, USA
+   10.29%     (9.8-10.8%)   1,832/  17,800  National Academy of Sciences
+   10.26%    (10.2-10.3%)  50,410/ 491,216  Frontiers Media S.A.
+
+TOP 10 PUBLISHERS BY ABSOLUTE COUNT:
+  50,410  ( 10.26%)  Frontiers Media S.A.
+  28,167  (  3.23%)  MDPI
+  27,254  (  8.30%)  Nature Publishing Group UK; London
+  22,842  (  4.75%)  BioMed Central; London
+  22,340  (  9.47%)  Public Library of Science; San Francisco, CA USA
+  21,464  (  7.31%)  Elsevier
+  16,414  ( 45.65%)  American Society for Microbiology; 1752 N St., N.W
+  14,983  ( 10.57%)  Public Library of Science; San Francisco, USA
+  13,369  ( 11.37%)  Oxford University Press
+  12,475  (  4.90%)  John Wiley and Sons Inc.; Hoboken
+
+================================================================================

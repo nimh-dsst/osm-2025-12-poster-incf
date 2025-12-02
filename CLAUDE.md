@@ -235,7 +235,7 @@ print(f'{df[funder_cols].sum().sum()} total matches')
 - Batch processing: 4-8 GB RAM
 - Single file processing: ~500 MB peak
 
-## Current Processing Status (2025-12-01)
+## Current Processing Status (2025-12-02)
 
 ### PMCID Registry
 
@@ -244,8 +244,8 @@ A DuckDB-based tracking system (`hpc_scripts/pmcid_registry.py`) tracks processi
 | Metric | Value |
 |--------|-------|
 | Total PMCIDs in registry | 6,980,244 |
-| oddpub v7.2.3 processed | 4,186,201 (60.0%) |
-| Missing/retry needed | 2,794,043 |
+| oddpub v7.2.3 processed | 6,490,266 (93.0%) |
+| Missing/retry needed | ~490,000 |
 
 **Registry Commands:**
 ```bash
@@ -267,7 +267,7 @@ python hpc_scripts/pmcid_registry.py generate-retry oddpub_v7 \
 
 Processing ~7M PMC articles with oddpub R package v7.2.3 on NIH Biowulf HPC:
 
-**Issue Discovered (2025-12-01):** XMLs from `oa_other_*.tar.gz` archives had not been extracted, causing many missing results. Now resolved - retry jobs submitted.
+**Status (2025-12-02):** HPC processing largely complete. Merged results contain 6,994,457 articles with 374,906 (5.36%) having open data detected.
 
 **Output Locations:**
 - Primary: `/data/NIMH_scratch/adamt/osm/oddpub_output/` (PMC*_chunk*_results.parquet)
@@ -297,10 +297,15 @@ Key finding: v7.2.3 is significantly stricter, detecting ~50% fewer open data st
 
 ### OpenSS Analysis (Open Data Subset)
 
-Analysis of publications with `is_open_data=true` from oddpub v7.2.3 completed 2025-12-02:
+Analysis of publications with `is_open_data=true` from oddpub v7.2.3:
 
-**Dataset:**
-- 206,382 matched open data records (5.34% of 3.97M total)
+**Merged Dataset (2025-12-02):**
+- Total articles: 6,994,457 (93% of PMC Open Access)
+- Open data detected: 374,906 (5.36%)
+- Open code detected: 141,909 (2.03%)
+- Merged file: `~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet` (409 MB)
+
+**Initial OpenSS Exploration (206,382 records):**
 - 346,209 funding texts extracted
 - 92,653 unique potential funders discovered
 

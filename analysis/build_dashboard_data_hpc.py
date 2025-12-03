@@ -43,12 +43,12 @@ import os
 import re
 import sys
 import time
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from datetime import datetime
 from glob import glob
 from multiprocessing import cpu_count
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Set
 
 import numpy as np
 import pandas as pd
@@ -195,9 +195,30 @@ def load_pmcid_list(filelist_dir: str, licenses: List[str]) -> pd.DataFrame:
     return df
 
 
-def load_rtrans_data(rtrans_dir: str, pmcids: set) -> pd.DataFrame:
-    """Load relevant columns from rtrans parquet files with progress bar."""
-    start = log_time(f"Loading rtrans data from {rtrans_dir}...")
+def _load_single_rtrans_file(args: Tuple[str, set, List[str]]) -> Optional[pd.DataFrame]:
+    """Load a single rtrans parquet file and filter by PMCIDs."""
+    pfile, pmcids, columns = args
+    try:
+        df = pd.read_parquet(pfile, columns=columns)
+
+        # Vectorized PMCID normalization
+        df['pmcid'] = df['pmcid_pmc'].apply(
+            lambda x: f"PMC{x}" if pd.notna(x) and not str(x).startswith('PMC') else str(x) if pd.notna(x) else None
+        )
+
+        # Filter to PMCIDs we care about
+        df = df[df['pmcid'].isin(pmcids)]
+
+        if len(df) > 0:
+            return df
+        return None
+    except Exception as e:
+        return None
+
+
+def load_rtrans_data(rtrans_dir: str, pmcids: set, num_workers: int = 16) -> pd.DataFrame:
+    """Load relevant columns from rtrans parquet files with parallel I/O."""
+    start = log_time(f"Loading rtrans data from {rtrans_dir} with {num_workers} I/O threads...")
 
     parquet_files = sorted(glob(os.path.join(rtrans_dir, "*.parquet")))
     log_time(f"  Found {len(parquet_files)} parquet files")
@@ -208,36 +229,35 @@ def load_rtrans_data(rtrans_dir: str, pmcids: set) -> pd.DataFrame:
         'fund_pmc_institute', 'fund_pmc_anysource'
     ]
 
+    # Prepare arguments for parallel loading
+    args_list = [(pfile, pmcids, columns) for pfile in parquet_files]
+
     all_dfs = []
 
-    if HAS_TQDM:
-        iterator = tqdm(parquet_files, desc="  Loading rtrans files", unit="file")
-    else:
-        iterator = parquet_files
-
-    for i, pfile in enumerate(iterator):
-        if not HAS_TQDM and (i + 1) % 100 == 0:
-            print(f"    Processing file {i+1}/{len(parquet_files)}...")
-
-        try:
-            df = pd.read_parquet(pfile, columns=columns)
-
-            # Vectorized PMCID normalization
-            df['pmcid'] = df['pmcid_pmc'].apply(
-                lambda x: f"PMC{x}" if pd.notna(x) and not str(x).startswith('PMC') else str(x) if pd.notna(x) else None
-            )
-
-            # Filter to PMCIDs we care about
-            df = df[df['pmcid'].isin(pmcids)]
-
-            if len(df) > 0:
-                all_dfs.append(df)
-        except Exception as e:
-            print(f"    Warning: Error reading {pfile}: {e}")
+    # Use ThreadPoolExecutor for I/O-bound operations
+    with ThreadPoolExecutor(max_workers=num_workers) as executor:
+        if HAS_TQDM:
+            futures = {executor.submit(_load_single_rtrans_file, args): i
+                      for i, args in enumerate(args_list)}
+            for future in tqdm(as_completed(futures), total=len(futures),
+                              desc="  Loading rtrans files", unit="file"):
+                result = future.result()
+                if result is not None:
+                    all_dfs.append(result)
+        else:
+            futures = list(executor.map(_load_single_rtrans_file, args_list))
+            completed = 0
+            for result in futures:
+                completed += 1
+                if result is not None:
+                    all_dfs.append(result)
+                if completed % 200 == 0 or completed == len(args_list):
+                    print(f"    Processed {completed}/{len(args_list)} files...")
 
     if not all_dfs:
         return pd.DataFrame()
 
+    log_time(f"  Concatenating {len(all_dfs)} DataFrames...")
     result = pd.concat(all_dfs, ignore_index=True)
     result = result.drop_duplicates(subset=['pmcid'])
     log_time(f"  Loaded {len(result):,} records from rtrans", start)
@@ -552,8 +572,8 @@ def main():
     pmcids = set(pmcid_df['pmcid'].dropna())
     log_time(f"Total PMCIDs to process: {len(pmcids):,}")
 
-    # Load rtrans data
-    rtrans_df = load_rtrans_data(args.rtrans_dir, pmcids)
+    # Load rtrans data (parallel I/O)
+    rtrans_df = load_rtrans_data(args.rtrans_dir, pmcids, num_workers=num_workers)
 
     # Load oddpub data
     oddpub_df = load_oddpub_data(args.oddpub_file, pmcids)

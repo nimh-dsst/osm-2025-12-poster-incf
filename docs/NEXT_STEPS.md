@@ -1,7 +1,37 @@
 # Next Steps for INCF Poster Analysis
 
-**Last Updated:** 2025-12-01 Evening
-**Status:** oddpub retry jobs submitted, interim analysis possible on 4.19M processed records
+**Last Updated:** 2025-12-03
+**Status:** Dashboard data rebuild in progress, registry validation complete, poster generation ready
+
+## Completed (2025-12-03)
+
+1. ✅ Populated pmcid column in oddpub_v7.2.3_all.parquet (6,994,105 PMCIDs)
+   - Used pyarrow for memory-efficient processing
+   - Normalized format: `PMCPMC544856.txt` → `PMC544856`
+
+2. ✅ Created registry validation script (`hpc_scripts/validate_pmcid_registry.py`)
+   - DuckDB-based comparison against PMC filelist CSVs
+   - Validates PMCID coverage and source_tarball correctness
+
+3. ✅ Validated registry: 100% PMCID coverage (6,980,244 PMCIDs)
+
+4. ✅ Identified registry source_tarball bug: all records have `oa_comm_xml` prefix
+   - Created repair script: `hpc_scripts/repair_pmcid_registry.py`
+   - Fixes source_tarball and adds license column (comm/noncomm/other)
+
+5. ✅ Created dashboard data build script (`analysis/build_dashboard_data.py`)
+   - Rebuilds dashboard parquet from PMC filelist CSVs, rtrans, oddpub
+   - Output: 9 columns including funder arrays and data_tags
+
+6. ⏳ Dashboard data build running in background (6.57M PMCIDs)
+
+## Completed (2025-12-02)
+
+1. ✅ Merged oddpub results (6,994,457 articles, 374,906 open data)
+2. ✅ Created canonical funder alias system (43 funders, 65+ variants)
+3. ✅ Built corpus totals for canonical funders
+4. ✅ Generated funder trends graphs (counts and percentages)
+5. ✅ OpenSS funder discovery (58,896 potential funders)
 
 ## Completed (2025-12-01)
 
@@ -29,16 +59,16 @@
 
 ## In Progress
 
-1. ⏳ HPC retry jobs running (~2.79M PMCIDs)
-2. ⏳ Can proceed with interim analysis on existing 4.19M records
+1. ⏳ Dashboard data build running (6.57M PMCIDs from comm + noncomm)
+2. ⏳ Final poster figure generation
 
 ## Next Steps
 
-1. Monitor retry job completion on HPC
-2. Rsync new results and update registry: `python pmcid_registry.py update-oddpub-v7 ~/claude/osm-oddpub-out/`
-3. Merge all oddpub results for final dataset
-4. Run funder analysis with oddpub v7.2.3 `is_open_data` field
-5. Create poster figures comparing v5 vs v7.2.3 by funder
+1. Complete dashboard data build
+2. Run repair script to fix registry source_tarball and add license column
+3. Process remaining ~490K articles with oddpub (7% missing)
+4. Create final poster figures with updated data
+5. (Post-poster) Update Python version in venv and container
 
 ---
 

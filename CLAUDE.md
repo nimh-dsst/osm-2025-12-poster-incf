@@ -339,7 +339,43 @@ See `results/openss_explore/OPENSS_FINDINGS_SUMMARY.md` for complete analysis.
 3. ~~Update funder database with newly discovered funders~~ (Done - funder_aliases.csv)
 4. ~~Calculate funder open data percentages with canonical funders~~ (Done)
 5. ~~Create funder trends graphs (counts and percentages)~~ (Done)
-6. Create final poster figures
+6. ~~Populate pmcid column in oddpub parquet~~ (Done - 6,994,105 PMCIDs)
+7. ~~Create registry validation script~~ (Done - `hpc_scripts/validate_pmcid_registry.py`)
+8. Fix registry source_tarball field (incorrect for noncomm/other) - use `hpc_scripts/repair_pmcid_registry.py`
+9. Create final poster figures
+
+### Dashboard Data Rebuild (2025-12-03)
+
+New script `analysis/build_dashboard_data.py` rebuilds the dashboard parquet file:
+
+```bash
+# Build dashboard data (comm + noncomm licenses)
+python analysis/build_dashboard_data.py \
+    --filelist-dir ~/claude/pmcoaXMLs/raw_download \
+    --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
+    --oddpub-file ~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --output ~/claude/matches_new4.parquet \
+    --licenses comm,noncomm
+```
+
+Output format (9 columns): pmid, journal, affiliation_country, is_open_data, is_open_code, year, funder (array), data_tags (array), created_at
+
+### Registry Repair (2025-12-03)
+
+The pmcid_registry has incorrect `source_tarball` values for noncomm/other PMCIDs (all show oa_comm_xml prefix). Use repair script to fix:
+
+```bash
+# Dry run to see what would change
+python hpc_scripts/repair_pmcid_registry.py \
+    --registry hpc_scripts/pmcid_registry.duckdb \
+    --filelist-dir ~/claude/pmcoaXMLs/raw_download \
+    --dry-run
+
+# Apply fixes (updates source_tarball and adds license column)
+python hpc_scripts/repair_pmcid_registry.py \
+    --registry hpc_scripts/pmcid_registry.duckdb \
+    --filelist-dir ~/claude/pmcoaXMLs/raw_download
+```
 
 ### Funder Trends Analysis (2025-12-02)
 

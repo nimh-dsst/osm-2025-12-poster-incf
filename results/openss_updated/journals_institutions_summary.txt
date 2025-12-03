@@ -1,0 +1,126 @@
+======================================================================
+OPENSS JOURNALS & INSTITUTIONS ANALYSIS
+======================================================================
+
+Total open data records analyzed: 335,457
+Records with journal info: 335,457
+Records with affiliation info: 335,457
+Records with publisher info: 335,457
+
+----------------------------------------------------------------------
+TOP 30 JOURNALS
+----------------------------------------------------------------------
+   25098  PLoS ONE
+   15825  Scientific Reports
+   13817  Frontiers in Microbiology
+    8653  Nature Communications
+    6697  Frontiers in Plant Science
+    6437  BMC Genomics
+    6137  Genome Announcements
+    5847  Nucleic Acids Research
+    5507  International Journal of Molecular Sciences
+    5368  Frontiers in Immunology
+    4581  iScience
+    4027  Microbiology Resource Announcements
+    3972  Scientific Data
+    3879  eLife
+    3487  Data in Brief
+    2954  Mitochondrial DNA. Part B, Resources
+    2835  Frontiers in Genetics
+    2750  PeerJ
+    2717  Microorganisms
+    2514  bioRxiv
+    2497  PLoS Genetics
+    2492  PLOS ONE
+    2477  Ecology and Evolution
+    2416  Frontiers in Cellular and Infection Microbiology
+    2350  Heliyon
+    2247  Frontiers in Psychology
+    2146  Viruses
+    2144  Frontiers in Oncology
+    2112  Microbiology Spectrum
+    2077  Molecules
+
+----------------------------------------------------------------------
+TOP 30 INSTITUTIONS
+----------------------------------------------------------------------
+   26938  School of Medicine
+   12721  Chinese Academy of Sciences
+   10979  University School of Medicine
+    9012  University of California
+    7542  University Hospital
+    6834  College of Medicine
+    5579  University of Science and Technology
+    4964  School of Life Sciences
+    4638  University Medical Center
+    4632  Institute of Technology
+    4503  School of Public Health
+    4146  University of
+    4095  University of Oxford
+    3749  Max Planck Institute
+    3451  Harvard Medical School
+    3361  University of Cambridge
+    3214  College of Life Sciences
+    3187  Stanford University
+    3176  University of Technology
+    3116  University of Chinese Academy of Sciences
+    2609  College of Veterinary Medicine
+    2583  INSERM
+    2549  University of Toronto
+    2426  University of Medical Sciences
+    2357  University of Copenhagen
+    2319  University of Tokyo
+    2307  School of Biological Sciences
+    2289  National Institutes of Health
+    2248  University College London
+    2221  University of Hong Kong
+
+----------------------------------------------------------------------
+TOP 20 COUNTRIES
+----------------------------------------------------------------------
+   39346  China
+   30231  USA
+   13300  UK
+   11723  Germany
+    6150  France
+    5451  Canada
+    5342  Australia
+    5336  Japan
+    4599  Spain
+    4599  Italy
+    4490  Netherlands
+    3602  Switzerland
+    3225  India
+    3149  Sweden
+    2550  Brazil
+    2140  South Korea
+    2100  Denmark
+    2010  Austria
+    1987  Belgium
+    1507  Norway
+
+----------------------------------------------------------------------
+TOP 20 PUBLISHERS
+----------------------------------------------------------------------
+   50410  Frontiers Media S.A.
+   28167  MDPI
+   27254  Nature Publishing Group UK; London
+   22842  BioMed Central; London
+   22340  Public Library of Science; San Francisco, CA USA
+   21464  Elsevier
+   16414  American Society for Microbiology; 1752 N St., N.W., Washington, DC
+   14983  Public Library of Science; San Francisco, USA
+   13369  Oxford University Press
+   12475  John Wiley and Sons Inc.; Hoboken
+    9175  BioMed Central
+    6346  Nature Publishing Group
+    4959  Taylor & Francis
+    3879  eLife Sciences Publications, Ltd
+    3261  Cold Spring Harbor Laboratory Press
+    2987  
+    2851  Cold Spring Harbor Laboratory
+    2810  Springer Berlin Heidelberg; Berlin/Heidelberg
+    2422  American Society for Biochemistry and Molecular Biology
+    2232  Pensoft Publishers
+
+======================================================================

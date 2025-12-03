@@ -1,0 +1,309 @@
+--- Sample 1 ---
+This material is based upon work supported by the National Science Foundation under Grant Nos. 2243263, 2003205, 20230833 and 2216855 and Renewable Energy, Natural Resources, and Environment: Agroecosystem Management Grant no. GRANT13398847 / project accession no. 1027642 from the USDA National Institute of Food and Agriculture.
+
+--- Sample 2 ---
+National Science Foundation (NSF); United States Department of Agriculture | National Institute of Food and Agriculture (NIFA)
+
+--- Sample 3 ---
+https://doi.org/10.13039/100000001National Science Foundation (NSF); https://doi.org/10.13039/100005825United States Department of Agriculture | National Institute of Food and Agriculture (NIFA)
+
+--- Sample 4 ---
+We thank R. A. DePinho, D. Arons and K. Knight for support with the GBM CARE initiative. This work was supported by a GBM CARE grant (supplemented to no. P30CA006516-56S6 (to M.L.S.)); M.L.S. is also supported by National Institutes of Health (NIH)-National Cancer Institute (NCI) grant nos. R01CA276765, R37CA245523, R01CA258763 and P50CA165962, the Mark Foundation Emerging Leader Award, the MGH Research Scholars Award, the Sontag Foundation Distinguished Scientist Alumni Award and the National Foundation for Cancer Research. I.T. is supported by a European Research Council consolidator grant no. 101044318, the Zuckerman STEM Leadership Program and a Mexican Friends New Generation grant, and he is the incumbent of the Dr. Celia Zwillenberg-Fridman and Dr. Lutz Zwillenberg Career Development Chair. A.I. is supported by NIH grant nos. R35CA253183, P30CA013696-46S1 and P30CA240139. R.G.W.V. is supported by NIH grant nos. R01CA237208, R21NS114873, R21CA256575 and P30CA034196, and by the Lux
+
+--- Sample 5 ---
+Author contributions: K.L., K.H. and T.Z. jointly contributed to the conceptualization of the study, experimental design, and data analysis. K.L. performed the experiments and collected the data, while T.Z. and K.L. collaborated on data analysis, result interpretation, and manuscript editing. Y.Z. and Z.W. supervised the research, provided critical revisions to the manuscript, and ensured funding and resources for the project. All authors reviewed and approved the final manuscript.
+
+--- Sample 6 ---
+The authors acknowledge access to, and use of, unceded land in the traditional territories of Indigenous peoples of the Inupiaq and Tanana nations. We thank SnowEx Alaska March 2023 participants – a team of 46 scientists, practitioners, and engineers from 18 organizations in the U.S., Canada, Finland, and the Netherlands – for their dedicated field work and careful data collection. UAF’s Toolik Field Station provided accommodation and logistical support for participants working in the Arctic. Dr. Glen Liston provided valuable input on snow classifications in the Arctic tundra. Emily Youcha prepared field maps for all participants. The Arctic Climate Research Center (UAF) provided solid precipitation data at Fairbanks. We thank the Editor and three anonymous Reviewers for providing peer-review of this manuscript. Funding was provided by NASA grants 80NSSC21K1913, 80NSSC22K1114, 80NSSC23K1419, and 80NSSC21M0321.
+
+--- Sample 7 ---
+NASA | Goddard Space Flight Center (NASA&apos;s Goddard Space Flight Center)
+
+--- Sample 8 ---
+https://doi.org/10.13039/100006198NASA | Goddard Space Flight Center (NASA&apos;s Goddard Space Flight Center)
+
+--- Sample 9 ---
+Funding informationThe Study of Women's Health Across the Nation (SWAN) has grant support from the National Institutes of Health (NIH), DHHS, through the National Institute on Aging (NIA), the National Institute of Nursing Research (NINR), and the NIH Office of Research on Women's Health (ORWH) (Grants U01NR004061; U01AG012505, U01AG012535, U01AG012531, U01AG012539, U01AG012546, U01AG012553, U01AG012554, U01AG012495) and for the SWAN Genomic Analyses and SWAN Legacy (U01AG017719). The content of this article is solely the responsibility of the authors and does not necessarily represent the official views of the NIA, NINR, ORWH, or the NIH. SDH gratefully acknowledge use of the services and facilities of the Population Studies Center at the University of Michigan, funded by NICHD Center Grant R24 HD041028
+
+--- Sample 10 ---
+We thank Philip Benfey, Kim Gallagher, Ji-Young Lee, Arabidopsis Biological Resource Center (ABRC) and Nottingham Arabidopsis Stock Centre (NASC) for plant lines. We are grateful to Philip Benfey for critical reading and suggestions. This work was supported by the National Research Foundation (NRF-2021R1F1A1063302) and the Next-Generation BioGreen 21 project (SSAC-PJ01316101).
+
+--- Sample 11 ---
+This work was supported by National Research Foundation of Korea (NRF) grants funded by the Korean government (NRF-2019R1A5A2027340, 2021R1F1A1049941, and 2019R1A2C2084716 to E.J.C. and 2012R1A3A2048767 to H.D.Y.).
+
+--- Sample 12 ---
+We are grateful to Laura Company, Xandra Kreplin and Joan Pous from the joint IBMB/IRB Automated Crystallography Platform and the Protein Purification Service at IBMB for assistance during purification and crystallisation experiments, and Carme Quero from the Institut de Química Avançada de Catalunya (IQAC-CSIC) is thanked for assistance with mass spectrometry. We also acknowledge the kind gift of S. aureus strain V8-BC10 (for aureolysin production) from Jan Potempa, Jagiellonian University of Kraków, Poland. The authors would also like to thank the ESRF and ALBA synchrotrons for beamtime allocation and the beamline staff for assistance during diffraction data collection. This study was supported in part by Spanish and Catalan public and private bodies that provided funding to the Proteolysis Lab (grants PID2019-107725RG-I00 from MCIN/AEI/10.13039/501100011033, 2017SGR3 from the National Government of Catalonia, and 201815 from Fundació “La Marató de TV3”). S.M.E. acknowledges grant BE
+
+--- Sample 13 ---
+Funding The authors disclose receipt of the following financial support for the research, authorship and/or publication of this article: This work was financially supported by the Australian Sonographers Accreditation Registry with a $20 000 grant.
+
+--- Sample 14 ---
+Australian Sonographers Accreditation Registry
+
+--- Sample 15 ---
+Australian Sonographers Accreditation Registry
+
+--- Sample 16 ---
+We would like to thank Bernardo Rudy, Joanna Mattis, and Laura Mcgarry for comments on a previous version of the manuscript; Xiaohong Zhang for expert technical support and mouse colony maintenance; Melody Cheng for assistance with generation of the graphical abstract; and Jennifer Kearney for the gift of Scn1a+/− mice. This work was supported by the National Institute of Neurological Disorders and Stroke of the National Institutes of Health under F31NS111803 (to K.M.G.) and K08NS097633 and R01NS110869 (to E.M.G.), the Dravet Syndrome Foundation (to A.S.), an ERC Consolidator Grant (SYNAPSEEK) (to T.P.V.), and the NOMIS Foundation through the NOMIS Fellowships program at IST Austria (to C.C.). The graphical abstract was prepared using BioRender software (BioRender.com).
+
+--- Sample 17 ---
+Funding:  The author(s) received no financial support for the research, authorship, and/or publication of this article.
+
+--- Sample 18 ---
+The authors thank Ethan Garner, Conrad Woldringh, and Arieh Zaritsky for useful discussions; François-Xavier Barre, Paula Bissichia, Nynke Dekker, Rodrigo Reyes-Lamothe, and David Sherratt for bacterial strains; and Da Yang and Scott Retterer for help in microfluidic chip making. The authors acknowledge the technical assistance of and material support from the Center for Environmental Biotechnology at the University of Tennessee. A part of this research was conducted at the Center for Nanophase Materials Sciences, which is sponsored at Oak Ridge National Laboratory by the Scientific User Facilities Division, Office of Basic Energy Sciences, US Department of Energy. This work has been supported by the US-Israel BSF research grant 2017004 (to Jaan Männik), the National Institutes of Health award under R01G M127413 (to Jaan Männik), NSF CAREER 1752024 (to A.A.), and NSF award 1806818 (to P.K.).
+
+--- Sample 19 ---
+Funding information  H2020 European Research Council, Grant/Award Number: 715691; Narodowe Centrum Nauki, Grant/Award Number: 2017/27/B/NZ1/00161; National Natural Science Foundation of China, Grant/Award Numbers: 22177064, 31725014; Natural Science Foundation of Shandong Province, Grant/Award Number: ZR2021MB050; National Key Research Development Program of China, Grant/Award Number: 2020YFA0803300
+
+--- Sample 20 ---
+H2020 European Research Council
+; Narodowe Centrum Nauki
+; National Natural Science Foundation of China
+; Natural Science Foundation of Shandong Province
+
+--- Sample 21 ---
+H2020 European Research Council
+10.13039/100010663; Narodowe Centrum Nauki
+10.13039/501100004281; National Natural Science Foundation of China
+10.13039/501100001809; Natural Science Foundation of Shandong Province
+10.13039/501100007129; National Key Research Development Program of China
+
+--- Sample 22 ---
+We thank E. Olson for sharing the HEK293T cell line, J. Mendell for sharing the HCT116 cell line and technical support for the sgRNA screen, and the Brown and Goldstein laboratory for sharing the Brunello library. We acknowledge the UTSW Flow Cytometry Facility and Moody Foundation Flow Cytometry Facility at UT Southwestern for performing cell sorting/flow cytometry analysis for this project. We also acknowledge the Next-Generation Sequencing Core of McDermott Center for performing next-generation sequencing. We thank J. Mendell, H. Zhu, P. Douglas, M. Conacci Sorrell, and members of the Buszczak laboratory for discussion, suggestions, and critically reviewing the manuscript. We thank O. Cheng for help with illustrations and J. Schoggins for sharing data prior to publication. This work was supported by grants from NIGMS (GM125812 and GM144043) and funding from the UT Southwestern Simmons Comprehensive Cancer Center to M.B. J.W. is a New York Stem Cell Foundation-Robertson Investigator 
+
+--- Sample 23 ---
+Funding This work was supported by grants from the National Natural Science Foundation of China (32070432, 32025009, and 31672279) and the Fundamental Research Funds for the Central Universities.
+
+--- Sample 24 ---
+National Natural Science Foundation of China
+
+--- Sample 25 ---
+National Natural Science Foundation of China10.13039/501100001809
+
+--- Sample 26 ---
+We would like to dedicate this work to Jose-Luis Gomez-Skarmeta, a friend and an incredible researcher without whom this work could never have been accomplished. This work benefited from access to the Observatoire Oceanologique de Banyuls sur Mer (OOB), an EMBRC-France and EMBRC-ERIC site. The work was supported by the Centre Nationale de la Recherche Scientifique, by the “Agence Nationale de la Recherche” (grants ANR-19-CE13-0011-01 and ANR-16-CE12-0008-01 to H.E.) and by the European project Assemble Plus (H2020-INFRAIA-1-2016-2017; grant no. 730984 to H.E.). S.B. was supported by the Institut Universitaire de France. The work was supported by the European Research Council (grant ERC-StG-LS2-637591 to M.I.) and by the Spanish Ministerio de Ciencia (grant BFU2017-89201-P to M.I. and grant PID2019-103921GB-I00 to J.J.T.). We would like to thank Marion Picard for her careful reading of the manuscript.
+
+--- Sample 27 ---
+The authors thank Dr. Jerry M. Adams for providing the pEμSRα transgenic plasmid; Dr. Gina DeNicola for critical review of the study; Dr. Sandeep Dave for providing access to RNA-seq dataset of DLBCL patient samples; Kelly Psilos, Rea Güertler, Dr. Antony Packiam-Dayalan, and Emma Fallahi for technical assistance and advice; Rosemary Lyda and Tiffany Razabdousky of the Scripps-Florida and Moffitt Animal Resource Centers, respectively, for their technical assistance; Sean Yoder and the Moffitt Genomics Core for their help with RNA-seq analyses; Jodi Kroeger of the Moffitt Flow Cytometry Core, and the Southeast Center for Integrated Metabolomics (SECIM) supported by NIH grant U24DK097209. This work was supported by grants CA154739, CA167093, and CA241713 (to J.L. Cleveland), by the Cortner-Couch Endowed Chair for Cancer Research from the University of South Florida School of Medicine (to J.L. Cleveland), a Swiss National Science Foundation Postdoctoral Fellowship (to F.X. Schaub), by NRS
+
+--- Sample 28 ---
+NIH; University of South Florida School of Medicine; Swiss National Science Foundation Postdoctoral Fellowship; NCI
+
+--- Sample 29 ---
+NIHhttps://doi.org/10.13039/100000002; University of South Florida School of Medicine; Swiss National Science Foundation Postdoctoral Fellowship; NCIhttp://dx.doi.org/10.13039/100000054
+
+--- Sample 30 ---
+This work was primarily supported by grants from the National Institute of Mental Health (NIMH): R01MH112847 to T.D.S. and R.T.S.; R01MH120482 and R01MH113550 to T.D.S.; R01 MH123550-01 to R.T.S.; R01MH107235 to R.C.G.; 2T32MH019112-29A1 to E.B.B.; T32MH014654 to B.L.L.; F31MH123063-01A1 to A.R.P.; R01MH120174, R01MH119185, and R56AG066656 to D.R.R.; DGE1845298 to V.J.S. The PNC was funded by RC2 grants MH089983 and MH089924 to R.E.G. from the NIMH. Additional support was provided by the AE Foundation, the Penn-CHOP Lifespan Brain Institute, the Penn Brain Science Center, and the Penn Center for Biomedical Image Computing and Analysis.
+
+--- Sample 31 ---
+This work was financed by the Swiss Federal Office for Agriculture under contract numbers 625000469 and 627001325. Annik Imogen Gmel: Conceptualisation, Methodology, Formal analysis, Investigation, Data curation, Writing – original draft, Writing – review & editing, Visualisation, Funding acquisition; Gerhard Gmel: Validation; Michael Andreas Weishaupt: Conceptualisation, Investigation, Data curation, Writing – review & editing, Resources, Supervision; Markus Neuditschko: Writing – review & editing, Funding acquisition, Resources, Supervision, Project administration.
+
+--- Sample 32 ---
+Funding and additional information D. J. C. is supported by an 10.13039/501100000923Australian Research Council (ARC) Australian Laureate Fellowship (FL150100146). Q. D. is supported by the Chinese Scholarship Council.
+
+--- Sample 33 ---
+Funding and additional information J. A. W. is grateful for funding from the Harry and Dianna Hind Endowed Professorship in Pharmaceutical Sciences, 10.13039/100000002NIH R35GM122451; J. A. W., A. A. and A. M. were supported on a common grant from the 10.13039/100014547Parker Institute for Cancer Immunotherapy. Postdoctoral Fellowship support included a 10.13039/100000002National Institutes of Health
+10.13039/100000054National Cancer Institute F32 (5F32CA239417 to J. R. B.). A. M. holds a Career Award for Medical Scientists from the Burroughs Wellcome Fund, is an investigator at the Chan Zuckerberg Biohub and is a recipient of The Cancer Research Institute (CRI) Lloyd J. Old STAR grant. The Marson lab has received additional funds from the 10.13039/100014220Innovative Genomics Institute (IGI), and the 10.13039/100000893Simons Foundation.
+
+--- Sample 34 ---
+We thank Dr Jeffrey T. Mindrebo for his precious advice and his help in editing. We would also like to acknowledge funding from NIH R01 GM095970.
+
+--- Sample 35 ---
+National Institutes of Health
+
+--- Sample 36 ---
+National Institutes of Health10.13039/100000002
+
+--- Sample 37 ---
+Funding This work was funded by the Dunhill Medical Trust Research Project Grant awarded to RDM, SR, SP & MH (RPGF1810\86).
+
+--- Sample 38 ---
+We thank Dr. Daniel L. Hulbert for designing the primers used in this study. We thank Dr. Wee L. Yee and Dr. Ron Debry for providing valuable feedback and comments on an earlier version of the manuscript. We also thank Dr. Pat Edger for co-teaching, and the Lyman Briggs College for funding, the LB348 undergraduate research course (CURE) in which the NGS data that provided the basis of the work done in this publication were produced.
+
+--- Sample 39 ---
+Funding:  M.A. is supported by Ride for Dad, CIHR, and Myeloma Canada; H.-Y.S. by the NIH intramural research programs and the National Eye Institute (1ZIAEY000569-01); G.S. and A.S. by AIRC: 5×1000-21147 (A.S.) and MFAG-21311 (G.S.); A.Z. by Sapienza University; P.G.F. by Science Foundation Ireland; and A.H.S. by NIH (PO1 grant 56299). E.V. is supported by an AIRC fellowship. M.M. is the recipient of a CAAIF postdoctoral fellowship. J.J.H. and D.P.C. are recipients of a Frederick Banting and Charles Best Canada Graduate Scholarships Doctoral Award from CIHR. D.P.C. is also the recipient of a Banting post-doctoral fellowship. S.A. is a recipient of an OGS scholarship.
+
+--- Sample 40 ---
+National Institutes of Health; Canadian Allergy, Asthma and Immunology Foundation; Canadian Allergy, Asthma and Immunology Foundation; Diabetes Canada; Diabetes Canada; Diabetes Canada; Diabetes Canada; Diabetes Canada; Canadian Institutes of Health Research; Canadian Institutes of Health Research; Associazione Italiana per la Ricerca sul Cancro; Associazione Italiana per la Ricerca sul Cancro; Associazione Italiana per la Ricerca sul Cancro; Associazione Italiana per la Ricerca sul Cancro
+
+--- Sample 41 ---
+http://dx.doi.org/10.13039/100000002National Institutes of Health; http://dx.doi.org/10.13039/100008154Canadian Allergy, Asthma and Immunology Foundation; http://dx.doi.org/10.13039/100008154Canadian Allergy, Asthma and Immunology Foundation; http://dx.doi.org/10.13039/100013528Diabetes Canada; http://dx.doi.org/10.13039/100013528Diabetes Canada; http://dx.doi.org/10.13039/100013528Diabetes Canada; http://dx.doi.org/10.13039/100013528Diabetes Canada; http://dx.doi.org/10.13039/100013528Diabetes Canada; http://dx.doi.org/10.13039/501100000024Canadian Institutes of Health Research; http://dx.doi.org/10.13039/501100000024Canadian Institutes of Health Research; http://dx.doi.org/10.13039/501100005010Associazione Italiana per la Ricerca sul Cancro; http://dx.doi.org/10.13039/501100005010Associazione Italiana per la Ricerca sul Cancro; http://dx.doi.org/10.13039/501100005010Associazione Italiana per la Ricerca sul Cancro; http://dx.doi.org/10.13039/501100005010Associazione Italiana per la Ri
+
+--- Sample 42 ---
+Financial support.  This work was supported by funds from the German Federal Ministry of Health to the National Consiliary Laboratory. Financial support .
+
+--- Sample 43 ---
+This work was supported by grants from the National Natural Science Foundation of China (31922033, 91857105, 32071136, 32100922, and 32100942) to Z. Gan, T. Fu, and D. Xu; the Ministry of Science and Technology of China (National Key Research and Development Program of China 2018YFA0800700) to Z. Gan; China Postdoctoral Science Foundation (2021M691524) to D. Xu; and Fundamental Research Funds for the Central Universities (021414380511) to Z. Gan.
+
+--- Sample 44 ---
+National Natural Science Foundation of China; Ministry of Science and Technology of the People’s Republic of China; National Key Research and Development Program of China; China Postdoctoral Science Foundation; Fundamental Research Funds for the Central Universities
+
+--- Sample 45 ---
+National Natural Science Foundation of Chinahttp://dx.doi.org/10.13039/100014717; Ministry of Science and Technology of the People’s Republic of Chinahttp://dx.doi.org/10.13039/501100002855; National Key Research and Development Program of Chinahttp://dx.doi.org/10.13039/501100012166; China Postdoctoral Science Foundationhttp://dx.doi.org/10.13039/501100002858; Fundamental Research Funds for the Central Universitieshttp://dx.doi.org/10.13039/501100012226
+
+--- Sample 46 ---
+This work is supported in part by NIH grants: R01 AG059874, T32 AG058507, P41 EB015922, a Zenith Award from the U.S. Alzheimer’s Association, and an image processing grant from Biogen Inc.
+
+--- Sample 47 ---
+Financial support and sponsorship Nil.
+
+--- Sample 48 ---
+We would like to thank Julius Anckar, Ulla Tuomainen, and Anne Carson for management assistance. This work was supported by the  (grant number 331671 to N.M., grant number 285380 to S.R., 128650 to A.P., 288509 to M.P., and 323116 to A.G.);  (grant number 312062 to S.R., 312074 to A.P.,312076 to M.P.); European Union’s  research and innovation program under grant agreement No 101016775;  HiLIFE Fellow grants 2017-2020 (to S.R.);  (to S.R., A.P., and M.P.);  (grant number K99MH117229 to A.M.);  grant PUT (PRG687 to K.L and R.M). The research in BioBank Japan has been supported by  KAKENHI (19H01021, 20K21834);  (JP21km0405211, JP21ek0109413, JP21gm4010006, JP21km0405217, JP21ek0410075);  (JPMJMS2021); . In HUNT, the genotyping was financed by the National Institute of health (NIH), , The , and  and the ,  (NTNU). G.C.F. is funded by the Faculty of Medicine and Health Sciences at NTNU and Central Norway Regional Health Authority. The funders had no role in study design, data collection a
+
+--- Sample 49 ---
+10.13039/501100002341Academy of Finland; Academy of Finland Center of Excellence in Complex Disease Genetics; 10.13039/501100007601Horizon 2020; 10.13039/100007797University of Helsinki; 10.13039/501100006306Sigrid Jusélius Foundation; 10.13039/100000002National Institutes of Health; 10.13039/501100002301Estonian Research Council; 10.13039/501100001691JSPS; 10.13039/100009619AMED; JST Moonshot R&D; 10.13039/100007449Takeda Science Foundation; 10.13039/100007270University of Michigan; 10.13039/501100005416Norwegian Research Council; 10.13039/501100004590Central Norway Regional Health Authority; Faculty of Medicine and Health Sciences; 10.13039/100009123Norwegian University of Science and Technology
+
+--- Sample 50 ---
+We greatly appreciate Dr. Wanxiang Jiang (Greentech Bioscience) for generous advice on and help with non-human primate experiments; Dr. Hu Zhou, Department of Analytical Chemistry and CAS Key Laboratory of Receptor Research, Shanghai Institute of Materia Medica, for mass spectrum analysis; and Dr. Lei Zhang, Institute of Hematology & Blood Disease Hospital, Chinese Academy of Medical Sciences & Pekin Union Medical College, for providing hemophilia B patient sera samples. This study was supported by the  (grant no. 31901052), the  (cstc2019jcyj-msxmX0010), and  Major Project. Data acquisition and analysis were technically supported by the Institutional Technology Service Center of the Shanghai Institute of Materia Medica. To obtain raw files for acetylation, methylation, ubiquitination, phosphorylation, and deamidation, the dried peptides (∼1 μg each sample) were resolved using 0.1% formic acid (FA) and separated on an analytical column (75 μm × 200 mm) packed with reverse-phase (RP) be
+
+--- Sample 51 ---
+10.13039/501100001809National Natural Science Foundation of China; Basic Research and Scientific Frontier Foundation of Chongqing; 10.13039/501100003399Shanghai Municipal Science and Technology
+
+--- Sample 52 ---
+We extend our gratitude to Stuart Archer from the Monash Bioinformatics Platform for advice on RNA-seq and thank Monash Micromon Sequencing Facility for their support in performing the sequencing. We acknowledge the financial support of the  (fellowship APP1002486/APP1103050), the  (fellowship CDA-17-007),  Fellowship (1049980) and  (PAG15-0016). K. A. G. acknowledges the scholarship support by Monash University (MBio Discovery Scholarship). The Australian Regenerative Medicine Institute is supported by grants from the State Government of Victoria and the Australian Government. This research was supported by use of the Nectar Research Cloud, a collaborative Australian research platform supported by the National Collaborative Research Infrastructure Strategy (NCRIS).
+
+--- Sample 53 ---
+National Health and Medical Research Council Australia; National Breast Cancer Foundation; National Health and Medical Research Council/Heart Foundation Career Development; MNHS Platform Access Grant
+
+--- Sample 54 ---
+This work is supported by the  (Grant #86655) to J Vacher. M Mutabaruka was a recipient of a J.H. Lafleur IRCM Scholarship and a RSBO doctoral scholarship.
+
+--- Sample 55 ---
+10.13039/501100000024Canadian Institutes of Health Research
+
+--- Sample 56 ---
+Funding and additional information This study was supported by a Beckman Young Investigator Award (K. M. B.), V Scholar Award V2019-017 (K. M. B.), 10.13039/100007186UCLA Jonsson Comprehensive Cancer Center Seed Grant (K. M. B.), TRDRP T31DT1800 (T. Y.), and the 10.13039/100000002National Institutes of Health grant R01-GM-094231 (A. I. N.). The content is solely the responsibility of the authors and does not necessarily represent the official views of the National Institutes of Health.
+
+--- Sample 57 ---
+This work was supported by the  (18CSA34080171, S.C., T.E.), Department of Surgery,  (T.E., S.C.),  (2021-026, S.C.),  (R01DK130454, R01DK119667-02S1, S.C.),  (R01HL151190, R01HL160089, G.S.P.). S.C is supported as Irma Hirschl Trust Research Award Scholars. T.E. is supported by an Outstanding Investigator Award (R35 HL135778). We thank Dr. Friederike Dundar for her help on single-cell RNA-seq analysis.
+
+--- Sample 58 ---
+10.13039/100000968American Heart Association; 10.13039/100007273Weill Cornell Medicine; Tri-Institutional Stem Cell Institute; 10.13039/100000062NIDDK; 10.13039/100000050NHLBI
+
+--- Sample 59 ---
+We would like to thank Mr. Ben Inbar and Ms. Juanita Merrill with help with genotyping and animal husbandry. The majority of this work was supported by a grant from the  NINDS-R35NS111604 (to PC) and a predoctoral fellowship F31NS110166-02 (to ET). Experiments on developmental expression, responsiveness to stiffness and Yap/Taz mice were supported by grant R01NS45630 (to LF). The work on cocultures with DRG neurons (CMV) was supported by - SC1NS000001 and Research Centers in Minority Institutions Programgrant from the  (G12 RR003037). The data on repressive histones and nerves from mice with mutations in the PRC2 complex were supported by grant R01 NS100510 (to JS). The Actl6a floxed mice and all discussion related to eviction of repressive marks were supported by  and  grants 5R01CA163915 and R01MH126720 (to GRC).
+
+--- Sample 60 ---
+10.13039/100000002National Institutes of Health; 10.13039/100000002NIH; 10.13039/100000097National Center for Research Resources; 10.13039/100000011HHMI; 10.13039/100000002NIH; 10.13039/100000002NIH; 10.13039/100000002NIH
+
+--- Sample 61 ---
+We thank Miki Gams from Dr. Cynthia Guidos’ laboratory and Tina Chen and Joe Cozzarin from the Center for Advanced Single Cell Analysis at the Hospital for Sick Children Research Institute for their considerable technical contribution, including optimization of staining and panel design. For this research, H.-K.S. is supported by grants from  (, PJT-162083),  (, RGPIN-2016-06610), and  () of University of Toronto. H.-K.S and J.-R. K. are supported by  Fund (2019K1A3A1A74107385) through the  () funded by the . S.Y.P. is supported by the  (2015R1A5A2009124) through the  (). J.H.L. is supported by Doctoral Program Postgraduate Scholarship (PGS-D) from . N.V. is supported by Novo Nordisk Studentship from . N.T. is supported by .
+
+--- Sample 62 ---
+10.13039/501100000024Canadian Institutes of Health Research; 10.13039/501100000024CIHR; 10.13039/501100000038Natural Sciences and Engineering Research Council of Canada; 10.13039/501100000038NSERC; Sun Life Financial New Investigator Award of Banting & Best Diabetes Centre; 10.13039/501100000064BBDC; Korea-Canada Research; 10.13039/501100003725National Research Foundation of Korea; NRF; Ministry of Science and ICT; Medical Research Center Program; 10.13039/501100003725National Research Foundation of Korea; NRF; 10.13039/501100000038NSERC; 10.13039/501100000064BBDC; SickKids Restracomp Scholarship
+
+--- Sample 63 ---
+Funding and additional information A. L. was funded by studentships from the National Sciences and Engineering Research Council, 10.13039/501100000145Alberta Innovates Health Solutions, and the 10.13039/501100000190University of Alberta, whereas D. W. was supported by the 10.13039/501100001804Canada Research Chairs and 10.13039/501100002784Canada Excellence Research Chairs programs, respectively. L. D. and M. S. were supported by the 10.13039/501100021730Alberta Prion Research Institute (grant no.: 20170016).
+
+--- Sample 64 ---
+We thank Dr. Arif Bülent Ekici, Department of Human Genetics, Erlangen, for performing the Illumina MiSeq run. This work was funded by the  (German Research Foundation, Research Training Group GRK1660 – Projektnummer 161220270 to F.N. and T.H.W., TRR130 – Projektnummer 215346292 to T.H.W. and F.N., and FOR2953 – Projektnummer 409784463 and FOR2886 – Projektnummer 405969122 to F.N.). We acknowledge financial support by Deutsche Forschungsgemeinschaft and Friedrich-Alexander-Universität Erlangen-Nürnberg within the funding programme “Open Access Publication Funding."
+
+--- Sample 65 ---
+10.13039/501100001659Deutsche Forschungsgemeinschaft
+
+--- Sample 66 ---
+The authors acknowledge the financial support provided by Urmia University, Urmia, Iran.
+
+--- Sample 67 ---
+The authors would like to acknowledge An-Najah National University (ANNU) for its financial support to carry out this project No. ANNU-1819-Sc018. We gratefully acknowledge the Palestinian Livestock Development Center (PLDC) (Tubas-Palestine) for providing support during this study.
+
+--- Sample 68 ---
+The funding for this study has been provided by the  in the form of the “statute research subsidy” (dotacja statutowa) to WP (No. 503-0013-23000). We would like to thank Dr Zbigniew Socha, the County Veterinary Officer for providing the material for this study. We are also grateful to Karolina Półtorak for her photographs used in this paper. The help of Małgorzata Bąk and Angelika Linowska is also acknowledged and highly appreciated.
+
+--- Sample 69 ---
+10.13039/100018390University of Szczecin
+
+--- Sample 70 ---
+This work was supported in part by the Department of Energy (DOE) under Award DE-SC0019303 and the National Science Foundation (NSF) award 1835690. Omar Maddouri: Conceptualization, Data curation, Formal analysis, Investigation, Methodology, Software, Validation, Visualization, Writing – original draft, Writing – review & editing. Xiaoning Qian: Conceptualization, Formal analysis, Supervision, Validation, Writing – review & editing. Francis J. Alexander: Conceptualization, Formal analysis, Validation, Writing – review & editing. Edward R. Dougherty: Conceptualization, Formal analysis, Funding acquisition, Project administration, Supervision, Validation, Writing – review & editing. Byung-Jun Yoon: Conceptualization, Formal analysis, Funding acquisition, Methodology, Project administration, Resources, Supervision, Validation, Writing – review & editing.
+
+--- Sample 71 ---
+We are grateful for access to the Tier 2 High Performance Computing resources provided by the Northern Ireland High Performance Computing (NI-HPC) facility funded by the UK Engineering and Physical Sciences Research Council (EPSRC), Grant No. EP/T022175 and DC is grateful for the UKRI Turing AI Fellowship 2021-2025 funded by the EPSRC (grant number EP/V025724/1) and the Spatial Computing and Neurotechnology Innovation Hub, funded by The Department for the Economy, Northern Ireland. Damien Coyle: Supervision, Conceptualization, Methodology, Software, Hardware, Funding acquisition, Project management and administration, Writing- Reviewing and Editing. Naomi du Bois: Funding acquisition, Methodology, Data curation, Formal analysis, Visualisation, Writing- Reviewing and Editing. Alain D. Bigirimana: Funding acquisition, Software, Data curation, Formal analysis, Visualisation, Writing- Reviewing and Editing. Attila Korik: Software, Formal analysis, Visualisation, Writing- Reviewing and Edit
+
+--- Sample 72 ---
+Funding:  This study was supported by a grant from the Natural Science Foundation of Fujian Province (No. 2019J01500).
+
+--- Sample 73 ---
+Funding:  The study was supported by National Clinical Research Center for Orthopedics, Sports Medicine & Rehabilitation and Jiangsu China-Israel Industrial Technical Research Institute Foundation (No. 2021-NCRC-CXJJ-PY-33).
+
+--- Sample 74 ---
+Funding acquisition:  Takalou A, Eram N, Kumar N.
+
+--- Sample 75 ---
+Supported by Tianjin Science and Technology Plan Project, No. 19YFZCSY00170; Tianjin Union Medical Center, No. 2019YJ007; Beijing Medical and Health Foundation, No. F1814B; Key R&D Projects in the Tianjin Science and Technology Pillar Program, No. 19YFZCSY00420; National Key R&D Program of China, No. 2017YFC1700606 and 2017YFC1700604.
+
+--- Sample 76 ---
+We would like to thank Kaito Kobori for their technical support (Yamagata Univ. Yamagata, Japan) and Dr. Jerrold Ward for pathological evaluation (Global VetPathology, Maryland, USA). This study was supported by JSPS KAKENHI (Grant Numbers JP 15K09208, JP 18K08138 to RK), the Smoking Research Foundation Grant Number 2017G023 (to RK), and the National Cancer Institute Intramural Research Program, ZIA BC 010449 (to SK).
+
+--- Sample 77 ---
+Funding information
+
+--- Sample 78 ---
+the National Key Research and Development Program of China
+
+--- Sample 79 ---
+Science and Technology Research Project of Shaanxi Province Academy of Sciences; the National Key Research and Development Program of China
+10.13039/501100012166
+
+--- Sample 80 ---
+Funding: This work was supported in part by the Associazione Italiana per la Ricerca sul Cancro (AIRC, MYFG #18491, IG #2328 to MC and MYFG # 21552 to AC), Italian Ministry of Health (GR-2016-02361523 to AC, and 5x1000 funds 2016 to MC) NIH grant P01-155258-07 (to MF, MKS, and NCM), Associazione Italiana Leucemie Linfomi e Mieloma (AIL sezione di Genova) and University of Genoa, Genoa, Italy.
+
+--- Sample 81 ---
+We would like to thank the members of the Kind laboratory for their helpful comments and suggestions. In particular, we thank Koos Rooijers for providing input and support on the computational work. This work was funded by an  Starting grant (ERC-StG 678423-EpiID) to J.K. The Oncode Institute is partially funded by the KWF Dutch Cancer Society. I.G. is supported by an  Long-Term Fellowship ALTF1214-2016,  grant P400PB_186758 and  Veni grant VI.Veni.202.073. P.D.N. is supported by an  Long-Term Fellowship ALTF1129-2015,  Fellowship (LT001404/2017-L) and an  grant (016.186.017-3). The laboratory of J.B. is supported by the , an initiative with support of the  and , CVON2019-002 OUTREACH. The laboratory of H.K. is supported by  (JP18H05527, JP20K06484, and JP21H04764) and  (JPMJCR16G1 and JPMJCR20S6). We additionally thank the Hubrecht Sorting Facility, the Hubrecht Imaging Center, and the Utrecht Sequencing Facility (USEQ), subsidized by the University Medical Center Utrecht. Author cont
+
+--- Sample 82 ---
+ERC; EMBO; Swiss National Science Fund; NWO-ENW; EMBO; HFSPO; NWO-ZonMW Veni; Netherlands Cardiovascular Research Initiative; Dutch Heart Foundation; Hartekind; MEXT/JSPS KAKENHI; Japan Science and Technology Agency
+
+--- Sample 83 ---
+The authors wish to thank editor Prof. K.H. Wolfe and the two anonymous reviewers whose comments helped in improving the manuscript. This work was supported by “Special Account for Research Grants” of National and Kapodistrian University of Athens under Research Program (code no. 16673)
+
+--- Sample 84 ---
+This work was supported by the Medical Research Council (Sussex MC_PC_16061) Confidence in Concept Award with additional support through the philanthropic donation for the Sackler Centre for Consciousness Science, University of Sussex, and in-kind contributions from Sussex Partnership Foundation.
+
+--- Sample 85 ---
+Funding This study was supported by the National Natural Science Foundation of China (grant no. 32001085) and Fundamental Research Funds for Central Universities (grant no. lzujbky-2020-34, lzujbky-2020-ct02).
+
+--- Sample 86 ---
+National Natural Science Foundation of China; Fundamental Research Funds for Central Universities
+
+--- Sample 87 ---
+National Natural Science Foundation of China10.13039/501100001809; Fundamental Research Funds for Central Universities
+
+--- Sample 88 ---
+We thank Dr. Muwang Li for providing the B. mori Dazao P50 strain. This research was supported by the Natural Science Foundation of Henan province (212300410063), National Natural Science Foundation of China (31970480), Young Elite Scientist Sponsorship Program by China Association for Science and Technology (YESS 20150026). Author Contributions: YF: Visualization, Investigation, Data curation, Writing-Original draft preparation. YW: Visualization, Investigation, Data curation. QH: Software, Validation. CZ, XL: Validation. YK: Conceptualization, Supervision, Reviewing and Editing. DL: Conceptualization, Methodology, Software, Writing, Supervision, Funding acquisition.
+
+--- Sample 89 ---
+Natural Science Foundation of Henan Province; National Natural Science Foundation of China; Young Elite Scientist Sponsorship Program by China Association for Science and Technology
+
+--- Sample 90 ---
+Natural Science Foundation of Henan Province10.13039/501100006407; National Natural Science Foundation of China10.13039/501100001809; Young Elite Scientist Sponsorship Program by China Association for Science and Technology
+
+--- Sample 91 ---
+This work was partially supported by NIH grants (MH116225, MH117943, MH109773, and MH123202). This work also utilizes approaches developed by an NIH grant (1U01MH110274) and the efforts of the UNC/UMN Baby Connectome Project Consortium. The NDAR dataset used in this manuscript were obtained from the NIH supported National Database for Autism Research (NDAR), which is a collaborative informatics system created by the National Institutes of Health to provide a national resource to support and accelerate research in autism. This manuscript reflects the views of the authors and may not reflect the opinions or views of the NIH or of the Submitters submitting original data to NDAR. Credit authorship contribution statement: Liangjun Chen: Methodology, Software, Validation, Formal analysis, Investigation, Data curation, Writing – original draft, Visualization. Zhengwang Wu: Methodology, Software, Investigation, Data curation, Writing – review & editing. Dan Hu: Writing – review & editing. Ya W
+
+--- Sample 92 ---
+FUNDING National Cancer Institute Cancer Center Support Grant [5P30CA044579]; National Institutes of Health [AR067712 to A.D.]; National Institutes of Health National Cancer Institute F30 Grant [1F30CA254134 to B.W.]; National Institutes of Health [K99 CA259526 to Z.S.]; College Science Scholars Summer Stipend; Ingrassia Family Research Grant; Harrison Undergraduate Research Award (to R.P.). Conflict of interest statement. None declared.
+
+--- Sample 93 ---
+National Cancer Institute Cancer Center; National Institutes of Health; National Institutes of Health National Cancer Institute
+
+--- Sample 94 ---
+National Cancer Institute Cancer Center; National Institutes of Health10.13039/100000002; National Institutes of Health National Cancer Institute
+
+--- Sample 95 ---
+FUNDING A.O. was supported by the National Institute of Health/National Institute of Dental and Craniofacial Research [DE028480]; A.O. was also partly supported by the State University of New York at Buffalo, School of Dental Medicine, Department of Oral Biology training grant (NIH/NIDCR) [DE023526]. Conflict of interest statement. The authors declare no potential conflicts of interest with respect to the authorship and/or publication of this article.
+
+--- Sample 96 ---
+National Institutes of Health; National Institute of Dental and Craniofacial Research; State University of New York at Buffalo
+
+--- Sample 97 ---
+National Institutes of Health10.13039/100000002; National Institute of Dental and Craniofacial Research10.13039/100000072; State University of New York at Buffalo10.13039/100008209
+
+--- Sample 98 ---
+Funding This work was supported by an extramural grant from SERB-DST (EMR/2016/007218) to A.D. The funders had no role in study design, data analysis, decision to publish and preparation of the manuscript.
+
+--- Sample 99 ---
+Funding Funding was received from Adelaide University China Fee Scholarship (M.L.), Australian Research Training Program (R.A.) and the Faculty of Health and Medical Science Divisional Scholarship (R.A.), Adelaide Graduate Research Scholarships (R.A. and N.A.B.), Australia Awards Scholarship (M.D.H.), Robinson Research Institute Career Development Fellowship (K.H.) and Building On Ideas Grant (K.H.), National Health and Medical Research Council of Australia Centre for Research Excellence in the Evaluation, Management and Health Care Needs of Polycystic Ovary Syndrome (N.A.B., M.D.H. and R.J.R.; GTN1078444) and the Centre for Research Excellence on Women’s Health in Reproductive life (R.A., R.J.R. and K.H.; GTN1171592) and the UK Medical Research Council (R.A.A.; grant no. G1100357). The funders did not play any role in the study design, data collection and analysis, decision to publish or preparation of the manuscript.
+
+--- Sample 100 ---
+Adelaide University China Fee Scholarship; Australian Research Training Program; Faculty of Health and Medical Science Divisional Scholarship; Adelaide Graduate Research Scholarships; Australia Awards Scholarship; Robinson Research Institute Career Development Fellowship; Building On Ideas Grant; National Health and Medical Research Council of Australia Centre for Research Excellence in the Evaluation, Management and Health Care Needs of Polycystic Ovary Syndrome; Centre for Research Excellence on Women’s Health in Reproductive life; UK Medical Research Council
+

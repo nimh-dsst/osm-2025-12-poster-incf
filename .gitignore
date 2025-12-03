@@ -9,6 +9,10 @@
 *_cache.pkl
 metadata_lookup_cache.pkl
 
+# DuckDB databases
+*.duckdb
+*.duckdb.wal
+
 # PMC Data Directories
 raw_download/
 extracted_metadata_parquet/

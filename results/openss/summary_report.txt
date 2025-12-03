@@ -1,0 +1,77 @@
+======================================================================
+OPENSS ANALYSIS: Publications with Open Data (oddpub v7.2.3)
+======================================================================
+
+Total records matched: 5,580
+Total rtrans records scanned: 200,621
+
+----------------------------------------------------------------------
+TOP 10 JOURNALS IN OPEN DATA PUBLICATIONS
+----------------------------------------------------------------------
+   1. Frontiers in Microbiology                                       375 (6.72%)
+   2. Frontiers in Plant Science                                      267 (4.78%)
+   3. Frontiers in Immunology                                         205 (3.67%)
+   4. International Journal of Molecular Sciences                     168 (3.01%)
+   5. Scientific Reports                                              135 (2.42%)
+   6. Microorganisms                                                  122 (2.19%)
+   7. Microbiology Resource Announcements                             111 (1.99%)
+   8. PLOS ONE                                                        104 (1.86%)
+   9. Frontiers in Cellular and Infection Microbiology                 94 (1.68%)
+  10. mBio                                                             88 (1.58%)
+
+----------------------------------------------------------------------
+TOP 10 PUBLISHERS IN OPEN DATA PUBLICATIONS
+----------------------------------------------------------------------
+   1. Frontiers Media S.A.                                          1,545 (27.69%)
+   2. MDPI                                                          1,121 (20.09%)
+   3. Nature Publishing Group UK; London                              412 (7.38%)
+   4. American Society for Microbiology; 1752 N St., N.W., Washing    349 (6.25%)
+   5. BioMed Central; London                                          286 (5.13%)
+   6. Elsevier                                                        218 (3.91%)
+   7. Public Library of Science; San Francisco, CA USA                200 (3.58%)
+   8. Oxford University Press                                         168 (3.01%)
+   9. John Wiley and Sons Inc.; Hoboken                               166 (2.97%)
+  10. American Society for Clinical Investigation                      71 (1.27%)
+
+----------------------------------------------------------------------
+TOP 10 FUNDERS IN OPEN DATA PUBLICATIONS
+----------------------------------------------------------------------
+   1. NSFC         95 (1.70%) [✓]
+   2. NIH          37 (0.66%) [✓]
+   3. EC           21 (0.38%) [✓]
+   4. DFG          18 (0.32%) [✓]
+   5. MRC           9 (0.16%) [✓]
+   6. NCI           9 (0.16%) [NEW]
+   7. NIGMS         7 (0.13%) [NEW]
+   8. WT            6 (0.11%) [✓]
+   9. NIAID         4 (0.07%) [NEW]
+  10. AMED          4 (0.07%) [✓]
+
+----------------------------------------------------------------------
+SIGNIFICANT FUNDERS NOT IN TOP 10 LIST
+----------------------------------------------------------------------
+  (None with >= 100 publications)
+
+----------------------------------------------------------------------
+TOP 10 INSTITUTIONS IN OPEN DATA PUBLICATIONS
+----------------------------------------------------------------------
+   1. Department of Psychology,                                        23
+   2. University of Chinese Academy of Sciences                        21
+   3. European Molecular Biology Laboratory, European Bioinformati     10
+   4. Department of Pathology,                                          9
+   5. Department of Biology,                                            9
+   6. Department of Chemistry,                                          8
+   7. University of Oxford                                              7
+   8. Chinese Academy of Sciences                                       7
+   9. University of California, San Diego                               7
+  10. Botany and Microbiology Department, Faculty of Science,           7
+
+----------------------------------------------------------------------
+YEAR DISTRIBUTION
+----------------------------------------------------------------------
+  2022:    274 
+  2023:    247 
+  2024:      3 
+  2025:    114 
+
+======================================================================

@@ -337,27 +337,74 @@ See `results/openss_explore/OPENSS_FINDINGS_SUMMARY.md` for complete analysis.
 1. ~~Update oddpub results with completed HPC retry jobs~~ (Done)
 2. ~~Re-merge oddpub results with new data~~ (Done - 6,994,457 articles)
 3. ~~Update funder database with newly discovered funders~~ (Done - funder_aliases.csv)
-4. Calculate funder open data percentages with canonical funders (in progress)
-5. Create final poster figures
+4. ~~Calculate funder open data percentages with canonical funders~~ (Done)
+5. ~~Create funder trends graphs (counts and percentages)~~ (Done)
+6. Create final poster figures
 
-## Latest Results (2025-11-26)
+### Funder Trends Analysis (2025-12-02)
 
-### Data Sharing Rates by Major Funder (Full Dataset)
+New script `analysis/openss_funder_trends.py` generates line graphs showing open data trends by funder:
 
-| Funder | Total Funded | With Open Data | % |
-|--------|--------------|----------------|---|
-| **HHMI (USA)** | 11,385 | 5,193 | **45.61%** |
-| **Wellcome Trust (UK)** | 74,506 | 19,935 | 26.76% |
-| **DFG (Germany)** | 78,165 | 19,700 | 25.20% |
-| **AMED (Japan)** | 19,479 | 4,713 | 24.20% |
-| **BMGF (USA)** | 13,338 | 3,145 | 23.58% |
-| **NIH (USA)** | 405,016 | 93,839 | 23.17% |
-| **EC (Europe)** | 136,313 | 31,057 | 22.78% |
-| **MRC (UK)** | 111,426 | 22,443 | 20.14% |
-| **CIHR (Canada)** | 44,401 | 7,426 | 16.72% |
-| **NSFC (China)** | 481,466 | 77,785 | 16.16% |
+```bash
+# Generate absolute counts graph
+python analysis/openss_funder_trends.py \
+    --oddpub-file ~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
+    --output-dir results/openss_funder_trends_v2 \
+    --graph counts
 
-**Key Finding:** HHMI shows significantly higher data sharing rate than other funders - requires validation to rule out artifacts.
+# Generate percentages graph (requires corpus totals)
+python analysis/openss_funder_trends.py \
+    --oddpub-file ~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
+    --corpus-totals results/canonical_funder_corpus_totals.parquet \
+    --output-dir results/openss_funder_trends_v2 \
+    --graph percentages
+```
+
+**Output (results/openss_funder_trends_v2/):**
+- `openss_funder_counts_by_year.csv` - Absolute counts (20 funders, 2010-2024)
+- `openss_funder_counts_by_year.png` - Line graph of counts
+- `openss_funder_percentages_by_year.csv` - Percentages by year
+- `openss_funder_percentages_by_year.png` - Line graph of percentages
+
+## Latest Results (2025-12-02)
+
+### Open Data Rates by Major Funder (2024)
+
+| Rank | Funder | 2024 % | Trend |
+|------|--------|--------|-------|
+| 1 | **HHMI (USA)** | 22.3% | Peaked at 28% in 2019, declining |
+| 2 | BBSRC (UK) | 19.0% | Stable around 18-21% |
+| 3 | ANR (France) | 14.8% | Stable around 14-18% |
+| 4 | ERC (Europe) | 14.3% | Growing from 11% (2010) |
+| 5 | FWF (Austria) | 12.7% | Growing from 8% (2011) |
+| 6 | Wellcome (UK) | 12.6% | Peaked at 15% (2019-2021) |
+| 7 | DFG (Germany) | 12.5% | Stable around 10-13% |
+| 8 | SNSF (Switzerland) | 11.9% | Stable around 12-14% |
+| 9 | NSF (USA) | 11.9% | Stable around 12-14% |
+| 10 | NIH (USA) | 10.8% | Stable around 10-12% |
+
+**Key Findings:**
+- **HHMI consistently leads** with 22-28% open data rates, far ahead of other funders
+- **BBSRC, ANR, ERC** show strong performance with 14-19% rates
+- **NSFC (China)** and **NRF (Korea)** show the lowest rates at 5-8%
+- Most funders show upward trend 2010-2019, then plateau/slight decline
+
+### Corpus Totals (Denominator)
+
+Built from 6.55M articles in `results/canonical_funder_corpus_totals.csv`:
+
+| Funder | Corpus Total | Open Data | % |
+|--------|--------------|-----------|---|
+| NSFC (China) | 525,260 | 41,598 | 7.9% |
+| NIH (USA) | 418,211 | 46,774 | 11.2% |
+| EC (Europe) | 186,724 | 19,995 | 10.7% |
+| NSF (USA) | 183,547 | 23,242 | 12.7% |
+| MRC (UK) | 116,750 | 10,870 | 9.3% |
+| DFG (Germany) | 106,832 | 12,585 | 11.8% |
+| Wellcome (UK) | 89,386 | 11,757 | 13.2% |
+| HHMI (USA) | 15,485 | 3,392 | **21.9%** |
 
 ## Important Notes
 

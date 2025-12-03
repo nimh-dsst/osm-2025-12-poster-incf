@@ -346,17 +346,33 @@ See `results/openss_explore/OPENSS_FINDINGS_SUMMARY.md` for complete analysis.
 
 ### Dashboard Data Rebuild (2025-12-03)
 
-New script `analysis/build_dashboard_data.py` rebuilds the dashboard parquet file:
+**Recommended: DuckDB version** (`analysis/build_dashboard_data_duckdb.py`) - 10-100x faster:
 
 ```bash
-# Build dashboard data (comm + noncomm licenses)
-python analysis/build_dashboard_data.py \
-    --filelist-dir ~/claude/pmcoaXMLs/raw_download \
-    --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
-    --oddpub-file ~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
-    --output ~/claude/matches_new4.parquet \
-    --licenses comm,noncomm
+# Build dashboard data on HPC (15-20 min for 6.5M PMCIDs)
+python analysis/build_dashboard_data_duckdb.py \
+    --filelist-dir /data/NIMH_scratch/adamt/pmcoa/ \
+    --rtrans-dir /data/NIMH_scratch/adamt/osm/datafiles/rtrans_out_full_parquets \
+    --oddpub-file /data/NIMH_scratch/adamt/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --output /data/NIMH_scratch/adamt/osm/datafiles/dashboard.parquet \
+    --licenses comm,noncomm \
+    --workers 32
+
+# Test with 1000 PMCIDs first (8 seconds)
+python analysis/build_dashboard_data_duckdb.py \
+    --filelist-dir /data/NIMH_scratch/adamt/pmcoa/ \
+    --rtrans-dir /data/NIMH_scratch/adamt/osm/datafiles/rtrans_out_full_parquets \
+    --oddpub-file /data/NIMH_scratch/adamt/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --output /data/NIMH_scratch/adamt/osm/datafiles/dashboard_test.parquet \
+    --licenses comm \
+    --limit 1000 \
+    --workers 4
 ```
+
+**Why DuckDB is faster:**
+- Reads all 1647 parquet files with a single glob pattern (no per-file overhead)
+- Uses SQL JOINs instead of pandas `.isin()` with 6.5M elements
+- Data loading: ~5 seconds vs ~2 hours with pandas
 
 Output format (9 columns): pmid, journal, affiliation_country, is_open_data, is_open_code, year, funder (array), data_tags (array), created_at
 

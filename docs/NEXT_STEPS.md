@@ -1,7 +1,7 @@
 # Next Steps for INCF Poster Analysis
 
 **Last Updated:** 2025-12-03
-**Status:** Dashboard data rebuild in progress, registry validation complete, poster generation ready
+**Status:** Dashboard data build complete on HPC, registry validation complete, poster generation ready
 
 ## Completed (2025-12-03)
 
@@ -19,11 +19,13 @@
    - Created repair script: `hpc_scripts/repair_pmcid_registry.py`
    - Fixes source_tarball and adds license column (comm/noncomm/other)
 
-5. ✅ Created dashboard data build script (`analysis/build_dashboard_data.py`)
-   - Rebuilds dashboard parquet from PMC filelist CSVs, rtrans, oddpub
-   - Output: 9 columns including funder arrays and data_tags
+5. ✅ Created DuckDB-based dashboard builder (`analysis/build_dashboard_data_duckdb.py`)
+   - 10-100x faster than pandas version (8 seconds for 1000 PMCIDs test)
+   - Uses DuckDB glob pattern to read all 1647 parquet files at once
+   - SQL JOINs instead of slow pandas .isin() operations
+   - Output: 9 columns (pmid, journal, affiliation_country, is_open_data, is_open_code, year, funder[], data_tags[], created_at)
 
-6. ⏳ Dashboard data build running in background (6.57M PMCIDs)
+6. ✅ Dashboard data build running on Biowulf HPC (6.57M PMCIDs, ~15-20 min expected)
 
 ## Completed (2025-12-02)
 
@@ -59,12 +61,12 @@
 
 ## In Progress
 
-1. ⏳ Dashboard data build running (6.57M PMCIDs from comm + noncomm)
+1. ⏳ Dashboard data build running on Biowulf HPC (6.57M PMCIDs from comm + noncomm)
 2. ⏳ Final poster figure generation
 
 ## Next Steps
 
-1. Complete dashboard data build
+1. Verify dashboard data build output
 2. Run repair script to fix registry source_tarball and add license column
 3. Process remaining ~490K articles with oddpub (7% missing)
 4. Create final poster figures with updated data

@@ -344,9 +344,11 @@ See `results/openss_explore/OPENSS_FINDINGS_SUMMARY.md` for complete analysis.
 8. Fix registry source_tarball field (incorrect for noncomm/other) - use `hpc_scripts/repair_pmcid_registry.py`
 9. Create final poster figures
 
-### Dashboard Data Rebuild (2025-12-03)
+### Dashboard Data Rebuild (2025-12-04)
 
 **Recommended: DuckDB version** (`analysis/build_dashboard_data_duckdb.py`) - 10-100x faster:
+
+**Bug fix (2025-12-04):** Fixed PMCID join bug that caused all `is_open_data=false`. The script now uses the `pmcid` column directly from oddpub instead of extracting from `article` column with broken regex.
 
 ```bash
 # Build dashboard data on HPC (15-20 min for 6.5M PMCIDs)

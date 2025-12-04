@@ -7,7 +7,8 @@ This script compares a new dashboard output against a reference file to:
 2. Compare row counts and coverage
 3. Validate is_open_data/is_open_code distributions
 4. Compare funder matching rates
-5. Check for specific PMIDs and their values
+5. Compare affiliation_country distributions and agreement
+6. Check for specific PMIDs and their values
 
 Usage:
     # Compare new output to reference
@@ -128,6 +129,21 @@ def validate_distributions(df: pd.DataFrame, name: str) -> dict:
         stats['valid_journals'] = valid_journals
         print(f"Records with journal: {valid_journals:,} ({100*valid_journals/len(df):.1f}%)")
 
+    # Affiliation country coverage and distribution
+    if 'affiliation_country' in df.columns:
+        valid_countries = df['affiliation_country'].notna().sum()
+        stats['valid_countries'] = valid_countries
+        print(f"Records with affiliation_country: {valid_countries:,} ({100*valid_countries/len(df):.1f}%)")
+
+        if valid_countries > 0:
+            # Top countries
+            country_counts = df['affiliation_country'].value_counts().head(10)
+            stats['top_countries'] = country_counts.to_dict()
+            print(f"  Top 10 countries:")
+            for country, count in country_counts.items():
+                pct = 100 * count / len(df)
+                print(f"    {country}: {count:,} ({pct:.1f}%)")
+
     return stats
 
 
@@ -201,6 +217,44 @@ def compare_files(new_df: pd.DataFrame, ref_df: pd.DataFrame) -> dict:
 
                 comparison['open_data_agreement_pct'] = agreement_pct
 
+            # Compare affiliation_country
+            if 'affiliation_country' in new_subset.columns and 'affiliation_country' in ref_subset.columns:
+                merged_country = new_subset.merge(
+                    ref_subset[['pmid', 'affiliation_country']],
+                    on='pmid',
+                    suffixes=('_new', '_ref')
+                )
+
+                # Handle NaN comparisons - treat NaN == NaN as agreement
+                country_new = merged_country['affiliation_country_new'].fillna('__NULL__')
+                country_ref = merged_country['affiliation_country_ref'].fillna('__NULL__')
+                country_agreement = (country_new == country_ref).sum()
+                country_agreement_pct = 100 * country_agreement / len(merged_country) if len(merged_country) > 0 else 0
+
+                print(f"\naffiliation_country agreement: {country_agreement:,}/{len(merged_country):,} ({country_agreement_pct:.2f}%)")
+
+                # Show disagreements breakdown
+                disagreements = merged_country[country_new != country_ref]
+                if len(disagreements) > 0:
+                    print(f"  Disagreements: {len(disagreements):,}")
+
+                    # Sample disagreements
+                    sample_disagree = disagreements[['pmid', 'affiliation_country_new', 'affiliation_country_ref']].head(5)
+                    print(f"  Sample disagreements:")
+                    for _, row in sample_disagree.iterrows():
+                        print(f"    PMID {row['pmid']}: new='{row['affiliation_country_new']}' vs ref='{row['affiliation_country_ref']}'")
+
+                    # Count how many have data in new but not ref
+                    new_has_ref_null = ((country_new != '__NULL__') & (country_ref == '__NULL__')).sum()
+                    new_null_ref_has = ((country_new == '__NULL__') & (country_ref != '__NULL__')).sum()
+                    both_have_but_differ = ((country_new != '__NULL__') & (country_ref != '__NULL__') & (country_new != country_ref)).sum()
+
+                    print(f"    New has, Ref null: {new_has_ref_null:,}")
+                    print(f"    New null, Ref has: {new_null_ref_has:,}")
+                    print(f"    Both have but differ: {both_have_but_differ:,}")
+
+                comparison['country_agreement_pct'] = country_agreement_pct
+
     return comparison
 
 
@@ -218,7 +272,7 @@ def sample_pmids(df: pd.DataFrame, pmids: List[int], name: str):
         if pmid in df_indexed.index:
             row = df_indexed.loc[pmid]
             print(f"\nPMID {pmid}:")
-            for col in ['is_open_data', 'is_open_code', 'journal', 'year', 'funder']:
+            for col in ['is_open_data', 'is_open_code', 'journal', 'year', 'affiliation_country', 'funder']:
                 if col in row.index:
                     val = row[col]
                     if col == 'funder' and hasattr(val, '__len__'):
@@ -307,6 +361,8 @@ Examples:
     print(f"  Records: {new_stats['total_rows']:,}")
     print(f"  Open data: {new_stats.get('open_data_count', 'N/A'):,} ({new_stats.get('open_data_pct', 0):.2f}%)")
     print(f"  Open code: {new_stats.get('open_code_count', 'N/A'):,} ({new_stats.get('open_code_pct', 0):.2f}%)")
+    if 'valid_countries' in new_stats:
+        print(f"  With affiliation_country: {new_stats['valid_countries']:,} ({100*new_stats['valid_countries']/new_stats['total_rows']:.1f}%)")
 
     if issues:
         print(f"\n⚠️  ISSUES FOUND:")

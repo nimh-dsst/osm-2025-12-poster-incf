@@ -240,27 +240,18 @@ def load_data_with_duckdb(
     log_time(f"  Loaded {rtrans_count:,} rtrans records", rtrans_start)
 
     # Step 3: Load oddpub data
+    # NOTE: The oddpub parquet has a clean 'pmcid' column (format: PMC544856)
+    # We use it directly instead of extracting from 'article' column
     oddpub_start = log_time("Loading oddpub data...")
 
     conn.execute(f"""
         CREATE TABLE oddpub AS
         SELECT
-            CASE
-                WHEN article LIKE 'PMCPMC%' THEN REGEXP_REPLACE(article, '^PMC', '')
-                WHEN article LIKE 'PMC%' THEN REGEXP_REPLACE(article, '\\.txt$', '')
-                ELSE NULL
-            END as pmcid,
+            pmcid,
             is_open_data,
             is_open_code
         FROM read_parquet('{oddpub_file}')
-        WHERE article IS NOT NULL
-    """)
-
-    # Clean up PMCID format (handle PMCPMC... format)
-    conn.execute("""
-        UPDATE oddpub
-        SET pmcid = REGEXP_REPLACE(pmcid, '^PMC(PMC)', 'PMC')
-        WHERE pmcid LIKE 'PMCPMC%'
+        WHERE pmcid IS NOT NULL
     """)
 
     oddpub_count = conn.execute("SELECT COUNT(*) FROM oddpub").fetchone()[0]

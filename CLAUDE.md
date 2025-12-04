@@ -393,32 +393,35 @@ python hpc_scripts/repair_pmcid_registry.py \
     --filelist-dir ~/claude/pmcoaXMLs/raw_download
 ```
 
-### Funder Trends Analysis (2025-12-02)
+### Funder Trends Analysis (2025-12-04)
 
-New script `analysis/openss_funder_trends.py` generates line graphs showing open data trends by funder:
+Script `analysis/openss_funder_trends.py` generates line graphs showing open data trends by funder.
+
+**Updated 2025-12-04:** Reduced to top 10 funders with consistent colors across both graphs.
+
+**Top 10 Funders (selected from union of top 10 counts and top 10 percentages):**
+- NIH, NSFC, NSF, EC (top by absolute counts)
+- HHMI, BBSRC (top by percentage)
+- ERC, Wellcome, DFG, ANR (appear in both rankings)
 
 ```bash
-# Generate absolute counts graph
-python analysis/openss_funder_trends.py \
-    --oddpub-file ~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
-    --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
-    --output-dir results/openss_funder_trends_v2 \
-    --graph counts
-
-# Generate percentages graph (requires corpus totals)
+# Generate both graphs
 python analysis/openss_funder_trends.py \
     --oddpub-file ~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
     --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
     --corpus-totals results/canonical_funder_corpus_totals.parquet \
-    --output-dir results/openss_funder_trends_v2 \
-    --graph percentages
+    --output-dir results/openss_funder_trends_v3 \
+    --graph both
 ```
 
-**Output (results/openss_funder_trends_v2/):**
-- `openss_funder_counts_by_year.csv` - Absolute counts (20 funders, 2010-2024)
+**Output (results/openss_funder_trends_v3/):**
+- `openss_funder_counts_by_year.csv` - Absolute counts (10 funders, 2010-2024)
 - `openss_funder_counts_by_year.png` - Line graph of counts
 - `openss_funder_percentages_by_year.csv` - Percentages by year
 - `openss_funder_percentages_by_year.png` - Line graph of percentages
+
+**Color scheme (consistent across both graphs):**
+NIH (blue), NSFC (red), NSF (green), EC (orange), HHMI (purple), BBSRC (brown), ERC (pink), Wellcome (gray), DFG (olive), ANR (cyan)
 
 ## Latest Results (2025-12-02)
 

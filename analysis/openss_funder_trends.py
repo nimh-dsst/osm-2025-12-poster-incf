@@ -9,6 +9,8 @@ This script produces two types of graphs:
 1. Absolute counts: Open data articles by funder per year (can run immediately)
 2. Percentages: Open data % by funder per year (requires corpus totals)
 
+Both graphs use consistent colors for each funder.
+
 Usage:
     # Generate counts graph (immediate)
     python analysis/openss_funder_trends.py \
@@ -51,30 +53,21 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Top 20 canonical funders from OpenSS analysis (excluding NIH institutes)
-# NIH institutes (NCI, NIGMS, NIAID, etc.) are excluded since they're
-# components of NIH and would cause double-counting
+# Top 10 funders selected from the union of:
+# - Top 10 by absolute counts (2024): NIH, NSFC, NSF, EC, DFG, Wellcome, MRC, ERC, JSPS, ANR
+# - Top 10 by percentage (2024): HHMI, BBSRC, ANR, ERC, FWF, Wellcome, DFG, SNSF, NSF, NIH
+# Selected to provide geographic diversity and show interesting trends
 TOP_FUNDERS = [
-    'National Institutes of Health',           # 46,774
-    'National Natural Science Foundation of China',  # 41,598
-    'National Science Foundation',             # 23,242
-    'European Commission',                     # 19,995
-    'Deutsche Forschungsgemeinschaft',         # 12,585
-    'Wellcome Trust',                          # 11,757
-    'Medical Research Council',                # 10,870
-    'European Research Council',               # 9,965
-    'Japan Society for the Promotion of Science',  # 7,322
-    'Agence Nationale de la Recherche',        # 6,155
-    'Biotechnology and Biological Sciences Research Council',  # 6,106
-    'Korea National Research Foundation',      # 4,994
-    'Conselho Nacional de Desenvolvimento Científico e Tecnológico',  # 4,927
-    'Swiss National Science Foundation',       # 4,352
-    'Swedish Research Council',                # 4,166
-    'Austrian Science Fund',                   # 3,742
-    'Canadian Institutes of Health Research',  # 3,724
-    'Howard Hughes Medical Institute',         # 3,392 - high % in prior analysis
-    'National Health and Medical Research Council',  # 3,128
-    'Fundação de Amparo à Pesquisa do Estado de São Paulo',  # 2,795
+    'National Institutes of Health',           # Top by counts, large US funder
+    'National Natural Science Foundation of China',  # Top by counts, China
+    'National Science Foundation',             # Top in both
+    'European Commission',                     # Top by counts, Europe
+    'Howard Hughes Medical Institute',         # Top by percentage
+    'Biotechnology and Biological Sciences Research Council',  # Top by percentage
+    'European Research Council',               # Top in both
+    'Wellcome Trust',                          # Top in both
+    'Deutsche Forschungsgemeinschaft',         # Top in both
+    'Agence Nationale de la Recherche',        # Top in both
 ]
 
 # Display names with country/region
@@ -83,22 +76,27 @@ FUNDER_DISPLAY_NAMES = {
     'National Natural Science Foundation of China': 'NSFC (China)',
     'National Science Foundation': 'NSF (USA)',
     'European Commission': 'EC (Europe)',
-    'Deutsche Forschungsgemeinschaft': 'DFG (Germany)',
-    'Wellcome Trust': 'Wellcome (UK)',
-    'Medical Research Council': 'MRC (UK)',
-    'European Research Council': 'ERC (Europe)',
-    'Japan Society for the Promotion of Science': 'JSPS (Japan)',
-    'Agence Nationale de la Recherche': 'ANR (France)',
-    'Biotechnology and Biological Sciences Research Council': 'BBSRC (UK)',
-    'Korea National Research Foundation': 'NRF (Korea)',
-    'Conselho Nacional de Desenvolvimento Científico e Tecnológico': 'CNPq (Brazil)',
-    'Swiss National Science Foundation': 'SNSF (Switzerland)',
-    'Swedish Research Council': 'VR (Sweden)',
-    'Austrian Science Fund': 'FWF (Austria)',
-    'Canadian Institutes of Health Research': 'CIHR (Canada)',
     'Howard Hughes Medical Institute': 'HHMI (USA)',
-    'National Health and Medical Research Council': 'NHMRC (Australia)',
-    'Fundação de Amparo à Pesquisa do Estado de São Paulo': 'FAPESP (Brazil)',
+    'Biotechnology and Biological Sciences Research Council': 'BBSRC (UK)',
+    'European Research Council': 'ERC (Europe)',
+    'Wellcome Trust': 'Wellcome (UK)',
+    'Deutsche Forschungsgemeinschaft': 'DFG (Germany)',
+    'Agence Nationale de la Recherche': 'ANR (France)',
+}
+
+# Fixed color mapping for consistency across both graphs
+# Using a colorblind-friendly palette
+FUNDER_COLORS = {
+    'NIH (USA)': '#1f77b4',       # Blue
+    'NSFC (China)': '#d62728',    # Red
+    'NSF (USA)': '#2ca02c',       # Green
+    'EC (Europe)': '#ff7f0e',     # Orange
+    'HHMI (USA)': '#9467bd',      # Purple
+    'BBSRC (UK)': '#8c564b',      # Brown
+    'ERC (Europe)': '#e377c2',    # Pink
+    'Wellcome (UK)': '#7f7f7f',   # Gray
+    'DFG (Germany)': '#bcbd22',   # Olive
+    'ANR (France)': '#17becf',    # Cyan
 }
 
 
@@ -338,17 +336,17 @@ def create_counts_plot(counts: dict, output_dir: Path, year_range: tuple = None)
     logger.info(f"Saved counts CSV to {csv_path}")
 
     # Create plot
-    fig, ax = plt.subplots(figsize=(14, 10))
-    colors = plt.cm.tab20(range(len(df)))
+    fig, ax = plt.subplots(figsize=(12, 8))
 
-    for idx, (funder, row) in enumerate(df.iterrows()):
-        years = list(row.index)
-        values = list(row.values)
-        ax.plot(years, values, label=funder, linewidth=2.5, marker='o', markersize=4, color=colors[idx])
+    for funder in df.index:
+        years = list(df.columns)
+        values = list(df.loc[funder].values)
+        color = FUNDER_COLORS.get(funder, '#333333')
+        ax.plot(years, values, label=funder, linewidth=2.5, marker='o', markersize=4, color=color)
 
     ax.set_xlabel('Year', fontsize=14)
     ax.set_ylabel('Number of Open Data Articles', fontsize=14)
-    ax.set_title('Open Data Articles by Top 20 Major Funders (2010-2024)', fontsize=16)
+    ax.set_title('Open Data Articles by Top 10 Major Funders (2010-2024)', fontsize=16)
     ax.legend(title='Funder', bbox_to_anchor=(1.02, 1), loc='upper left', frameon=True, fontsize=10)
     ax.grid(True, alpha=0.3)
     ax.set_ylim(bottom=0)
@@ -401,17 +399,17 @@ def create_percentages_plot(counts: dict, totals: dict, output_dir: Path, year_r
     logger.info(f"Saved percentages CSV to {csv_path}")
 
     # Create plot
-    fig, ax = plt.subplots(figsize=(14, 8))
-    colors = plt.cm.tab10(range(len(df)))
+    fig, ax = plt.subplots(figsize=(12, 8))
 
-    for idx, (funder, row) in enumerate(df.iterrows()):
-        years = list(row.index)
-        values = list(row.values)
-        ax.plot(years, values, label=funder, linewidth=2.5, marker='o', markersize=4, color=colors[idx])
+    for funder in df.index:
+        years = list(df.columns)
+        values = list(df.loc[funder].values)
+        color = FUNDER_COLORS.get(funder, '#333333')
+        ax.plot(years, values, label=funder, linewidth=2.5, marker='o', markersize=4, color=color)
 
     ax.set_xlabel('Year', fontsize=14)
     ax.set_ylabel('Open Data Rate (%)', fontsize=14)
-    ax.set_title('Open Data Rate by Major Funder (2010-2024)', fontsize=16)
+    ax.set_title('Open Data Rate by Top 10 Major Funders (2010-2024)', fontsize=16)
     ax.legend(title='Funder', bbox_to_anchor=(1.02, 1), loc='upper left', frameon=True, fontsize=10)
     ax.grid(True, alpha=0.3)
     ax.set_ylim(bottom=0)
@@ -490,7 +488,7 @@ def main():
 
     # Print summary
     print("\n" + "=" * 70)
-    print("SUMMARY: Top 20 Funders Open Data Counts by Year")
+    print("SUMMARY: Top 10 Funders Open Data Counts by Year")
     print("=" * 70)
     for funder in TOP_FUNDERS:
         total = sum(counts[funder].values())

@@ -1,0 +1,11 @@
+Metric,Value,Description
+serghiou_pmcids,2751420,Serghiou et al. 2021 PMCID count
+pmcoa_total,6980244,PMC-OA June 2025 baseline total
+pmcoa_comm,4642208,PMC-OA commercial license
+pmcoa_noncomm,1926494,PMC-OA non-commercial license
+pmcoa_other,411542,PMC-OA other license
+oddpub_processed,6490266,XMLs processed with OddPub v7.2.3
+open_data_count,374906,Articles with is_open_data=true
+openss_with_funder,1875360,Open data articles with funder text
+corpus_with_canonical_funder,2701609,Corpus articles with canonical funder
+funder_year_datapoints,156814,Total articles in funder trends analysis

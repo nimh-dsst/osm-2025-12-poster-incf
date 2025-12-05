@@ -111,7 +111,7 @@ def get_stats(
     print("Loading canonical funder corpus totals...")
     if os.path.exists(corpus_totals_path):
         corpus_totals = conn.execute(f"""
-            SELECT SUM(total) as total_with_funder
+            SELECT SUM(corpus_total) as total_with_funder
             FROM read_parquet('{corpus_totals_path}')
         """).fetchone()[0]
         stats['corpus_with_canonical_funder'] = int(corpus_totals) if corpus_totals else 0
@@ -123,18 +123,18 @@ def get_stats(
         stats['corpus_with_canonical_funder'] = 'N/A'
         print(f"  Corpus with canonical funder: N/A (file not found)")
 
-    # 7. Funder-year data points
+    # 7. Funder-year data points (total articles represented)
     print("Loading funder trends data...")
     if os.path.exists(funder_trends_path):
         trends_df = pd.read_csv(funder_trends_path, index_col=0)
-        # Data points = (rows - header) x (columns - index)
+        # Sum all the counts across funders and years
+        total_articles = int(trends_df.values.sum())
         n_years = len(trends_df)
         n_funders = len(trends_df.columns)
-        data_points = n_years * n_funders
-        stats['funder_year_datapoints'] = data_points
+        stats['funder_year_datapoints'] = total_articles
         stats['funder_trends_years'] = n_years
         stats['funder_trends_funders'] = n_funders
-        print(f"  Funder-year data points: {data_points:,} ({n_funders} funders x {n_years} years)")
+        print(f"  Funder-year total articles: {total_articles:,} ({n_funders} funders x {n_years} years)")
     else:
         stats['funder_year_datapoints'] = 'N/A'
         print(f"  Funder-year data points: N/A (file not found)")
@@ -156,7 +156,7 @@ def write_csv(stats: dict, output_path: str):
         ('open_data_count', stats['open_data_count'], 'Articles with is_open_data=true'),
         ('openss_with_funder', stats['openss_with_funder'], 'Open data articles with funder text'),
         ('corpus_with_canonical_funder', stats['corpus_with_canonical_funder'], 'Corpus articles with canonical funder'),
-        ('funder_year_datapoints', stats['funder_year_datapoints'], 'Funder x Year data points in trends'),
+        ('funder_year_datapoints', stats['funder_year_datapoints'], 'Total articles in funder trends analysis'),
     ]
 
     with open(output_path, 'w') as f:
@@ -171,9 +171,11 @@ def write_latex(stats: dict, output_path: str):
 
     def fmt(val):
         """Format number with thousands separator."""
-        if isinstance(val, int):
-            return f"{val:,}".replace(',', '{,}')
-        return str(val)
+        try:
+            # Handle int, numpy.int64, etc.
+            return f"{int(val):,}".replace(',', '{,}')
+        except (ValueError, TypeError):
+            return str(val)
 
     latex = r"""\begin{table}[htbp]
 \centering
@@ -198,7 +200,7 @@ Serghiou et al. (2021) PMCIDs & """ + fmt(stats['serghiou_pmcids']) + r""" \\
 \multicolumn{2}{l}{\textit{Funder Analysis}} \\
 \quad Open data with funder text & """ + fmt(stats['openss_with_funder']) + r""" \\
 \quad Corpus with canonical funder & """ + fmt(stats['corpus_with_canonical_funder']) + r""" \\
-\quad Funder $\times$ Year data points & """ + fmt(stats['funder_year_datapoints']) + r""" \\
+\quad Funder trends articles & """ + fmt(stats['funder_year_datapoints']) + r""" \\
 \bottomrule
 \end{tabular}
 \end{table}

@@ -115,3 +115,9 @@ results/*.pdf
 
 # Large generated CSV files
 results/corpus_summary*.csv
+
+# HPC swarm files and generated file lists
+*.swarm
+hpc_scripts/*.swarm
+hpc_scripts/*_retry_swarm.txt
+hpc_scripts/.retry_filelists_*/

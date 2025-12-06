@@ -112,3 +112,6 @@ results/*.pdf
 !*_summary.csv
 !*_summary.txt
 !*_summary.md
+
+# Large generated CSV files
+results/corpus_summary*.csv

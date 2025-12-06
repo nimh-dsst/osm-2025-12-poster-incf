@@ -341,8 +341,10 @@ See `results/openss_explore/OPENSS_FINDINGS_SUMMARY.md` for complete analysis.
 5. ~~Create funder trends graphs (counts and percentages)~~ (Done)
 6. ~~Populate pmcid column in oddpub parquet~~ (Done - 6,994,105 PMCIDs)
 7. ~~Create registry validation script~~ (Done - `hpc_scripts/validate_pmcid_registry.py`)
-8. Fix registry source_tarball field (incorrect for noncomm/other) - use `hpc_scripts/repair_pmcid_registry.py`
-9. Create final poster figures
+8. ~~Fix registry source_tarball field~~ (Done - `hpc_scripts/repair_pmcid_registry.py`)
+9. ~~Generate corpus statistics table~~ (Done - `analysis/generate_corpus_stats.py`)
+10. Process remaining 7% (~490K) articles with OddPub on HPC with XML validation
+11. Create final poster figures
 
 ### Dashboard Data Rebuild (2025-12-04)
 
@@ -424,6 +426,33 @@ python analysis/openss_funder_trends.py \
 
 **Color scheme (consistent across both graphs):**
 NIH (blue), NSFC (red), NSF (green), EC (orange), HHMI (purple), BBSRC (brown), ERC (pink), Wellcome (gray), DFG (olive), ANR (cyan)
+
+### Corpus Statistics (2025-12-05)
+
+Script `analysis/generate_corpus_stats.py` generates CSV and LaTeX tables for the poster:
+
+```bash
+python analysis/generate_corpus_stats.py
+```
+
+**Output:**
+- `results/corpus_stats.csv` - Machine-readable statistics
+- `results/corpus_stats.tex` - LaTeX table with proper formatting
+
+**Current Statistics:**
+
+| Metric | Count |
+|--------|-------|
+| Serghiou et al. (2021) PMCIDs | 2,751,420 |
+| PMC-OA June 2025 Total | 6,980,244 |
+| - Commercial license | 4,642,208 |
+| - Non-commercial license | 1,926,494 |
+| - Other license | 411,542 |
+| OddPub v7.2.3 XMLs processed | 6,490,266 |
+| Open data detected | 374,906 |
+| Open data with funder text | 1,875,360 |
+| Corpus with canonical funder | 2,701,609 |
+| Funder trends articles | 156,814 |
 
 ## Latest Results (2025-12-02)
 

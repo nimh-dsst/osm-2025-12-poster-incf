@@ -48,6 +48,8 @@ class FunderNormalizer:
         self.canonical_to_variants = defaultdict(set)
         self.variant_to_canonical = {}
         self.search_patterns = {}
+        self.canonical_to_parent = {}  # Maps canonical name to parent funder
+        self.canonical_to_country = {}  # Maps canonical name to country
 
         self._load_aliases()
         self._build_patterns()
@@ -70,6 +72,14 @@ class FunderNormalizer:
             # Map canonical to all variants
             self.canonical_to_variants[canonical].add(variant)
             self.canonical_to_variants[canonical].add(canonical)
+
+            # Load parent funder mapping (v3+ schema)
+            if 'parent_funder' in df.columns and pd.notna(row.get('parent_funder')):
+                self.canonical_to_parent[canonical] = row['parent_funder']
+
+            # Load country mapping (v2+ schema)
+            if 'country' in df.columns and pd.notna(row.get('country')):
+                self.canonical_to_country[canonical] = row['country']
 
     def _build_patterns(self):
         """Build regex patterns for each canonical funder."""
@@ -114,6 +124,78 @@ class FunderNormalizer:
             Set of all variant names
         """
         return self.canonical_to_variants.get(canonical, {canonical})
+
+    def get_parent(self, canonical: str) -> str:
+        """
+        Get the parent funder for a canonical funder name.
+
+        Args:
+            canonical: Canonical funder name
+
+        Returns:
+            Parent funder name if exists, None otherwise
+        """
+        return self.canonical_to_parent.get(canonical)
+
+    def get_country(self, canonical: str) -> str:
+        """
+        Get the country for a canonical funder name.
+
+        Args:
+            canonical: Canonical funder name
+
+        Returns:
+            Country if exists, None otherwise
+        """
+        return self.canonical_to_country.get(canonical)
+
+    def get_children(self, parent: str) -> list:
+        """
+        Get all child funders for a parent funder.
+
+        Args:
+            parent: Parent funder canonical name
+
+        Returns:
+            List of child funder canonical names
+        """
+        return [
+            funder for funder, p in self.canonical_to_parent.items()
+            if p == parent
+        ]
+
+    def aggregate_to_parents(self, counts: dict, include_children: bool = False) -> dict:
+        """
+        Aggregate child funder counts into parent totals.
+
+        Args:
+            counts: Dict mapping canonical funder names to counts
+            include_children: If True, keep child funders in output.
+                            If False, only return parent totals.
+
+        Returns:
+            Dict with counts aggregated to parents
+
+        Example:
+            Input: {'National Cancer Institute': 100, 'NIAID': 50, 'NIH': 200}
+            Output (include_children=False): {'NIH': 350}
+            Output (include_children=True): {'National Cancer Institute': 100, 'NIAID': 50, 'NIH': 350}
+        """
+        result = dict(counts)  # Copy to avoid mutating input
+
+        # Add child counts to parent
+        for funder, count in counts.items():
+            parent = self.get_parent(funder)
+            if parent:
+                result[parent] = result.get(parent, 0) + count
+
+        # Optionally remove children from output
+        if not include_children:
+            for funder in list(result.keys()):
+                if self.get_parent(funder):
+                    del result[funder]
+
+        return result
 
     def mentions_funder(self, text: str, canonical: str) -> bool:
         """
@@ -302,3 +384,42 @@ if __name__ == '__main__':
 
     # Show all canonical funders
     print(f"\n{len(normalizer.get_all_canonical_names())} canonical funders loaded")
+
+    # Test parent/country lookups (v3 features)
+    print("\n=== Parent Funder Lookups (v3) ===")
+    test_funders = [
+        'National Cancer Institute',
+        'European Research Council',
+        'Medical Research Council',
+        'National Institutes of Health',
+    ]
+    for funder in test_funders:
+        parent = normalizer.get_parent(funder)
+        country = normalizer.get_country(funder)
+        print(f"  {funder}:")
+        print(f"    Country: {country}")
+        print(f"    Parent: {parent if parent else '(top-level)'}")
+
+    # Test get_children
+    print("\n=== Child Funders ===")
+    for parent in ['National Institutes of Health', 'UK Research and Innovation', 'European Commission']:
+        children = normalizer.get_children(parent)
+        if children:
+            print(f"  {parent}:")
+            for child in children:
+                print(f"    - {child}")
+
+    # Test aggregation
+    print("\n=== Aggregation Test ===")
+    test_counts = {
+        'National Cancer Institute': 100,
+        'National Institute of Allergy and Infectious Diseases': 50,
+        'National Institutes of Health': 200,
+        'European Research Council': 75,
+        'European Commission': 30,
+    }
+    print("Input counts:", test_counts)
+    aggregated = normalizer.aggregate_to_parents(test_counts, include_children=False)
+    print("Aggregated (parents only):", aggregated)
+    aggregated_with_children = normalizer.aggregate_to_parents(test_counts, include_children=True)
+    print("Aggregated (with children):", aggregated_with_children)

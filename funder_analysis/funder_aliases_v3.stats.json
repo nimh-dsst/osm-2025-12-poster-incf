@@ -1,0 +1,8 @@
+{
+  "input_count": 58791,
+  "stage1_statistical": 303,
+  "stage2_after_noise": 286,
+  "stage2_after_fragments": 264,
+  "stage3_clusters": 142,
+  "stage4_final": 57
+}

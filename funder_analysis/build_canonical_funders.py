@@ -110,117 +110,274 @@ KNOWN_COMPLETE_FUNDERS = {
     'China Scholarship Council',
 }
 
-# Explicit alias groups - each list is a set of names that refer to the same funder
-# The first entry is the canonical name
+# Explicit alias groups - richer structure with country and parent info
+# Format: {'canonical': str, 'variants': list, 'country': str, 'parent': str or None}
 EXPLICIT_ALIAS_GROUPS = [
     # China
-    ('National Natural Science Foundation of China', ['NSFC', 'NNSFC', 'National Natural Science Foundation',
-     'Natural Science Foundation of China', 'grants from the National Natural Science Foundation']),
-    # USA - NIH
-    ('National Institutes of Health', ['NIH']),
+    {'canonical': 'National Natural Science Foundation of China',
+     'variants': ['NSFC', 'NNSFC', 'National Natural Science Foundation',
+                  'Natural Science Foundation of China', 'grants from the National Natural Science Foundation'],
+     'country': 'China', 'parent': None},
+    # USA - NIH (parent organization)
+    {'canonical': 'National Institutes of Health',
+     'variants': ['NIH'],
+     'country': 'USA', 'parent': None},
     # USA - NSF
-    ('National Science Foundation', ['NSF', 'US National Science Foundation']),
-    # Germany
-    ('Deutsche Forschungsgemeinschaft', ['DFG', 'German Research Foundation']),
+    {'canonical': 'National Science Foundation',
+     'variants': ['NSF', 'US National Science Foundation'],
+     'country': 'USA', 'parent': None},
+    # Germany - DFG
+    {'canonical': 'Deutsche Forschungsgemeinschaft',
+     'variants': ['DFG', 'German Research Foundation'],
+     'country': 'Germany', 'parent': None},
     # UK - MRC
-    ('Medical Research Council', ['MRC', 'UK Medical Research Council']),
+    {'canonical': 'Medical Research Council',
+     'variants': ['MRC', 'UK Medical Research Council'],
+     'country': 'UK', 'parent': 'UK Research and Innovation'},
     # EU
-    ('European Research Council', ['ERC']),
-    ('European Commission', ['EC']),
+    {'canonical': 'European Research Council',
+     'variants': ['ERC'],
+     'country': 'EU', 'parent': 'European Commission'},
+    {'canonical': 'European Commission',
+     'variants': ['EC', 'EU', 'European Union'],
+     'country': 'EU', 'parent': None},
     # France
-    ('Agence Nationale de la Recherche', ['ANR', 'French National Research Agency']),
+    {'canonical': 'Agence Nationale de la Recherche',
+     'variants': ['ANR', 'French National Research Agency'],
+     'country': 'France', 'parent': None},
     # Japan
-    ('Japan Society for the Promotion of Science', ['JSPS', 'Japan Society']),
-    ('Japan Agency for Medical Research and Development', ['AMED', 'Japan Agency']),
-    ('Japan Science and Technology Agency', ['JST']),
+    {'canonical': 'Japan Society for the Promotion of Science',
+     'variants': ['JSPS', 'Japan Society'],
+     'country': 'Japan', 'parent': None},
+    {'canonical': 'Japan Agency for Medical Research and Development',
+     'variants': ['AMED', 'Japan Agency'],
+     'country': 'Japan', 'parent': None},
+    {'canonical': 'Japan Science and Technology Agency',
+     'variants': ['JST'],
+     'country': 'Japan', 'parent': None},
+    {'canonical': 'Ministry of Education, Culture, Sports, Science and Technology',
+     'variants': ['MEXT'],
+     'country': 'Japan', 'parent': None},
     # Korea
-    ('National Research Foundation of Korea', ['NRF', 'Korea National Research Foundation', 'National Research Foundation']),
-    # UK Research Councils
-    ('Biotechnology and Biological Sciences Research Council', ['BBSRC', 'Biological Sciences Research Council']),
-    ('Engineering and Physical Sciences Research Council', ['EPSRC', 'Engineering Research Council']),
-    ('Natural Environment Research Council', ['NERC']),
-    ('Economic and Social Research Council', ['ESRC']),
-    ('Science and Technology Facilities Council', ['STFC']),
-    ('National Institute for Health Research', ['NIHR']),
+    {'canonical': 'National Research Foundation of Korea',
+     'variants': ['NRF', 'Korea National Research Foundation', 'National Research Foundation'],
+     'country': 'Korea', 'parent': None},
+    # UK Research Councils (UKRI members)
+    {'canonical': 'Biotechnology and Biological Sciences Research Council',
+     'variants': ['BBSRC', 'Biological Sciences Research Council'],
+     'country': 'UK', 'parent': 'UK Research and Innovation'},
+    {'canonical': 'Engineering and Physical Sciences Research Council',
+     'variants': ['EPSRC', 'Engineering Research Council'],
+     'country': 'UK', 'parent': 'UK Research and Innovation'},
+    {'canonical': 'Natural Environment Research Council',
+     'variants': ['NERC'],
+     'country': 'UK', 'parent': 'UK Research and Innovation'},
+    {'canonical': 'Economic and Social Research Council',
+     'variants': ['ESRC'],
+     'country': 'UK', 'parent': 'UK Research and Innovation'},
+    {'canonical': 'Science and Technology Facilities Council',
+     'variants': ['STFC'],
+     'country': 'UK', 'parent': 'UK Research and Innovation'},
+    {'canonical': 'National Institute for Health Research',
+     'variants': ['NIHR'],
+     'country': 'UK', 'parent': None},
+    {'canonical': 'UK Research and Innovation',
+     'variants': ['UKRI'],
+     'country': 'UK', 'parent': None},
     # Switzerland
-    ('Swiss National Science Foundation', ['SNSF', 'SNF']),
+    {'canonical': 'Swiss National Science Foundation',
+     'variants': ['SNSF', 'SNF'],
+     'country': 'Switzerland', 'parent': None},
     # Austria
-    ('Austrian Science Fund', ['FWF']),
+    {'canonical': 'Austrian Science Fund',
+     'variants': ['FWF'],
+     'country': 'Austria', 'parent': None},
     # Netherlands
-    ('Netherlands Organisation for Scientific Research', ['NWO', 'Dutch Research Council']),
+    {'canonical': 'Netherlands Organisation for Scientific Research',
+     'variants': ['NWO', 'Dutch Research Council'],
+     'country': 'Netherlands', 'parent': None},
     # Canada
-    ('Canadian Institutes of Health Research', ['CIHR']),
-    ('Natural Sciences and Engineering Research Council of Canada', ['NSERC']),
+    {'canonical': 'Canadian Institutes of Health Research',
+     'variants': ['CIHR'],
+     'country': 'Canada', 'parent': None},
+    {'canonical': 'Natural Sciences and Engineering Research Council of Canada',
+     'variants': ['NSERC'],
+     'country': 'Canada', 'parent': None},
     # Australia
-    ('National Health and Medical Research Council', ['NHMRC']),
-    ('Australian Research Council', ['ARC']),
+    {'canonical': 'National Health and Medical Research Council',
+     'variants': ['NHMRC'],
+     'country': 'Australia', 'parent': None},
+    {'canonical': 'Australian Research Council',
+     'variants': ['ARC'],
+     'country': 'Australia', 'parent': None},
     # Brazil
-    ('Fundacao de Amparo a Pesquisa do Estado de Sao Paulo', ['FAPESP']),
-    ('Conselho Nacional de Desenvolvimento Cientifico e Tecnologico', ['CNPq']),
-    ('Coordenacao de Aperfeicoamento de Pessoal de Nivel Superior', ['CAPES']),
+    {'canonical': 'Fundacao de Amparo a Pesquisa do Estado de Sao Paulo',
+     'variants': ['FAPESP', 'Sao Paulo Research Foundation'],
+     'country': 'Brazil', 'parent': None},
+    {'canonical': 'Conselho Nacional de Desenvolvimento Cientifico e Tecnologico',
+     'variants': ['CNPq'],
+     'country': 'Brazil', 'parent': None},
+    {'canonical': 'Coordenacao de Aperfeicoamento de Pessoal de Nivel Superior',
+     'variants': ['CAPES'],
+     'country': 'Brazil', 'parent': None},
     # USA - Private
-    ('Howard Hughes Medical Institute', ['HHMI']),
-    ('Bill and Melinda Gates Foundation', ['BMGF', 'Gates Foundation', 'Melinda Gates Foundation']),
+    {'canonical': 'Howard Hughes Medical Institute',
+     'variants': ['HHMI'],
+     'country': 'USA', 'parent': None},
+    {'canonical': 'Bill and Melinda Gates Foundation',
+     'variants': ['BMGF', 'Gates Foundation', 'Melinda Gates Foundation'],
+     'country': 'USA', 'parent': None},
     # UK - Private
-    ('Wellcome Trust', ['Wellcome', 'a Wellcome Trust']),
-    ('Cancer Research UK', ['CRUK']),
+    {'canonical': 'Wellcome Trust',
+     'variants': ['Wellcome', 'a Wellcome Trust'],
+     'country': 'UK', 'parent': None},
+    {'canonical': 'Cancer Research UK',
+     'variants': ['CRUK'],
+     'country': 'UK', 'parent': None},
     # USA - Government
-    ('United States Department of Agriculture', ['USDA']),
-    ('Department of Energy', ['DOE']),
+    {'canonical': 'United States Department of Agriculture',
+     'variants': ['USDA'],
+     'country': 'USA', 'parent': None},
+    {'canonical': 'Department of Energy',
+     'variants': ['DOE'],
+     'country': 'USA', 'parent': None},
     # Germany
-    ('Bundesministerium fur Bildung und Forschung', ['BMBF', 'German Federal Ministry']),
+    {'canonical': 'Bundesministerium fur Bildung und Forschung',
+     'variants': ['BMBF', 'German Federal Ministry'],
+     'country': 'Germany', 'parent': None},
+    {'canonical': 'Max Planck Society',
+     'variants': ['Max Planck', 'MPG'],
+     'country': 'Germany', 'parent': None},
     # France
-    ('Centre National de la Recherche Scientifique', ['CNRS']),
+    {'canonical': 'Centre National de la Recherche Scientifique',
+     'variants': ['CNRS'],
+     'country': 'France', 'parent': None},
     # Belgium
-    ('Research Foundation Flanders', ['FWO']),
+    {'canonical': 'Research Foundation Flanders',
+     'variants': ['FWO'],
+     'country': 'Belgium', 'parent': None},
     # Sweden
-    ('Swedish Research Council', ['VR', 'Vetenskapsradet']),
+    {'canonical': 'Swedish Research Council',
+     'variants': ['VR', 'Vetenskapsradet'],
+     'country': 'Sweden', 'parent': None},
     # Portugal
-    ('Fundacao para a Ciencia e a Tecnologia', ['FCT']),
+    {'canonical': 'Fundacao para a Ciencia e a Tecnologia',
+     'variants': ['FCT'],
+     'country': 'Portugal', 'parent': None},
     # Spain
-    ('Ministerio de Economia y Competitividad', ['MINECO', 'Spanish Ministry']),
+    {'canonical': 'Ministerio de Economia y Competitividad',
+     'variants': ['MINECO', 'Spanish Ministry'],
+     'country': 'Spain', 'parent': None},
     # Italy
-    ('Associazione Italiana per la Ricerca sul Cancro', ['AIRC']),
-    # UK
-    ('UK Research and Innovation', ['UKRI']),
-    # China
-    ('China Scholarship Council', ['CSC']),
-    ('China Postdoctoral Science Foundation', []),
-    # EU
-    ('European Regional Development Fund', ['ERDF', 'FEDER']),
-    # Max Planck
-    ('Max Planck Society', ['Max Planck', 'MPG']),
-    # Royal Society
-    ('Royal Society', []),
-    # American Heart Association
-    ('American Heart Association', ['AHA']),
+    {'canonical': 'Associazione Italiana per la Ricerca sul Cancro',
+     'variants': ['AIRC'],
+     'country': 'Italy', 'parent': None},
+    {'canonical': 'Italian Ministry',
+     'variants': [],
+     'country': 'Italy', 'parent': None},
+    # China - other
+    {'canonical': 'China Scholarship Council',
+     'variants': ['CSC'],
+     'country': 'China', 'parent': None},
+    {'canonical': 'China Postdoctoral Science Foundation',
+     'variants': [],
+     'country': 'China', 'parent': None},
+    {'canonical': 'National Key Research and Development Program',
+     'variants': [],
+     'country': 'China', 'parent': None},
+    # EU - other
+    {'canonical': 'European Regional Development Fund',
+     'variants': ['ERDF', 'FEDER'],
+     'country': 'EU', 'parent': None},
+    # UK - other
+    {'canonical': 'Royal Society',
+     'variants': [],
+     'country': 'UK', 'parent': None},
+    # USA - other
+    {'canonical': 'American Heart Association',
+     'variants': ['AHA'],
+     'country': 'USA', 'parent': None},
     # Russia
-    ('Russian Science Foundation', ['RSF']),
+    {'canonical': 'Russian Science Foundation',
+     'variants': ['RSF'],
+     'country': 'Russia', 'parent': None},
     # Czech
-    ('Czech Science Foundation', ['GACR']),
-    # NIH Institutes
-    ('National Cancer Institute', ['NCI']),
-    ('National Heart Lung and Blood Institute', ['NHLBI', 'Blood Institute']),
-    ('National Institute of Mental Health', ['NIMH']),
-    ('National Institute of General Medical Sciences', ['NIGMS']),
-    ('National Institute of Allergy and Infectious Diseases', ['NIAID']),
-    ('National Institute of Diabetes and Digestive and Kidney Diseases', ['NIDDK']),
-    ('National Institute of Neurological Disorders and Stroke', ['NINDS']),
-    ('National Institute on Aging', ['NIA']),
-    ('National Eye Institute', ['NEI']),
-    ('National Institute on Drug Abuse', ['NIDA']),
-    ('National Institute of Environmental Health Sciences', ['NIEHS']),
-    ('National Institute of Child Health and Human Development', ['NICHD']),
-    ('National Institute of Arthritis and Musculoskeletal and Skin Diseases', ['NIAMS']),
-    ('National Institute on Alcohol Abuse and Alcoholism', ['NIAAA']),
-    ('National Center for Advancing Translational Sciences', ['NCATS']),
+    {'canonical': 'Czech Science Foundation',
+     'variants': ['GACR'],
+     'country': 'Czech Republic', 'parent': None},
+    # Poland
+    {'canonical': 'National Science Centre',
+     'variants': ['NCN'],
+     'country': 'Poland', 'parent': None},
+    # India
+    {'canonical': 'Department of Biotechnology',
+     'variants': ['DBT'],
+     'country': 'India', 'parent': None},
+    # Taiwan (primary user of MOST in biomedical literature)
+    {'canonical': 'Ministry of Science and Technology',
+     'variants': ['MOST'],
+     'country': 'Taiwan', 'parent': None},
+    # NIH Institutes (all have parent = NIH)
+    {'canonical': 'National Cancer Institute',
+     'variants': ['NCI'],
+     'country': 'USA', 'parent': 'National Institutes of Health'},
+    {'canonical': 'National Heart Lung and Blood Institute',
+     'variants': ['NHLBI', 'Blood Institute'],
+     'country': 'USA', 'parent': 'National Institutes of Health'},
+    {'canonical': 'National Institute of Mental Health',
+     'variants': ['NIMH'],
+     'country': 'USA', 'parent': 'National Institutes of Health'},
+    {'canonical': 'National Institute of General Medical Sciences',
+     'variants': ['NIGMS'],
+     'country': 'USA', 'parent': 'National Institutes of Health'},
+    {'canonical': 'National Institute of Allergy and Infectious Diseases',
+     'variants': ['NIAID'],
+     'country': 'USA', 'parent': 'National Institutes of Health'},
+    {'canonical': 'National Institute of Diabetes and Digestive and Kidney Diseases',
+     'variants': ['NIDDK'],
+     'country': 'USA', 'parent': 'National Institutes of Health'},
+    {'canonical': 'National Institute of Neurological Disorders and Stroke',
+     'variants': ['NINDS'],
+     'country': 'USA', 'parent': 'National Institutes of Health'},
+    {'canonical': 'National Institute on Aging',
+     'variants': ['NIA'],
+     'country': 'USA', 'parent': 'National Institutes of Health'},
+    {'canonical': 'National Eye Institute',
+     'variants': ['NEI'],
+     'country': 'USA', 'parent': 'National Institutes of Health'},
+    {'canonical': 'National Institute on Drug Abuse',
+     'variants': ['NIDA'],
+     'country': 'USA', 'parent': 'National Institutes of Health'},
+    {'canonical': 'National Institute of Environmental Health Sciences',
+     'variants': ['NIEHS'],
+     'country': 'USA', 'parent': 'National Institutes of Health'},
+    {'canonical': 'National Institute of Child Health and Human Development',
+     'variants': ['NICHD'],
+     'country': 'USA', 'parent': 'National Institutes of Health'},
+    {'canonical': 'National Institute of Arthritis and Musculoskeletal and Skin Diseases',
+     'variants': ['NIAMS'],
+     'country': 'USA', 'parent': 'National Institutes of Health'},
+    {'canonical': 'National Institute on Alcohol Abuse and Alcoholism',
+     'variants': ['NIAAA'],
+     'country': 'USA', 'parent': 'National Institutes of Health'},
+    {'canonical': 'National Center for Advancing Translational Sciences',
+     'variants': ['NCATS'],
+     'country': 'USA', 'parent': 'National Institutes of Health'},
+    {'canonical': 'National Human Genome Research Institute',
+     'variants': ['NHGRI'],
+     'country': 'USA', 'parent': 'National Institutes of Health'},
 ]
 
-# Build lookup from variant to canonical
+# Build lookups from new structure
 VARIANT_TO_CANONICAL = {}
-for canonical, variants in EXPLICIT_ALIAS_GROUPS:
+FUNDER_COUNTRY = {}
+FUNDER_PARENT = {}
+for group in EXPLICIT_ALIAS_GROUPS:
+    canonical = group['canonical']
     VARIANT_TO_CANONICAL[canonical.lower()] = canonical
-    for v in variants:
+    FUNDER_COUNTRY[canonical] = group['country']
+    FUNDER_PARENT[canonical] = group['parent']
+    for v in group['variants']:
         VARIANT_TO_CANONICAL[v.lower()] = canonical
 
 # Known acronym to full name mappings (legacy, kept for reference)
@@ -353,7 +510,7 @@ def consolidate_aliases(candidates: pd.DataFrame) -> dict:
 
     Uses explicit alias groups first, then falls back to fuzzy matching.
 
-    Returns dict: canonical_name -> {variants: [list], merged_count: int, country: str}
+    Returns dict: canonical_name -> {variants: [list], merged_count: int, country: str, parent: str}
     """
     clusters = {}
     used = set()
@@ -376,7 +533,8 @@ def consolidate_aliases(candidates: pd.DataFrame) -> dict:
                 clusters[canonical] = {
                     'variants': [],
                     'merged_count': 0,
-                    'country': get_country(canonical),
+                    'country': FUNDER_COUNTRY.get(canonical, get_country(canonical)),
+                    'parent': FUNDER_PARENT.get(canonical),
                 }
             # Determine variant type
             if name_lower == canonical.lower():
@@ -397,7 +555,8 @@ def consolidate_aliases(candidates: pd.DataFrame) -> dict:
                 clusters[canonical] = {
                     'variants': [],
                     'merged_count': 0,
-                    'country': get_country(canonical),
+                    'country': FUNDER_COUNTRY.get(canonical, get_country(canonical)),
+                    'parent': FUNDER_PARENT.get(canonical),
                 }
             clusters[canonical]['variants'].append((name, 'acronym', count))
             clusters[canonical]['merged_count'] += count
@@ -425,9 +584,39 @@ def consolidate_aliases(candidates: pd.DataFrame) -> dict:
             clusters[name] = {
                 'variants': [(name, 'primary', count)],
                 'merged_count': count,
-                'country': get_country(name),
+                'country': FUNDER_COUNTRY.get(name, get_country(name)),
+                'parent': FUNDER_PARENT.get(name),
             }
             used.add(name)
+
+    return clusters
+
+
+def ensure_explicit_variants(clusters: dict) -> dict:
+    """
+    Ensure all explicit variants are included for canonical funders that made it to output.
+
+    This adds missing variants from EXPLICIT_ALIAS_GROUPS that weren't found in NER output.
+    """
+    for group in EXPLICIT_ALIAS_GROUPS:
+        canonical = group['canonical']
+        if canonical not in clusters:
+            continue
+
+        # Get existing variants (lowercased for comparison)
+        existing_variants = {v[0].lower() for v in clusters[canonical]['variants']}
+
+        # Add missing variants from explicit group
+        for variant in group['variants']:
+            if variant.lower() not in existing_variants:
+                # Determine variant type
+                if len(variant) <= 6 and variant.upper() == variant:
+                    var_type = 'acronym'
+                else:
+                    var_type = 'alias'
+                # Add with count=0 and mark as manually added
+                clusters[canonical]['variants'].append((variant, f'{var_type}_manual', 0))
+                logger.debug(f"Added missing variant '{variant}' to '{canonical}'")
 
     return clusters
 
@@ -612,6 +801,13 @@ def build_canonical_funders(
     stats['stage4_final'] = len(final_clusters)
     logger.info(f"  Final canonical funders: {len(final_clusters):,}")
 
+    # Stage 5: Ensure all explicit variants are included
+    logger.info(f"Stage 5: Adding missing explicit variants")
+    final_clusters = ensure_explicit_variants(final_clusters)
+    # Count how many variants were added
+    total_variants = sum(len(info['variants']) for info in final_clusters.values())
+    logger.info(f"  Total variants after ensuring explicit: {total_variants:,}")
+
     # Build output DataFrame
     rows = []
     for canonical, info in sorted(final_clusters.items(), key=lambda x: -x[1]['merged_count']):
@@ -621,6 +817,7 @@ def build_canonical_funders(
                 'variant': variant,
                 'variant_type': var_type,
                 'country': info['country'],
+                'parent_funder': info.get('parent', ''),
                 'variant_count': var_count,
                 'merged_count': info['merged_count'],
                 'selection_method': f'{log_threshold}sigma+consolidation',

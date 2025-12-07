@@ -83,14 +83,27 @@ def init_schema(con: duckdb.DuckDBPyConnection):
             oddpub_v5_updated_at TIMESTAMP,
             rtransparent_updated_at TIMESTAMP,
             metadata_updated_at TIMESTAMP,
-            compact_updated_at TIMESTAMP
+            compact_updated_at TIMESTAMP,
+
+            -- Article metadata
+            article_type VARCHAR,
+            license VARCHAR
         )
     """)
+
+    # Add columns if they don't exist (for existing databases)
+    try:
+        con.execute("ALTER TABLE pmcids ADD COLUMN IF NOT EXISTS article_type VARCHAR")
+        con.execute("ALTER TABLE pmcids ADD COLUMN IF NOT EXISTS license VARCHAR")
+    except Exception:
+        pass  # Column might already exist
 
     # Create indexes for common queries
     con.execute("CREATE INDEX IF NOT EXISTS idx_pmc_dir ON pmcids(pmc_dir)")
     con.execute("CREATE INDEX IF NOT EXISTS idx_oddpub_v7 ON pmcids(has_oddpub_v7)")
     con.execute("CREATE INDEX IF NOT EXISTS idx_oddpub_v5 ON pmcids(has_oddpub_v5)")
+    con.execute("CREATE INDEX IF NOT EXISTS idx_article_type ON pmcids(article_type)")
+    con.execute("CREATE INDEX IF NOT EXISTS idx_license ON pmcids(license)")
 
     # Summary view by PMC directory
     con.execute("""
@@ -433,6 +446,65 @@ def update_from_compact(con: duckdb.DuckDBPyConnection, compact_dir: Path):
         logger.error(f"Error updating compact status: {e}")
 
 
+def update_article_types(con: duckdb.DuckDBPyConnection, rtrans_dir: Path):
+    """
+    Update article_type from rtransparent parquet files.
+
+    The rtrans files have a 'type' column with values like:
+    - research-article, review-article, case-report, abstract, other,
+    - brief-report, editorial, letter, correction, book-review, etc.
+    """
+    logger.info(f"Updating article types from {rtrans_dir}")
+
+    pattern = str(rtrans_dir / "*.parquet")
+
+    try:
+        # Update article_type using JOIN with rtrans data
+        # The rtrans files use pmcid_pmc for the PMCID
+        # Use GROUP BY to deduplicate PMCIDs that appear in multiple parquet files
+        con.execute(f"""
+            UPDATE pmcids
+            SET article_type = rtrans.type
+            FROM (
+                SELECT
+                    CASE WHEN pmcid_pmc LIKE 'PMC%' THEN pmcid_pmc ELSE 'PMC' || pmcid_pmc END as pmcid,
+                    FIRST(type) as type
+                FROM read_parquet('{pattern}')
+                WHERE pmcid_pmc IS NOT NULL AND type IS NOT NULL
+                GROUP BY CASE WHEN pmcid_pmc LIKE 'PMC%' THEN pmcid_pmc ELSE 'PMC' || pmcid_pmc END
+            ) AS rtrans
+            WHERE pmcids.pmcid = rtrans.pmcid
+        """)
+        con.commit()
+
+        # Report statistics
+        stats = con.execute("""
+            SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN article_type IS NOT NULL THEN 1 ELSE 0 END) as with_type
+            FROM pmcids
+        """).fetchone()
+
+        logger.info(f"article_type: {stats[1]:,}/{stats[0]:,} PMCIDs have type ({100*stats[1]/stats[0]:.1f}%)")
+
+        # Show distribution
+        type_counts = con.execute("""
+            SELECT article_type, COUNT(*) as cnt
+            FROM pmcids
+            WHERE article_type IS NOT NULL
+            GROUP BY article_type
+            ORDER BY cnt DESC
+            LIMIT 15
+        """).fetchall()
+
+        logger.info("Article type distribution:")
+        for row in type_counts:
+            logger.info(f"  {row[0]}: {row[1]:,}")
+
+    except Exception as e:
+        logger.error(f"Error updating article types: {e}")
+
+
 def show_status(con: duckdb.DuckDBPyConnection):
     """Display overall processing status."""
     print("\n" + "=" * 70)
@@ -764,6 +836,10 @@ def main():
     compact_parser = subparsers.add_parser('update-compact', help='Update compact status')
     compact_parser.add_argument('compact_dir', type=Path, help='compact_rtrans directory')
 
+    # update-article-type command
+    type_parser = subparsers.add_parser('update-article-type', help='Update article_type from rtrans files')
+    type_parser.add_argument('rtrans_dir', type=Path, help='rtransparent output directory with type column')
+
     # status command
     subparsers.add_parser('status', help='Show processing status')
 
@@ -834,6 +910,10 @@ def main():
 
     elif args.command == 'update-compact':
         update_from_compact(con, args.compact_dir)
+        show_status(con)
+
+    elif args.command == 'update-article-type':
+        update_article_types(con, args.rtrans_dir)
         show_status(con)
 
     elif args.command == 'status':

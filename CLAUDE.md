@@ -554,28 +554,42 @@ Complete schema documentation for all data outputs:
 - 22 NIH institutes (NCI, NHLBI, NIMH, etc.)
 - Columns: Name, Acronym
 
-### Funder Alias Mapping (2025-12-02)
+### Funder Alias Mapping (2025-12-07)
 
 To handle funder name variants and avoid double-counting:
 
-- **Alias file:** `funder_analysis/funder_aliases.csv`
-  - 43 canonical funders with 65+ variant mappings
-  - Columns: canonical_name, variant, variant_type, country, notes
+- **Alias file (v2):** `funder_analysis/funder_aliases_v2.csv`
+  - 57 canonical funders with 81 variant mappings
+  - Columns: canonical_name, variant, variant_type, country, variant_count, merged_count, selection_method
   - Handles: acronyms (NSF), full names, spelling variants, translations
+
+- **Selection strategy:** `docs/CANONICAL_FUNDER_SELECTION.md`
+  - Principled 4σ statistical threshold on log-scale (count >= 658)
+  - Multi-stage pipeline: statistical threshold → noise removal → fragment removal → alias consolidation → final threshold (merged_count >= 2,000)
+  - Reduces 58,791 NER-discovered funders → 57 canonical funders
+  - Reproducible via `funder_analysis/build_canonical_funders.py`
+
+- **Build script:** `funder_analysis/build_canonical_funders.py`
+  - Input: NER-discovered funders from `results/openss_explore_v2/all_potential_funders.csv`
+  - Uses explicit alias groups (not fuzzy matching) for reliable consolidation
+  - Outputs both CSV and statistics JSON
 
 - **Normalizer module:** `funder_analysis/normalize_funders.py`
   - `FunderNormalizer` class for alias lookups
   - `mentions_funder(text, canonical)` - searches for any variant at article level
   - Avoids double-counting when article mentions both "NSF" and "National Science Foundation"
 
-**Key canonical funders:**
-- National Institutes of Health (NIH)
-- National Science Foundation (NSF) - US basic science
-- National Natural Science Foundation of China (NSFC)
-- European Commission (EC, EU, ERC)
-- Deutsche Forschungsgemeinschaft (DFG)
-- Wellcome Trust
-- And 37 more...
+**Top 10 canonical funders (by merged_count):**
+1. NSFC - National Natural Science Foundation of China (99,031)
+2. NIH - National Institutes of Health (71,044)
+3. NSF - National Science Foundation (45,566)
+4. ERC - European Research Council (25,664)
+5. MRC - Medical Research Council (23,913)
+6. JSPS - Japan Society for the Promotion of Science (21,489)
+7. DFG - Deutsche Forschungsgemeinschaft (21,342)
+8. Wellcome Trust (21,058)
+9. NRF - National Research Foundation of Korea (20,271)
+10. BBSRC - Biotechnology and Biological Sciences Research Council (16,877)
 
 ## Migration Context
 

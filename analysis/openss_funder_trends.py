@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """
-OpenSS Funder Trends Analysis (v2)
+OpenSS Funder Trends Analysis (v3)
 
 Creates line graphs showing open data sharing trends by top canonical funders over time.
-Uses the funder_aliases_v2.csv (57 funders) for matching with all variants.
+Uses the funder_aliases_v3.csv (57 funders) for matching with all variants.
+
+Key updates in v3:
+- Supports parent-child funder aggregation (e.g., NIH institutes -> NIH)
+- Uses parent_funder column from funder_aliases_v3.csv
+- Add --aggregate-children to roll up child counts into parent totals
 
 Key updates in v2:
 - Uses all 57 canonical funders from funder_aliases_v2.csv
@@ -19,17 +24,19 @@ This script produces two types of graphs:
 Both graphs use consistent colors for top 10 funders.
 
 Usage:
-    # Generate both graphs with v2 funder list
+    # Generate both graphs with v3 funder list and aggregation
     python analysis/openss_funder_trends.py \
         --oddpub-file ~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
         --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
         --registry hpc_scripts/pmcid_registry.duckdb \
-        --funder-aliases funder_analysis/funder_aliases_v2.csv \
-        --output-dir results/openss_funder_trends_v4 \
+        --funder-aliases funder_analysis/funder_aliases_v3.csv \
+        --aggregate-children \
+        --output-dir results/openss_funder_trends_v5 \
         --graph both
 
 Author: INCF 2025 Poster Analysis
 Date: 2025-12-07
+Updated: 2025-12-07 - Added v3 parent-child aggregation support
 """
 
 import argparse
@@ -386,6 +393,51 @@ def get_display_name(funder: str, normalizer: FunderNormalizer) -> str:
     return funder
 
 
+def aggregate_children_to_parents(counts: dict, normalizer: FunderNormalizer) -> dict:
+    """
+    Aggregate child funder counts into parent funder totals.
+
+    Args:
+        counts: Dictionary of {funder: {year: count}}
+        normalizer: FunderNormalizer with parent-child relationships
+
+    Returns:
+        Dictionary with child counts rolled into parent totals,
+        child funders removed from output
+    """
+    # Build child-to-parent mapping
+    child_to_parent = {}
+    for funder in counts.keys():
+        parent = normalizer.get_parent(funder)
+        if parent and parent in counts:
+            child_to_parent[funder] = parent
+
+    if not child_to_parent:
+        logger.info("No parent-child relationships found in data, skipping aggregation")
+        return counts
+
+    logger.info(f"Found {len(child_to_parent)} child->parent mappings for aggregation:")
+    for child, parent in sorted(child_to_parent.items()):
+        logger.info(f"  {child} -> {parent}")
+
+    # Copy counts to avoid mutating input
+    aggregated = {funder: dict(year_counts) for funder, year_counts in counts.items()}
+
+    # Add child counts to parents
+    for child_funder, parent_funder in child_to_parent.items():
+        for year, count in aggregated[child_funder].items():
+            if year not in aggregated[parent_funder]:
+                aggregated[parent_funder][year] = 0
+            aggregated[parent_funder][year] += count
+
+    # Remove child funders from output
+    for child_funder in child_to_parent.keys():
+        del aggregated[child_funder]
+
+    logger.info(f"After aggregation: {len(aggregated)} funders (was {len(counts)})")
+    return aggregated
+
+
 def create_counts_plot(counts: dict, output_dir: Path, year_range: tuple, normalizer: FunderNormalizer):
     """Create line graph of absolute counts by year (top 10 in graph, all in CSV)."""
     # Convert to DataFrame with all funders
@@ -533,15 +585,19 @@ def main():
                         help='Year range for plots (default: 2010 2024)')
     parser.add_argument('--limit', type=int, default=None,
                         help='Limit number of rtrans files (for testing)')
+    parser.add_argument('--aggregate-children', action='store_true',
+                        help='Aggregate child funder counts into parent totals (e.g., NIH institutes -> NIH)')
 
     args = parser.parse_args()
 
     logger.info("=" * 70)
-    logger.info("OPENSS FUNDER TRENDS ANALYSIS (v2)")
+    logger.info("OPENSS FUNDER TRENDS ANALYSIS (v3)")
     logger.info("=" * 70)
     logger.info("Using all canonical funders from aliases file")
     logger.info("Filtering to research articles only")
     logger.info(f"Year range: {args.year_range[0]}-{args.year_range[1]}")
+    if args.aggregate_children:
+        logger.info("Parent-child aggregation: ENABLED")
     logger.info("=" * 70)
 
     # Create output directory
@@ -563,6 +619,11 @@ def main():
         args.rtrans_dir, normalizer, open_data_pmcids, article_types, args.limit
     )
 
+    # Aggregate children to parents if requested
+    if args.aggregate_children:
+        logger.info("Aggregating child funder counts to parent funders...")
+        counts = aggregate_children_to_parents(counts, normalizer)
+
     # Generate counts graph
     if args.graph in ['counts', 'both']:
         logger.info("Generating counts graph...")
@@ -574,6 +635,10 @@ def main():
         totals = load_corpus_totals_by_year(
             args.rtrans_dir, normalizer, article_types, args.limit
         )
+        # Aggregate totals too if aggregating children
+        if args.aggregate_children:
+            logger.info("Aggregating corpus totals to parent funders...")
+            totals = aggregate_children_to_parents(totals, normalizer)
         create_percentages_plot(counts, totals, args.output_dir, tuple(args.year_range), normalizer)
 
     # Print summary

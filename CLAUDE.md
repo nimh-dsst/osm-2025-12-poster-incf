@@ -246,6 +246,21 @@ A DuckDB-based tracking system (`hpc_scripts/pmcid_registry.py`) tracks processi
 | Total PMCIDs in registry | 6,980,244 |
 | oddpub v7.2.3 processed | 6,490,266 (93.0%) |
 | Missing/retry needed | ~490,000 |
+| PMCIDs with article_type | 6,376,680 (91.4%) |
+
+**Article Type Distribution (2025-12-07):**
+
+| Type | Count | % |
+|------|-------|---|
+| research-article | 4,597,910 | 72.1% |
+| review-article | 568,421 | 8.9% |
+| case-report | 311,618 | 4.9% |
+| abstract | 154,886 | 2.4% |
+| other | 154,716 | 2.4% |
+| brief-report | 114,896 | 1.8% |
+| editorial | 110,814 | 1.7% |
+| letter | 91,832 | 1.4% |
+| correction | 85,359 | 1.3% |
 
 **Registry Commands:**
 ```bash
@@ -254,6 +269,9 @@ python hpc_scripts/pmcid_registry.py status
 
 # Update from oddpub output
 python hpc_scripts/pmcid_registry.py update-oddpub-v7 ~/claude/osm-oddpub-out/
+
+# Update article types from rtransparent parquet files
+python hpc_scripts/pmcid_registry.py update-article-type ~/claude/pmcoaXMLs/rtrans_out_full_parquets
 
 # Generate retry swarm for missing PMCIDs
 python hpc_scripts/pmcid_registry.py generate-retry oddpub_v7 \

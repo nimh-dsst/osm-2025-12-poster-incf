@@ -1,7 +1,34 @@
 # Next Steps for INCF Poster Analysis
 
-**Last Updated:** 2025-12-03
-**Status:** Dashboard data build complete on HPC, registry validation complete, poster generation ready
+**Last Updated:** 2025-12-07
+**Status:** Dashboard data build complete on HPC, registry validation complete, article types populated, poster generation ready
+
+## Completed (2025-12-07)
+
+1. ✅ Added article_type column to pmcid_registry DuckDB
+   - Schema updated with `article_type VARCHAR` and `license VARCHAR` columns
+   - Created `update-article-type` CLI command
+   - Populated from rtransparent parquet files (uses `type` column)
+   - 6,376,680 / 6,980,244 PMCIDs (91.4%) now have article type
+
+2. ✅ Article type distribution in registry:
+   | Type | Count | % |
+   |------|-------|---|
+   | research-article | 4,597,910 | 72.1% |
+   | review-article | 568,421 | 8.9% |
+   | case-report | 311,618 | 4.9% |
+   | abstract | 154,886 | 2.4% |
+   | other | 154,716 | 2.4% |
+   | brief-report | 114,896 | 1.8% |
+   | editorial | 110,814 | 1.7% |
+   | letter | 91,832 | 1.4% |
+   | correction | 85,359 | 1.3% |
+   | book-review | 36,208 | 0.6% |
+   | article-commentary | 22,578 | 0.4% |
+   | systematic-review | 18,139 | 0.3% |
+   | discussion | 16,294 | 0.3% |
+   | data-paper | 15,263 | 0.2% |
+   | meeting-report | 14,750 | 0.2% |
 
 ## Completed (2025-12-03)
 

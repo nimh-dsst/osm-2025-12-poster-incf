@@ -415,35 +415,76 @@ python hpc_scripts/repair_pmcid_registry.py \
     --filelist-dir ~/claude/pmcoaXMLs/raw_download
 ```
 
-### Funder Trends Analysis (2025-12-04)
+### Funder Trends Analysis (2025-12-07)
 
 Script `analysis/openss_funder_trends.py` generates line graphs showing open data trends by funder.
 
-**Updated 2025-12-04:** Reduced to top 10 funders with consistent colors across both graphs.
-
-**Top 10 Funders (selected from union of top 10 counts and top 10 percentages):**
-- NIH, NSFC, NSF, EC (top by absolute counts)
-- HHMI, BBSRC (top by percentage)
-- ERC, Wellcome, DFG, ANR (appear in both rankings)
+**Updated 2025-12-07:** Complete rewrite with principled funder selection and research article filtering:
+- Uses v2 funder aliases (57 canonical funders) via `--funder-aliases` argument
+- Requires `--registry` argument for article type filtering (research articles only)
+- Research article filter matches `funder_data_sharing_summary.py`: research-article, brief-report, data-paper, systematic-review, other, blank
+- CSV outputs include all 57 funders; graphs show top 10 by data sharing count
+- HPC compatible: auto-detects registry table name (`pmcid_registry` vs `pmcids`)
 
 ```bash
-# Generate both graphs
+# Generate both graphs with v2 funders and research article filtering
 python analysis/openss_funder_trends.py \
     --oddpub-file ~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
     --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
-    --corpus-totals results/canonical_funder_corpus_totals.parquet \
-    --output-dir results/openss_funder_trends_v3 \
+    --registry hpc_scripts/pmcid_registry.duckdb \
+    --funder-aliases funder_analysis/funder_aliases_v2.csv \
+    --output-dir results/openss_funder_trends_v4 \
+    --graph both
+
+# HPC command (uses pmcids table automatically)
+python analysis/openss_funder_trends.py \
+    --oddpub-file /data/NIMH_scratch/adamt/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --rtrans-dir /data/NIMH_scratch/adamt/osm/datafiles/rtrans_out_full_parquets \
+    --registry /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/hpc_scripts/pmcid_registry.duckdb \
+    --funder-aliases funder_analysis/funder_aliases_v2.csv \
+    --output-dir results/openss_funder_trends_v4 \
     --graph both
 ```
 
-**Output (results/openss_funder_trends_v3/):**
-- `openss_funder_counts_by_year.csv` - Absolute counts (10 funders, 2010-2024)
-- `openss_funder_counts_by_year.png` - Line graph of counts
-- `openss_funder_percentages_by_year.csv` - Percentages by year
-- `openss_funder_percentages_by_year.png` - Line graph of percentages
+**Output (results/openss_funder_trends_v4/):**
+- `openss_funder_counts_by_year.csv` - All 57 funders, counts 2010-2024
+- `openss_funder_counts_by_year.png` - Top 10 funders by count
+- `openss_funder_percentages_by_year.csv` - All 57 funders, percentages
+- `openss_funder_percentages_by_year.png` - Top 10 funders by percentage
 
-**Color scheme (consistent across both graphs):**
-NIH (blue), NSFC (red), NSF (green), EC (orange), HHMI (purple), BBSRC (brown), ERC (pink), Wellcome (gray), DFG (olive), ANR (cyan)
+**Top 10 selection:** Dynamically selected as top 10 funders by total data sharing count across all years.
+
+### Funder Data Sharing Summary (2025-12-07)
+
+Script `analysis/funder_data_sharing_summary.py` calculates data sharing rates for all canonical funders.
+
+**Key features:**
+- Filters to research article types only (same filter as `openss_funder_trends.py`)
+- Supports v2 funder aliases via `--funder-aliases` argument
+- HPC compatible with auto-detected registry table names
+- Outputs funders with ≥1,000 data sharing publications (configurable via `--min-data-sharing`)
+
+```bash
+# Local run with v2 funders
+python analysis/funder_data_sharing_summary.py \
+    --oddpub-file ~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
+    --registry hpc_scripts/pmcid_registry.duckdb \
+    --funder-aliases funder_analysis/funder_aliases_v2.csv \
+    --output results/funder_data_sharing_summary_v2.csv
+
+# HPC run
+python analysis/funder_data_sharing_summary.py \
+    --oddpub-file /data/NIMH_scratch/adamt/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --rtrans-dir /data/NIMH_scratch/adamt/osm/datafiles/rtrans_out_full_parquets \
+    --registry /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/hpc_scripts/pmcid_registry.duckdb \
+    --funder-aliases funder_analysis/funder_aliases_v2.csv \
+    --output results/funder_data_sharing_summary_v2.csv
+```
+
+**Output:**
+- `results/funder_data_sharing_summary_v2.csv` - Funders with ≥1,000 data sharing pubs
+- `results/funder_data_sharing_summary_v2_all.csv` - All 57 funders (regardless of threshold)
 
 ### Corpus Statistics (2025-12-05)
 

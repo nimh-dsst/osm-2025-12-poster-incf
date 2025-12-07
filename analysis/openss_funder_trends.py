@@ -1,34 +1,35 @@
 #!/usr/bin/env python3
 """
-OpenSS Funder Trends Analysis
+OpenSS Funder Trends Analysis (v2)
 
 Creates line graphs showing open data sharing trends by top canonical funders over time.
-Uses the funder alias mapping to match funders by canonical name with all variants.
+Uses the funder_aliases_v2.csv (57 funders) for matching with all variants.
+
+Key updates in v2:
+- Uses all 57 canonical funders from funder_aliases_v2.csv
+- Filters to research article types only (research-article, brief-report, data-paper,
+  systematic-review, other, blank) - excludes review-article, editorial, letter, etc.
+- CSV output includes all 57 funders; graphs show top 10 only
+- Requires pmcid_registry.duckdb for article type filtering
 
 This script produces two types of graphs:
-1. Absolute counts: Open data articles by funder per year (can run immediately)
-2. Percentages: Open data % by funder per year (requires corpus totals)
+1. Absolute counts: Open data articles by funder per year
+2. Percentages: Open data % by funder per year (requires corpus totals scan)
 
-Both graphs use consistent colors for each funder.
+Both graphs use consistent colors for top 10 funders.
 
 Usage:
-    # Generate counts graph (immediate)
+    # Generate both graphs with v2 funder list
     python analysis/openss_funder_trends.py \
         --oddpub-file ~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
         --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
-        --output-dir results/openss_funder_trends \
-        --graph counts
-
-    # Generate percentages graph (requires corpus totals)
-    python analysis/openss_funder_trends.py \
-        --oddpub-file ~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
-        --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
-        --corpus-totals results/canonical_funder_corpus_totals.parquet \
-        --output-dir results/openss_funder_trends \
-        --graph percentages
+        --registry hpc_scripts/pmcid_registry.duckdb \
+        --funder-aliases funder_analysis/funder_aliases_v2.csv \
+        --output-dir results/openss_funder_trends_v4 \
+        --graph both
 
 Author: INCF 2025 Poster Analysis
-Date: 2025-12-02
+Date: 2025-12-07
 """
 
 import argparse
@@ -39,6 +40,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+import duckdb
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -53,25 +55,18 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Top 10 funders selected from the union of:
-# - Top 10 by absolute counts (2024): NIH, NSFC, NSF, EC, DFG, Wellcome, MRC, ERC, JSPS, ANR
-# - Top 10 by percentage (2024): HHMI, BBSRC, ANR, ERC, FWF, Wellcome, DFG, SNSF, NSF, NIH
-# Selected to provide geographic diversity and show interesting trends
-TOP_FUNDERS = [
-    'National Institutes of Health',           # Top by counts, large US funder
-    'National Natural Science Foundation of China',  # Top by counts, China
-    'National Science Foundation',             # Top in both
-    'European Commission',                     # Top by counts, Europe
-    'Howard Hughes Medical Institute',         # Top by percentage
-    'Biotechnology and Biological Sciences Research Council',  # Top by percentage
-    'European Research Council',               # Top in both
-    'Wellcome Trust',                          # Top in both
-    'Deutsche Forschungsgemeinschaft',         # Top in both
-    'Agence Nationale de la Recherche',        # Top in both
-]
+# Allowed article types for research analysis (same as funder_data_sharing_summary.py)
+ALLOWED_ARTICLE_TYPES = (
+    'research-article',
+    'brief-report',
+    'data-paper',
+    'systematic-review',
+    'other',
+)
 
-# Display names with country/region
-FUNDER_DISPLAY_NAMES = {
+# Top 10 funders for graph display (selected dynamically based on data)
+# These are for fallback display names and colors
+TOP_10_DISPLAY_NAMES = {
     'National Institutes of Health': 'NIH (USA)',
     'National Natural Science Foundation of China': 'NSFC (China)',
     'National Science Foundation': 'NSF (USA)',
@@ -82,22 +77,26 @@ FUNDER_DISPLAY_NAMES = {
     'Wellcome Trust': 'Wellcome (UK)',
     'Deutsche Forschungsgemeinschaft': 'DFG (Germany)',
     'Agence Nationale de la Recherche': 'ANR (France)',
+    'Medical Research Council': 'MRC (UK)',
+    'Japan Society for the Promotion of Science': 'JSPS (Japan)',
+    'National Research Foundation of Korea': 'NRF (Korea)',
+    'Swiss National Science Foundation': 'SNSF (Switzerland)',
+    'Austrian Science Fund': 'FWF (Austria)',
 }
 
-# Fixed color mapping for consistency across both graphs
-# Using a colorblind-friendly palette
-FUNDER_COLORS = {
-    'NIH (USA)': '#1f77b4',       # Blue
-    'NSFC (China)': '#d62728',    # Red
-    'NSF (USA)': '#2ca02c',       # Green
-    'EC (Europe)': '#ff7f0e',     # Orange
-    'HHMI (USA)': '#9467bd',      # Purple
-    'BBSRC (UK)': '#8c564b',      # Brown
-    'ERC (Europe)': '#e377c2',    # Pink
-    'Wellcome (UK)': '#7f7f7f',   # Gray
-    'DFG (Germany)': '#bcbd22',   # Olive
-    'ANR (France)': '#17becf',    # Cyan
-}
+# Fixed color mapping for consistency (10 colors for top 10 funders)
+FUNDER_COLORS = [
+    '#1f77b4',  # Blue
+    '#d62728',  # Red
+    '#2ca02c',  # Green
+    '#ff7f0e',  # Orange
+    '#9467bd',  # Purple
+    '#8c564b',  # Brown
+    '#e377c2',  # Pink
+    '#7f7f7f',  # Gray
+    '#bcbd22',  # Olive
+    '#17becf',  # Cyan
+]
 
 
 def normalize_pmcid(pmcid: str) -> str:
@@ -114,8 +113,46 @@ def normalize_pmcid(pmcid: str) -> str:
     return pmcid
 
 
-def load_open_data_pmcids(oddpub_file: Path) -> set:
-    """Load PMCIDs of articles with open data detected by oddpub."""
+def load_article_types(registry_path: Path) -> dict:
+    """Load article types from pmcid_registry.duckdb."""
+    logger.info(f"Loading article types from {registry_path}")
+    con = duckdb.connect(str(registry_path), read_only=True)
+
+    # Check which table exists (local uses pmcid_registry, HPC uses pmcids)
+    tables = con.execute("SHOW TABLES").fetchall()
+    table_names = [t[0] for t in tables]
+
+    if 'pmcid_registry' in table_names:
+        table_name = 'pmcid_registry'
+    elif 'pmcids' in table_names:
+        table_name = 'pmcids'
+    else:
+        raise ValueError(f"No recognized table found in registry. Available: {table_names}")
+
+    logger.info(f"Using table: {table_name}")
+
+    result = con.execute(f"""
+        SELECT pmcid, article_type
+        FROM {table_name}
+        WHERE article_type IS NOT NULL
+    """).fetchall()
+
+    article_types = {row[0]: row[1] for row in result}
+    con.close()
+
+    logger.info(f"Loaded {len(article_types):,} article types")
+    return article_types
+
+
+def is_allowed_article_type(article_type: str) -> bool:
+    """Check if article type is allowed for research analysis."""
+    if pd.isna(article_type) or article_type == '':
+        return True  # Blank is allowed
+    return article_type.lower() in [t.lower() for t in ALLOWED_ARTICLE_TYPES]
+
+
+def load_open_data_pmcids(oddpub_file: Path, article_types: dict) -> set:
+    """Load PMCIDs of research articles with open data detected by oddpub."""
     logger.info(f"Loading open data PMCIDs from {oddpub_file}")
     df = pd.read_parquet(oddpub_file)
     logger.info(f"Loaded {len(df):,} records")
@@ -124,24 +161,32 @@ def load_open_data_pmcids(oddpub_file: Path) -> set:
     logger.info(f"Found {len(open_data_df):,} with is_open_data=true ({100*len(open_data_df)/len(df):.2f}%)")
 
     pmcids = set()
+    filtered_out = 0
+
     for col in ['article', 'pmcid', 'filename']:
         if col in open_data_df.columns:
             for val in open_data_df[col].dropna().unique():
                 pmcid = normalize_pmcid(val)
                 if pmcid:
-                    pmcids.add(pmcid)
+                    # Filter by article type
+                    art_type = article_types.get(pmcid)
+                    if is_allowed_article_type(art_type):
+                        pmcids.add(pmcid)
+                    else:
+                        filtered_out += 1
 
-    logger.info(f"Extracted {len(pmcids):,} unique PMCIDs with open data")
+    logger.info(f"Extracted {len(pmcids):,} unique research article PMCIDs with open data")
+    logger.info(f"Filtered out {filtered_out:,} non-research articles (review, editorial, letter, etc.)")
     return pmcids
 
 
 def count_funders_by_year(rtrans_dir: Path,
                           normalizer: FunderNormalizer,
                           open_data_pmcids: set,
-                          funders: list,
+                          article_types: dict,
                           limit: int = None) -> dict:
     """
-    Count canonical funders in open data articles by year.
+    Count all canonical funders in open data research articles by year.
 
     Returns dict with counts[funder][year] = count
     """
@@ -151,11 +196,12 @@ def count_funders_by_year(rtrans_dir: Path,
         parquet_files = parquet_files[:limit]
         logger.info(f"Limited to first {limit} files for testing")
 
+    all_funders = normalizer.get_all_canonical_names()
     logger.info(f"Processing {len(parquet_files)} rtrans parquet files")
-    logger.info(f"Searching for {len(funders)} canonical funders in {len(open_data_pmcids):,} open data articles")
+    logger.info(f"Searching for {len(all_funders)} canonical funders in {len(open_data_pmcids):,} open data research articles")
 
     # Initialize counts: funder -> year -> count
-    counts = {funder: defaultdict(int) for funder in funders}
+    counts = {funder: defaultdict(int) for funder in all_funders}
     total_matched = 0
 
     funding_cols = ['fund_text', 'fund_pmc_institute', 'fund_pmc_source', 'fund_pmc_anysource']
@@ -173,7 +219,7 @@ def count_funders_by_year(rtrans_dir: Path,
             else:
                 continue
 
-            # Filter to open data articles only
+            # Filter to open data research articles only
             df = df[df['pmcid_norm'].isin(open_data_pmcids)]
 
             if len(df) == 0:
@@ -208,7 +254,7 @@ def count_funders_by_year(rtrans_dir: Path,
                 df['combined_fund'] = df['combined_fund'] + ' ' + df[col].fillna('').astype(str)
 
             # For each canonical funder, count matches by year
-            for funder in funders:
+            for funder in all_funders:
                 pattern = normalizer.search_patterns.get(funder)
                 if pattern:
                     matches = df['combined_fund'].str.contains(
@@ -223,45 +269,60 @@ def count_funders_by_year(rtrans_dir: Path,
             gc.collect()
 
             if (i + 1) % 100 == 0:
-                logger.info(f"  Processed {i+1}/{len(parquet_files)} files, {total_matched:,} open data articles matched")
+                logger.info(f"  Processed {i+1}/{len(parquet_files)} files, {total_matched:,} open data research articles matched")
 
         except Exception as e:
             logger.warning(f"Error processing {Path(pf).name}: {e}")
 
     logger.info(f"Finished processing {len(parquet_files)} files")
-    logger.info(f"Total open data articles matched: {total_matched:,}")
+    logger.info(f"Total open data research articles matched: {total_matched:,}")
 
     return counts
 
 
-def load_corpus_totals_by_year(corpus_totals_file: Path, rtrans_dir: Path,
-                                normalizer: FunderNormalizer, funders: list,
+def load_corpus_totals_by_year(rtrans_dir: Path,
+                                normalizer: FunderNormalizer,
+                                article_types: dict,
                                 limit: int = None) -> dict:
     """
-    Load or compute corpus totals by year for each funder.
-
-    If corpus_totals_file exists, we need to recompute by year since the
-    existing file only has overall totals.
+    Compute corpus totals by year for each funder (research articles only).
 
     Returns dict with totals[funder][year] = count
     """
-    # For now, we need to compute this by scanning rtrans files
-    # Similar to count_funders_by_year but for ALL articles (not just open data)
-
     parquet_files = sorted(glob.glob(f'{rtrans_dir}/*.parquet'))
 
     if limit:
         parquet_files = parquet_files[:limit]
 
-    logger.info(f"Computing corpus totals by year from {len(parquet_files)} files")
+    all_funders = normalizer.get_all_canonical_names()
+    logger.info(f"Computing corpus totals by year from {len(parquet_files)} files (research articles only)")
 
-    totals = {funder: defaultdict(int) for funder in funders}
+    totals = {funder: defaultdict(int) for funder in all_funders}
     funding_cols = ['fund_text', 'fund_pmc_institute', 'fund_pmc_source', 'fund_pmc_anysource']
     year_cols = ['year_epub', 'year_ppub']
+    total_research = 0
+    total_filtered = 0
 
     for i, pf in enumerate(parquet_files):
         try:
             df = pd.read_parquet(pf)
+
+            # Normalize PMCID
+            if 'pmcid_pmc' in df.columns:
+                df['pmcid_norm'] = df['pmcid_pmc'].apply(normalize_pmcid)
+            elif 'pmcid' in df.columns:
+                df['pmcid_norm'] = df['pmcid'].apply(normalize_pmcid)
+            else:
+                continue
+
+            # Filter to research articles only
+            original_len = len(df)
+            df = df[df['pmcid_norm'].apply(lambda x: is_allowed_article_type(article_types.get(x)))]
+            total_filtered += original_len - len(df)
+            total_research += len(df)
+
+            if len(df) == 0:
+                continue
 
             # Get year
             df['year'] = None
@@ -284,7 +345,7 @@ def load_corpus_totals_by_year(corpus_totals_file: Path, rtrans_dir: Path,
             for col in available_cols:
                 df['combined_fund'] = df['combined_fund'] + ' ' + df[col].fillna('').astype(str)
 
-            for funder in funders:
+            for funder in all_funders:
                 pattern = normalizer.search_patterns.get(funder)
                 if pattern:
                     matches = df['combined_fund'].str.contains(
@@ -298,20 +359,39 @@ def load_corpus_totals_by_year(corpus_totals_file: Path, rtrans_dir: Path,
             gc.collect()
 
             if (i + 1) % 100 == 0:
-                logger.info(f"  Processed {i+1}/{len(parquet_files)} files for corpus totals")
+                logger.info(f"  Processed {i+1}/{len(parquet_files)} files for corpus totals ({total_research:,} research articles)")
 
         except Exception as e:
             logger.warning(f"Error processing {Path(pf).name}: {e}")
 
+    logger.info(f"Total research articles: {total_research:,} (filtered out {total_filtered:,} non-research)")
     return totals
 
 
-def create_counts_plot(counts: dict, output_dir: Path, year_range: tuple = None):
-    """Create line graph of absolute counts by year."""
-    # Convert to DataFrame
+def get_display_name(funder: str, normalizer: FunderNormalizer) -> str:
+    """Get display name with country for a funder."""
+    if funder in TOP_10_DISPLAY_NAMES:
+        return TOP_10_DISPLAY_NAMES[funder]
+
+    # Try to get country from aliases file
+    country = normalizer.get_country(funder) if hasattr(normalizer, 'get_country') else None
+    if country and country != 'Unknown':
+        # Create abbreviated name if too long
+        if len(funder) > 30:
+            # Try to use acronym
+            acronym = normalizer.get_acronym(funder) if hasattr(normalizer, 'get_acronym') else None
+            if acronym:
+                return f"{acronym} ({country})"
+        return f"{funder} ({country})"
+    return funder
+
+
+def create_counts_plot(counts: dict, output_dir: Path, year_range: tuple, normalizer: FunderNormalizer):
+    """Create line graph of absolute counts by year (top 10 in graph, all in CSV)."""
+    # Convert to DataFrame with all funders
     data = {}
     for funder, year_counts in counts.items():
-        display_name = FUNDER_DISPLAY_NAMES.get(funder, funder)
+        display_name = get_display_name(funder, normalizer)
         data[display_name] = year_counts
 
     df = pd.DataFrame(data).T
@@ -328,25 +408,28 @@ def create_counts_plot(counts: dict, output_dir: Path, year_range: tuple = None)
     # Sort rows by total (descending)
     df['total'] = df.sum(axis=1)
     df = df.sort_values('total', ascending=False)
-    df = df.drop('total', axis=1)
 
-    # Save CSV
-    csv_path = output_dir / 'openss_funder_counts_by_year.csv'
-    df.to_csv(csv_path)
-    logger.info(f"Saved counts CSV to {csv_path}")
+    # Save CSV with ALL funders
+    csv_df = df.copy()
+    csv_df.to_csv(output_dir / 'openss_funder_counts_by_year.csv')
+    logger.info(f"Saved counts CSV with {len(csv_df)} funders")
+
+    # Keep only top 10 for plotting
+    df = df.head(10)
+    df = df.drop('total', axis=1)
 
     # Create plot
     fig, ax = plt.subplots(figsize=(12, 8))
 
-    for funder in df.index:
+    for i, funder in enumerate(df.index):
         years = list(df.columns)
         values = list(df.loc[funder].values)
-        color = FUNDER_COLORS.get(funder, '#333333')
+        color = FUNDER_COLORS[i % len(FUNDER_COLORS)]
         ax.plot(years, values, label=funder, linewidth=2.5, marker='o', markersize=4, color=color)
 
     ax.set_xlabel('Year', fontsize=14)
-    ax.set_ylabel('Number of Open Data Articles', fontsize=14)
-    ax.set_title('Open Data Articles by Top 10 Major Funders (2010-2024)', fontsize=16)
+    ax.set_ylabel('Number of Open Data Research Articles', fontsize=14)
+    ax.set_title('Open Data Research Articles by Top 10 Funders (2010-2024)', fontsize=16)
     ax.legend(title='Funder', bbox_to_anchor=(1.02, 1), loc='upper left', frameon=True, fontsize=10)
     ax.grid(True, alpha=0.3)
     ax.set_ylim(bottom=0)
@@ -363,12 +446,12 @@ def create_counts_plot(counts: dict, output_dir: Path, year_range: tuple = None)
     plt.close()
 
 
-def create_percentages_plot(counts: dict, totals: dict, output_dir: Path, year_range: tuple = None):
-    """Create line graph of percentages by year."""
-    # Calculate percentages
+def create_percentages_plot(counts: dict, totals: dict, output_dir: Path, year_range: tuple, normalizer: FunderNormalizer):
+    """Create line graph of percentages by year (top 10 in graph, all in CSV)."""
+    # Calculate percentages for all funders
     percentages = {}
     for funder in counts.keys():
-        display_name = FUNDER_DISPLAY_NAMES.get(funder, funder)
+        display_name = get_display_name(funder, normalizer)
         percentages[display_name] = {}
         for year in counts[funder].keys():
             total = totals[funder].get(year, 0)
@@ -393,23 +476,25 @@ def create_percentages_plot(counts: dict, totals: dict, output_dir: Path, year_r
         final_year = df.columns[-1]
         df = df.sort_values(final_year, ascending=False)
 
-    # Save CSV
-    csv_path = output_dir / 'openss_funder_percentages_by_year.csv'
-    df.to_csv(csv_path)
-    logger.info(f"Saved percentages CSV to {csv_path}")
+    # Save CSV with ALL funders
+    df.to_csv(output_dir / 'openss_funder_percentages_by_year.csv')
+    logger.info(f"Saved percentages CSV with {len(df)} funders")
+
+    # Keep only top 10 for plotting
+    df = df.head(10)
 
     # Create plot
     fig, ax = plt.subplots(figsize=(12, 8))
 
-    for funder in df.index:
+    for i, funder in enumerate(df.index):
         years = list(df.columns)
         values = list(df.loc[funder].values)
-        color = FUNDER_COLORS.get(funder, '#333333')
+        color = FUNDER_COLORS[i % len(FUNDER_COLORS)]
         ax.plot(years, values, label=funder, linewidth=2.5, marker='o', markersize=4, color=color)
 
     ax.set_xlabel('Year', fontsize=14)
     ax.set_ylabel('Open Data Rate (%)', fontsize=14)
-    ax.set_title('Open Data Rate by Top 10 Major Funders (2010-2024)', fontsize=16)
+    ax.set_title('Open Data Rate by Top 10 Funders - Research Articles Only (2010-2024)', fontsize=16)
     ax.legend(title='Funder', bbox_to_anchor=(1.02, 1), loc='upper left', frameon=True, fontsize=10)
     ax.grid(True, alpha=0.3)
     ax.set_ylim(bottom=0)
@@ -428,19 +513,21 @@ def create_percentages_plot(counts: dict, totals: dict, output_dir: Path, year_r
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Create line graphs of open data trends by funder',
+        description='Create line graphs of open data trends by funder (v2: all 57 funders, research articles only)',
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument('--oddpub-file', type=Path, required=True,
                         help='Merged oddpub parquet file')
     parser.add_argument('--rtrans-dir', type=Path, required=True,
                         help='Directory containing rtrans parquet files')
-    parser.add_argument('--corpus-totals', type=Path, default=None,
-                        help='Corpus totals parquet file (for percentages graph)')
+    parser.add_argument('--registry', type=Path, required=True,
+                        help='Path to pmcid_registry.duckdb for article type filtering')
+    parser.add_argument('--funder-aliases', type=Path, default=None,
+                        help='Path to funder_aliases CSV (default: funder_analysis/funder_aliases.csv)')
     parser.add_argument('--output-dir', type=Path, required=True,
                         help='Output directory for graphs and CSVs')
-    parser.add_argument('--graph', choices=['counts', 'percentages', 'both'], default='counts',
-                        help='Which graph(s) to generate')
+    parser.add_argument('--graph', choices=['counts', 'percentages', 'both'], default='both',
+                        help='Which graph(s) to generate (default: both)')
     parser.add_argument('--year-range', type=int, nargs=2, metavar=('MIN', 'MAX'),
                         default=[2010, 2024],
                         help='Year range for plots (default: 2010 2024)')
@@ -450,50 +537,59 @@ def main():
     args = parser.parse_args()
 
     logger.info("=" * 70)
-    logger.info("OPENSS FUNDER TRENDS ANALYSIS")
+    logger.info("OPENSS FUNDER TRENDS ANALYSIS (v2)")
+    logger.info("=" * 70)
+    logger.info("Using all canonical funders from aliases file")
+    logger.info("Filtering to research articles only")
+    logger.info(f"Year range: {args.year_range[0]}-{args.year_range[1]}")
     logger.info("=" * 70)
 
     # Create output directory
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Load open data PMCIDs
-    open_data_pmcids = load_open_data_pmcids(args.oddpub_file)
+    # Load article types from registry
+    article_types = load_article_types(args.registry)
 
-    # Initialize normalizer
-    normalizer = FunderNormalizer()
-    logger.info(f"Loaded {len(normalizer.get_all_canonical_names())} canonical funders with alias mapping")
+    # Load open data PMCIDs (filtered to research articles)
+    open_data_pmcids = load_open_data_pmcids(args.oddpub_file, article_types)
 
-    # Count funders by year in open data articles
+    # Initialize normalizer with specified aliases file
+    normalizer = FunderNormalizer(args.funder_aliases)
+    all_funders = normalizer.get_all_canonical_names()
+    logger.info(f"Loaded {len(all_funders)} canonical funders from {normalizer.aliases_csv}")
+
+    # Count all funders by year in open data research articles
     counts = count_funders_by_year(
-        args.rtrans_dir, normalizer, open_data_pmcids, TOP_FUNDERS, args.limit
+        args.rtrans_dir, normalizer, open_data_pmcids, article_types, args.limit
     )
 
     # Generate counts graph
     if args.graph in ['counts', 'both']:
         logger.info("Generating counts graph...")
-        create_counts_plot(counts, args.output_dir, tuple(args.year_range))
+        create_counts_plot(counts, args.output_dir, tuple(args.year_range), normalizer)
 
-    # Generate percentages graph (requires corpus totals)
+    # Generate percentages graph
     if args.graph in ['percentages', 'both']:
-        if args.corpus_totals and args.corpus_totals.exists():
-            logger.info("Loading corpus totals for percentages...")
-            # Need to compute totals by year (existing file only has overall totals)
-            totals = load_corpus_totals_by_year(
-                args.corpus_totals, args.rtrans_dir, normalizer, TOP_FUNDERS, args.limit
-            )
-            create_percentages_plot(counts, totals, args.output_dir, tuple(args.year_range))
-        else:
-            logger.warning("Corpus totals file not available. Skipping percentages graph.")
-            logger.warning("Run with --graph counts first, then rerun with --corpus-totals when available.")
+        logger.info("Computing corpus totals for percentages (research articles only)...")
+        totals = load_corpus_totals_by_year(
+            args.rtrans_dir, normalizer, article_types, args.limit
+        )
+        create_percentages_plot(counts, totals, args.output_dir, tuple(args.year_range), normalizer)
 
     # Print summary
     print("\n" + "=" * 70)
-    print("SUMMARY: Top 10 Funders Open Data Counts by Year")
+    print("SUMMARY: Top 20 Funders by Open Data Research Article Counts")
     print("=" * 70)
-    for funder in TOP_FUNDERS:
-        total = sum(counts[funder].values())
-        display = FUNDER_DISPLAY_NAMES.get(funder, funder)
-        print(f"  {display:<30} {total:>10,}")
+
+    # Calculate totals and sort
+    funder_totals = [(f, sum(counts[f].values())) for f in counts.keys()]
+    funder_totals.sort(key=lambda x: x[1], reverse=True)
+
+    for funder, total in funder_totals[:20]:
+        display = get_display_name(funder, normalizer)
+        print(f"  {display:<45} {total:>10,}")
+
+    logger.info(f"Output saved to {args.output_dir}")
 
 
 if __name__ == '__main__':

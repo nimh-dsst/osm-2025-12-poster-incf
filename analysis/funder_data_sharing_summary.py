@@ -261,6 +261,8 @@ def main():
                         help='Minimum data sharing count to include funder (default: 1000)')
     parser.add_argument('--limit', type=int, default=None,
                         help='Limit number of rtrans files (for testing)')
+    parser.add_argument('--funder-aliases', type=Path, default=None,
+                        help='Path to funder_aliases CSV (default: funder_analysis/funder_aliases.csv)')
 
     args = parser.parse_args()
 
@@ -275,8 +277,8 @@ def main():
     logger.info("=" * 70)
 
     # Initialize normalizer
-    normalizer = FunderNormalizer()
-    logger.info(f"Loaded {len(normalizer.get_all_canonical_names())} canonical funders")
+    normalizer = FunderNormalizer(args.funder_aliases)
+    logger.info(f"Loaded {len(normalizer.get_all_canonical_names())} canonical funders from {normalizer.aliases_csv}")
 
     # Count funders using DuckDB
     corpus_counts, open_data_counts = count_funders_duckdb(

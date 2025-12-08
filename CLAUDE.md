@@ -499,6 +499,54 @@ python analysis/funder_data_sharing_summary.py \
 - `results/funder_data_sharing_summary_v3.csv` - Funders with ≥1,000 data sharing pubs (47 with aggregation)
 - `results/funder_data_sharing_summary_v3_all.csv` - All funders (regardless of threshold)
 
+### Funder Table LaTeX Generator (2025-12-08)
+
+Script `analysis/funder_table_latex.py` generates publication-ready LaTeX tables from funder summary CSVs.
+
+**Features:**
+- Country column populated from funder_aliases_v3.csv
+- Sort by total_pubs, data_sharing_pubs, or data_sharing_pct
+- Optional conditional formatting (blue-white-red color scale):
+  - `--color-pubs`: Log scale for total publications
+  - `--color-pct`: Linear scale for percentages
+- siunitx S columns for proper numeric alignment
+- Automatic alternating row colors via `\rowcolors`
+- Two-line headers matching poster style
+
+```bash
+# Basic table sorted by total publications
+python analysis/funder_table_latex.py \
+    --input results/funder_data_sharing_summary_v3_all.csv \
+    --aliases funder_analysis/funder_aliases_v3.csv \
+    --sort-by total_pubs \
+    --output results/funder_table.tex
+
+# With conditional formatting on both columns
+python analysis/funder_table_latex.py \
+    --input results/funder_data_sharing_summary_v3_all.csv \
+    --aliases funder_analysis/funder_aliases_v3.csv \
+    --sort-by data_sharing_pct \
+    --color-pubs \
+    --color-pct \
+    --output results/funder_table.tex
+
+# Top 20 funders only
+python analysis/funder_table_latex.py \
+    --input results/funder_data_sharing_summary_v3_all.csv \
+    --aliases funder_analysis/funder_aliases_v3.csv \
+    --sort-by data_sharing_pct \
+    --limit 20 \
+    --output results/funder_table_top20.tex
+```
+
+**LaTeX Requirements:**
+```latex
+\usepackage[table]{xcolor}
+\usepackage{siunitx}
+\usepackage{booktabs}
+\definecolor{COL5}{HTML}{4472C4}  % For table styling
+```
+
 ### Corpus Statistics (2025-12-05)
 
 Script `analysis/generate_corpus_stats.py` generates CSV and LaTeX tables for the poster:

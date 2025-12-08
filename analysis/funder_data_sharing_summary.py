@@ -3,6 +3,7 @@
 Funder Data Sharing Summary
 
 Calculates data sharing rates for all canonical funders, filtered by article type.
+Supports v3 funder aliases with parent-child aggregation.
 
 For each funder, computes:
 1. Total pubs acknowledging the funder (2010-2024) with allowed article types
@@ -20,10 +21,13 @@ Usage:
         --oddpub-file ~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
         --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
         --registry hpc_scripts/pmcid_registry.duckdb \
-        --output results/funder_data_sharing_summary.csv
+        --funder-aliases funder_analysis/funder_aliases_v3.csv \
+        --output results/funder_data_sharing_summary_v3.csv \
+        --aggregate-children
 
 Author: INCF 2025 Poster Analysis
 Date: 2025-12-07
+Updated: 2025-12-08 - Added v3 funder aliases with parent-child aggregation
 """
 
 import argparse
@@ -56,6 +60,51 @@ ALLOWED_ARTICLE_TYPES = (
     'systematic-review',
     'other',
 )
+
+
+def aggregate_children_to_parents(counts: dict, normalizer: FunderNormalizer) -> dict:
+    """
+    Aggregate child funder counts into parent funder totals.
+
+    For funders with parent relationships (e.g., NIH institutes -> NIH, MRC -> UKRI),
+    adds child counts to parent and removes child entries from output.
+
+    Args:
+        counts: Dict mapping funder name to count (int)
+        normalizer: FunderNormalizer with parent relationship data
+
+    Returns:
+        Dict with aggregated counts (children removed, parents updated)
+    """
+    # Build child->parent mapping for funders in our data
+    child_to_parent = {}
+    for funder in counts.keys():
+        parent = normalizer.get_parent(funder)
+        if parent and parent in counts:
+            child_to_parent[funder] = parent
+
+    if not child_to_parent:
+        logger.info("No parent-child relationships found in data, skipping aggregation")
+        return counts
+
+    logger.info(f"Aggregating {len(child_to_parent)} child funders into parents:")
+    for child, parent in sorted(child_to_parent.items()):
+        logger.info(f"  {child} -> {parent}")
+
+    # Copy counts to avoid mutating input
+    aggregated = dict(counts)
+
+    # Add child counts to parents
+    for child_funder, parent_funder in child_to_parent.items():
+        aggregated[parent_funder] += aggregated[child_funder]
+
+    # Remove child funders from output
+    for child_funder in child_to_parent.keys():
+        del aggregated[child_funder]
+
+    logger.info(f"Reduced from {len(counts)} to {len(aggregated)} funders after aggregation")
+
+    return aggregated
 
 
 def normalize_pmcid(pmcid: str) -> str:
@@ -263,6 +312,8 @@ def main():
                         help='Limit number of rtrans files (for testing)')
     parser.add_argument('--funder-aliases', type=Path, default=None,
                         help='Path to funder_aliases CSV (default: funder_analysis/funder_aliases.csv)')
+    parser.add_argument('--aggregate-children', action='store_true',
+                        help='Aggregate child funder counts into parent totals (requires v3 aliases)')
 
     args = parser.parse_args()
 
@@ -290,9 +341,16 @@ def main():
         args.limit
     )
 
+    # Aggregate children into parents if requested
+    if args.aggregate_children:
+        logger.info("Aggregating child funders into parent totals...")
+        corpus_counts = aggregate_children_to_parents(corpus_counts, normalizer)
+        open_data_counts = aggregate_children_to_parents(open_data_counts, normalizer)
+
     # Build results dataframe
     results = []
-    for funder in normalizer.get_all_canonical_names():
+    funders_to_process = corpus_counts.keys()
+    for funder in funders_to_process:
         total = corpus_counts[funder]
         data_sharing = open_data_counts[funder]
         pct = (data_sharing / total * 100) if total > 0 else 0.0

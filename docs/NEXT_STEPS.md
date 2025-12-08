@@ -1,7 +1,35 @@
 # Next Steps for INCF Poster Analysis
 
-**Last Updated:** 2025-12-07
-**Status:** Dashboard data build complete on HPC, registry validation complete, article types populated, poster generation ready
+**Last Updated:** 2025-12-08
+**Status:** V3 funder aliases with parent-child aggregation running on HPC
+
+## Completed (2025-12-08)
+
+1. ✅ Created funder_aliases_v3.csv with parent_funder column
+   - Schema: canonical_name, variant, variant_type, country, **parent_funder**, variant_count, merged_count, selection_method
+   - 57 canonical funders, 81 variant mappings
+   - 10 parent-child relationships defined
+
+2. ✅ Parent-child funder relationships:
+   - **NIH children:** NCI, NHLBI, NIDDK, NIAID, NIMH
+   - **UKRI children:** MRC, BBSRC, EPSRC
+   - **EC children:** ERC, Horizon 2020
+
+3. ✅ Updated normalize_funders.py with get_parent() method
+   - `FunderNormalizer.get_parent(canonical)` returns parent funder if exists
+   - Returns None for funders without parents
+
+4. ✅ Updated openss_funder_trends.py for v3:
+   - Added `--aggregate-children` flag for parent-child aggregation
+   - Added `aggregate_children_to_parents()` function
+   - Aggregates child counts into parent totals before graphing
+   - Reduces 57 funders → 47 after aggregation
+
+5. ✅ V3 test successful on HPC (50 file limit)
+   - Detected 6 child→parent mappings (5 NIH institutes + MRC)
+   - Aggregation working correctly
+
+6. ⏳ Full v3 analysis running on HPC
 
 ## Completed (2025-12-07)
 

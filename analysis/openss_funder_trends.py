@@ -44,10 +44,15 @@ import gc
 import glob
 import logging
 import sys
+import warnings
 from collections import defaultdict
 from pathlib import Path
 
 import duckdb
+import numpy as np
+
+# Suppress pandas FutureWarnings about deprecated concat/combine behavior
+warnings.filterwarnings('ignore', category=FutureWarning, module='pandas')
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -234,11 +239,13 @@ def count_funders_by_year(rtrans_dir: Path,
 
             total_matched += len(df)
 
-            # Get year - prefer epub, fallback to ppub
-            df['year'] = None
+            # Get year - prefer epub, fallback to ppub (using numpy for clean handling)
+            year_arr = np.full(len(df), np.nan)
             for yc in year_cols:
                 if yc in df.columns:
-                    df['year'] = df['year'].fillna(pd.to_numeric(df[yc], errors='coerce'))
+                    year_vals = pd.to_numeric(df[yc], errors='coerce').values
+                    year_arr = np.where(np.isnan(year_arr), year_vals, year_arr)
+            df['year'] = year_arr
 
             # Skip records without year
             df = df[df['year'].notna()]
@@ -275,8 +282,11 @@ def count_funders_by_year(rtrans_dir: Path,
             del df
             gc.collect()
 
-            if (i + 1) % 100 == 0:
-                logger.info(f"  Processed {i+1}/{len(parquet_files)} files, {total_matched:,} open data research articles matched")
+            if (i + 1) == 1:
+                logger.info(f"  First file processed - script running normally...")
+            if (i + 1) % 50 == 0 or (i + 1) == len(parquet_files):
+                pct = (i + 1) / len(parquet_files) * 100
+                logger.info(f"  Processed {i+1}/{len(parquet_files)} files ({pct:.1f}%), {total_matched:,} open data articles matched")
 
         except Exception as e:
             logger.warning(f"Error processing {Path(pf).name}: {e}")
@@ -331,11 +341,13 @@ def load_corpus_totals_by_year(rtrans_dir: Path,
             if len(df) == 0:
                 continue
 
-            # Get year
-            df['year'] = None
+            # Get year - prefer epub, fallback to ppub (using numpy for clean handling)
+            year_arr = np.full(len(df), np.nan)
             for yc in year_cols:
                 if yc in df.columns:
-                    df['year'] = df['year'].fillna(pd.to_numeric(df[yc], errors='coerce'))
+                    year_vals = pd.to_numeric(df[yc], errors='coerce').values
+                    year_arr = np.where(np.isnan(year_arr), year_vals, year_arr)
+            df['year'] = year_arr
 
             df = df[df['year'].notna()]
             df['year'] = df['year'].astype(int)
@@ -365,8 +377,11 @@ def load_corpus_totals_by_year(rtrans_dir: Path,
             del df
             gc.collect()
 
-            if (i + 1) % 100 == 0:
-                logger.info(f"  Processed {i+1}/{len(parquet_files)} files for corpus totals ({total_research:,} research articles)")
+            if (i + 1) == 1:
+                logger.info(f"  First file processed - corpus totals running normally...")
+            if (i + 1) % 50 == 0 or (i + 1) == len(parquet_files):
+                pct = (i + 1) / len(parquet_files) * 100
+                logger.info(f"  Processed {i+1}/{len(parquet_files)} files ({pct:.1f}%) for corpus totals ({total_research:,} research articles)")
 
         except Exception as e:
             logger.warning(f"Error processing {Path(pf).name}: {e}")

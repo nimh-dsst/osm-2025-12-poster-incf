@@ -8,7 +8,7 @@ The optimized oddpub script provides ~2x speedup on large archives by using CSV 
 
 1. **Ensure CSV file lists exist**:
    ```bash
-   ls /data/NIMH_scratch/licc/pmcoa/files/*.filelist.csv
+   ls $HPC_PMCOA_BASE_DIR/pmcoa/files/*.filelist.csv
    ```
 
 2. **Use optimized script** (same interface as original):
@@ -63,7 +63,7 @@ Run the test script to verify speedup:
 
 ```bash
 cd extraction_tools
-python test_optimization.py ~/claude/pmcoaXMLs/raw_download/oa_comm_xml.PMC005xxxxxx.baseline.2025-06-26.tar.gz
+python test_optimization.py $EC2_PROJ_BASE_DIR/pmcoaXMLs/raw_download/oa_comm_xml.PMC005xxxxxx.baseline.2025-06-26.tar.gz
 ```
 
 Expected output:
@@ -83,11 +83,11 @@ Speedup: 14.7x
 
 On curium:
 ```bash
-cd /data/adamt/osm-2025-12-poster-incf
+cd $HPC_CONTAINER_BASE_DIR/osm-2025-12-poster-incf
 gh repo sync --branch develop
 cd container
 sudo apptainer build --force oddpub_optimized.sif oddpub_optimized.def
-scp oddpub_optimized.sif helix.nih.gov:/data/adamt/containers/
+scp oddpub_optimized.sif helix.nih.gov:$HPC_CONTAINER_BASE_DIR/containers/
 ```
 
 ### 2. Update Swarm Scripts
@@ -96,9 +96,9 @@ The swarm generation scripts work unchanged. The optimization is transparent:
 ```bash
 cd hpc_scripts
 ./create_oddpub_swarm_container.sh \
-    /data/NIMH_scratch/licc/pmcoa/files \
-    /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output \
-    /data/adamt/containers/oddpub_optimized.sif
+    $HPC_PMCOA_BASE_DIR/pmcoa/files \
+    $HPC_BASE_DIR/osm/osm-2025-12-poster-incf/output \
+    $HPC_CONTAINER_BASE_DIR/containers/oddpub_optimized.sif
 ```
 
 ### 3. Submit Jobs
@@ -108,7 +108,7 @@ swarm -f oddpub_swarm.txt \
     -g 32 -t 8 --time 03:00:00 \
     --gres=lscratch:10 \
     --module apptainer \
-    --logdir /data/NIMH_scratch/adamt/osm/logs/oddpub_optimized_$(date +%Y%m%d_%H%M%S)
+    --logdir $HPC_BASE_DIR/osm/logs/oddpub_optimized_$(date +%Y%m%d_%H%M%S)
 ```
 
 ## Fallback Behavior

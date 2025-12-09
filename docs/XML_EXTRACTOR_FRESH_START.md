@@ -12,14 +12,14 @@ You need to design and implement a container-based XML metadata extractor for HP
 - Where Claude is running
 - Can push to GitHub
 - Can be accessed by other hosts for pulling files
-- Has test data in `~/claude/pmcoaXMLs/raw_download/`
+- Has test data in `$EC2_PROJ_BASE_DIR/pmcoaXMLs/raw_download/`
 
 **Behind firewall (can only pull, not be pushed to):**
 
 **curium**:
 - Apptainer build host (has sudo)
 - Can pull from: osm2025, GitHub
-- Repository location: `/data/adamt/osm-2025-12-poster-incf/`
+- Repository location: `$HPC_CONTAINER_BASE_DIR/osm-2025-12-poster-incf/`
 - Update command: `gh repo sync --branch develop`
 
 **helix**:
@@ -96,7 +96,7 @@ Current schema (122 columns) - new extractor must be compatible.
 
 Small test file for quick validation:
 ```
-~/claude/pmcoaXMLs/raw_download/oa_other_xml.incr.2025-07-03.tar.gz
+$EC2_PROJ_BASE_DIR/pmcoaXMLs/raw_download/oa_other_xml.incr.2025-07-03.tar.gz
 ```
 
 Contains ~10 XML files, perfect for testing.
@@ -125,7 +125,7 @@ cat > test_container_build.sh << 'EOF'
 # This script will be pulled and run on curium
 
 # Pull latest code
-cd /data/adamt/osm-2025-12-poster-incf
+cd $HPC_CONTAINER_BASE_DIR/osm-2025-12-poster-incf
 gh repo sync --branch develop
 
 # Build container
@@ -153,12 +153,12 @@ sinteractive --gres=lscratch:10
 
 # Pull and test container
 cd /lscratch/$SLURM_JOB_ID
-scp helix:/data/adamt/containers/xml_extractor.sif .
+scp helix:$HPC_CONTAINER_BASE_DIR/containers/xml_extractor.sif .
 
 # Test with real data
 . /usr/local/current/apptainer/app_conf/sing_binds
 apptainer exec xml_extractor.sif python3 /scripts/new_xml_extractor.py \
-  /data/NIMH_scratch/licc/pmcoa/files/oa_other_xml.incr.2025-07-03.tar.gz
+  $HPC_PMCOA_BASE_DIR/pmcoa/files/oa_other_xml.incr.2025-07-03.tar.gz
 
 # Validate output
 python3 -c "import pandas as pd; df = pd.read_parquet('output.parquet'); print(f'{len(df)} records, {len(df.columns)} columns')"
@@ -170,7 +170,7 @@ Create minimal swarm for testing:
 ```bash
 # Create 10-job test swarm
 for i in {0..9}; do
-  echo ". /usr/local/current/apptainer/app_conf/sing_binds && apptainer exec /data/adamt/containers/xml_extractor.sif python3 /scripts/new_xml_extractor.py --chunk $i /data/NIMH_scratch/licc/pmcoa/files/test.tar.gz"
+  echo ". /usr/local/current/apptainer/app_conf/sing_binds && apptainer exec $HPC_CONTAINER_BASE_DIR/containers/xml_extractor.sif python3 /scripts/new_xml_extractor.py --chunk $i $HPC_PMCOA_BASE_DIR/pmcoa/files/test.tar.gz"
 done > test_swarm.txt
 
 # Submit small test
@@ -211,6 +211,6 @@ swarm -f test_swarm.txt -g 16 -t 2 --time 00:30:00
 
 ## Starting the Conversation
 
-Begin with: "I need to design an HPC container-based XML metadata extractor that extracts journal and publisher fields from PMC XML files. I have test data at ~/claude/pmcoaXMLs/raw_download/oa_other_xml.incr.2025-07-03.tar.gz and existing extractor code to reference. The solution must be tested progressively across multiple hosts with specific access restrictions."
+Begin with: "I need to design an HPC container-based XML metadata extractor that extracts journal and publisher fields from PMC XML files. I have test data at $EC2_PROJ_BASE_DIR/pmcoaXMLs/raw_download/oa_other_xml.incr.2025-07-03.tar.gz and existing extractor code to reference. The solution must be tested progressively across multiple hosts with specific access restrictions."
 
 Include this document as context.

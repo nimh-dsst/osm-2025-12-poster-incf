@@ -168,7 +168,7 @@
 
 ## Compact Dataset Schema (142 columns)
 
-**Location:** `~/claude/pmcoaXMLs/compact_rtrans_test/` (test dataset with 1,647 parquet files)
+**Location:** `$EC2_PROJ_BASE_DIR/pmcoaXMLs/compact_rtrans_test/` (test dataset with 1,647 parquet files)
 
 **Key Columns for Visualization:**
 - **Identifiers:** `pmid`, `pmcid_pmc`, `doi`
@@ -194,7 +194,7 @@
 
 **Purpose:** Create line graphs showing data/code sharing rates by major funders over time
 
-**Previous Version:** `~/claude/osm/scripts/funder-line-graph_v15.py`
+**Previous Version:** `$EC2_PROJ_BASE_DIR/osm/scripts/funder-line-graph_v15.py`
 - Designed for CSV input with 31 funder boolean columns
 - Expected columns: 'year', 'is_code_pred', plus 31 funder columns (columns 1-32)
 - Generated count and percentage plots with multiple line styles
@@ -203,7 +203,7 @@
 
 1. **Input Format Change:**
    - OLD: Single CSV file
-   - NEW: Directory of parquet files (`~/claude/pmcoaXMLs/compact_rtrans_test/`)
+   - NEW: Directory of parquet files (`$EC2_PROJ_BASE_DIR/pmcoaXMLs/compact_rtrans_test/`)
 
 2. **Schema Differences:**
    - OLD: `year` column (single integer)
@@ -229,7 +229,7 @@
 **Command-Line Interface:**
 ```bash
 python analysis/funder_data_sharing_trends.py \
-  --input-dir ~/claude/pmcoaXMLs/compact_rtrans_test \
+  --input-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/compact_rtrans_test \
   --output-prefix results/funder_data_sharing \
   --year-column year_epub \
   --metric is_open_code \
@@ -268,12 +268,12 @@ python analysis/funder_data_sharing_trends.py \
 
 ## Index Files for Reference
 
-**Metadata index:** `/home/ec2-user/claude/pmcoaXMLs/extracted_metadata_parquet/INDEX.json`
+**Metadata index:** `$EC2_PROJ_BASE_DIR/pmcoaXMLs/extracted_metadata_parquet/INDEX.json`
 - 25 files
 - PMCID ranges (e.g., PMC000: 176545-556014)
 - Year ranges (e.g., 2003-2024)
 
-**Rtrans index:** `/home/ec2-user/claude/pmcoaXMLs/rtrans_out_full_parquets/INDEX.json`
+**Rtrans index:** `$EC2_PROJ_BASE_DIR/pmcoaXMLs/rtrans_out_full_parquets/INDEX.json`
 - 1,647 files
 - PMCID ranges per file
 - Year ranges per file

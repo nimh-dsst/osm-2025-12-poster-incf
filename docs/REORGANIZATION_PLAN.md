@@ -11,7 +11,7 @@ Analysis revealed that derived data in `rtrans_out` and `rtrans_out_chunks` is i
 ### Data Completeness Issues
 
 **rtrans_out_full_parquets (Authoritative Source)**
-- Location: `/home/ec2-user/claude/pmcoaXMLs/rtrans_out_full_parquets/`
+- Location: `$EC2_PROJ_BASE_DIR/pmcoaXMLs/rtrans_out_full_parquets/`
 - Size: 1.8 GB
 - Files: 1,647 parquet files
 - Columns: 120+ columns (complete rtransparent output)
@@ -19,7 +19,7 @@ Analysis revealed that derived data in `rtrans_out` and `rtrans_out_chunks` is i
 - Status: ✅ Complete, authoritative
 
 **rtrans_out (Obsolete Merged)**
-- Location: `/home/ec2-user/claude/pmcoaXMLs/rtrans_out/`
+- Location: `$EC2_PROJ_BASE_DIR/pmcoaXMLs/rtrans_out/`
 - Size: 35 MB
 - Files: 1 merged parquet file
 - Columns: **9 columns only** (pmid, journal, affiliation_country, is_open_code, is_open_data, year, funder, created_at, data_tags)
@@ -28,7 +28,7 @@ Analysis revealed that derived data in `rtrans_out` and `rtrans_out_chunks` is i
 - **RECOMMENDATION: Mark for deletion**
 
 **rtrans_out_chunks (Obsolete Split)**
-- Location: `/home/ec2-user/claude/pmcoaXMLs/rtrans_out_chunks/`
+- Location: `$EC2_PROJ_BASE_DIR/pmcoaXMLs/rtrans_out_chunks/`
 - Size: 24 MB
 - Files: 21 chunk files
 - Columns: **9 columns only** (same as rtrans_out)
@@ -130,7 +130,7 @@ Scripts using these incomplete datasets will produce inaccurate results for:
 ### New Scripts Created
 
 **funder-mapping-parquet.py**
-- Location: `/home/ec2-user/claude/pmcoaXMLs/funder-mapping-parquet.py`
+- Location: `$EC2_PROJ_BASE_DIR/pmcoaXMLs/funder-mapping-parquet.py`
 - Created: 2025-11-24
 - Purpose: Maps funding to 31 funder organizations from parquet files
 - Status: ✅ Already uses rtrans_out_full_parquets correctly

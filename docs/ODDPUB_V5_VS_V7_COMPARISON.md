@@ -102,4 +102,4 @@ Based on 3,843,143 matched records:
 ## Files Generated
 
 - `results/oddpub_v5_vs_v7_by_funder.csv` - Funder comparison data
-- `~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet` - Merged oddpub v7.2.3 results (3.97M records, 240.6 MB)
+- `$EC2_PROJ_BASE_DIR/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet` - Merged oddpub v7.2.3 results (3.97M records, 240.6 MB)

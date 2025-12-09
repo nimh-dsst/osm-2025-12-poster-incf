@@ -9,15 +9,15 @@
 ```bash
 # First run (builds cache, ~20 minutes)
 python create_compact_rtrans.py \
-    --input-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
-    --metadata-dir ~/claude/pmcoaXMLs/extracted_metadata_parquet \
-    --output-dir ~/claude/pmcoaXMLs/compact_rtrans
+    --input-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/rtrans_out_full_parquets \
+    --metadata-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/extracted_metadata_parquet \
+    --output-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/compact_rtrans
 
 # Subsequent runs (uses cache, ~8 minutes)
 python create_compact_rtrans.py \
-    --input-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
-    --metadata-dir ~/claude/pmcoaXMLs/extracted_metadata_parquet \
-    --output-dir ~/claude/pmcoaXMLs/compact_rtrans
+    --input-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/rtrans_out_full_parquets \
+    --metadata-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/extracted_metadata_parquet \
+    --output-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/compact_rtrans
 
 # Resume interrupted processing
 python create_compact_rtrans.py ... --resume

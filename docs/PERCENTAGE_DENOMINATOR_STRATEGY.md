@@ -89,7 +89,7 @@ metadata_totals = {
 
 ```bash
 python analysis/build_corpus_summary.py \
-    --metadata-dir ~/claude/pmcoaXMLs/extracted_metadata_parquet \
+    --metadata-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/extracted_metadata_parquet \
     --output results/corpus_summary.parquet
 ```
 

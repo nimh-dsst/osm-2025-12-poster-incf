@@ -13,7 +13,7 @@ Implemented a Python script to process PMC Open Access XML files with the oddpub
 ### Scripts Created
 
 1. **`process_pmcoa_with_oddpub.py`**
-   - Location: `/home/ec2-user/claude/osm-2025-12-poster-incf/extraction_tools/`
+   - Location: `$EC2_PROJ_BASE_DIR/osm-2025-12-poster-incf/extraction_tools/`
    - Purpose: Main processing script
    - Features:
      - Streaming extraction from tar.gz archives
@@ -30,7 +30,7 @@ Implemented a Python script to process PMC Open Access XML files with the oddpub
 ### Documentation Created
 
 1. **`README_ODDPUB.md`**
-   - Location: `/home/ec2-user/claude/osm-2025-12-poster-incf/extraction_tools/`
+   - Location: `$EC2_PROJ_BASE_DIR/osm-2025-12-poster-incf/extraction_tools/`
    - Content:
      - Usage instructions and examples
      - Command-line options reference
@@ -40,15 +40,15 @@ Implemented a Python script to process PMC Open Access XML files with the oddpub
      - Comparison with rtransparent tool
 
 2. **`data_dictionary_oddpub.csv`**
-   - Location: `/home/ec2-user/claude/osm-2025-12-poster-incf/docs/`
+   - Location: `$EC2_PROJ_BASE_DIR/osm-2025-12-poster-incf/docs/`
    - Content: Complete schema for oddpub output (15 columns)
 
 3. **`data_dictionary_rtrans.csv`**
-   - Location: `/home/ec2-user/claude/osm-2025-12-poster-incf/docs/`
+   - Location: `$EC2_PROJ_BASE_DIR/osm-2025-12-poster-incf/docs/`
    - Note: Renamed from `data_dictionary.csv` to clarify scope
 
 4. **`pmcoaXMLs/README.md`**
-   - Location: `/home/ec2-user/claude/pmcoaXMLs/`
+   - Location: `$EC2_PROJ_BASE_DIR/pmcoaXMLs/`
    - Content: Comprehensive directory structure documentation
 
 ## Implementation Details
@@ -134,13 +134,13 @@ Implemented a Python script to process PMC Open Access XML files with the oddpub
      --pattern "oa_comm_xml.PMC012*.tar.gz" \
      --batch-size 20 \
      --max-files 20 \
-     ~/claude/pmcoaXMLs/raw_download/
+     $EC2_PROJ_BASE_DIR/pmcoaXMLs/raw_download/
    ```
 
    **Results**:
    - Processed: 20 XML files
    - Time: 5.36 minutes
-   - Output: `/home/ec2-user/claude/pmcoaXMLs/oddpub_out/oddpub_results_all.parquet`
+   - Output: `$EC2_PROJ_BASE_DIR/pmcoaXMLs/oddpub_out/oddpub_results_all.parquet`
    - Size: 14 KB
    - Records: 20
    - Open data detected: 1 file
@@ -261,26 +261,26 @@ merged = rtrans.merge(oddpub, on='pmid', how='left', suffixes=('', '_oddpub'))
 
 ## Files Modified
 
-1. `/home/ec2-user/claude/osm-2025-12-poster-incf/extraction_tools/process_pmcoa_with_oddpub.py`
+1. `$EC2_PROJ_BASE_DIR/osm-2025-12-poster-incf/extraction_tools/process_pmcoa_with_oddpub.py`
    - Created new file
    - Fixed Rscript path
    - Added --max-files parameter
 
-2. `/home/ec2-user/claude/osm-2025-12-poster-incf/extraction_tools/README_ODDPUB.md`
+2. `$EC2_PROJ_BASE_DIR/osm-2025-12-poster-incf/extraction_tools/README_ODDPUB.md`
    - Created comprehensive documentation
 
-3. `/home/ec2-user/claude/osm-2025-12-poster-incf/docs/data_dictionary_oddpub.csv`
+3. `$EC2_PROJ_BASE_DIR/osm-2025-12-poster-incf/docs/data_dictionary_oddpub.csv`
    - Created schema documentation
 
-4. `/home/ec2-user/claude/osm-2025-12-poster-incf/docs/data_dictionary.csv`
+4. `$EC2_PROJ_BASE_DIR/osm-2025-12-poster-incf/docs/data_dictionary.csv`
    - Renamed to `data_dictionary_rtrans.csv`
 
-5. `/home/ec2-user/claude/pmcoaXMLs/README.md`
+5. `$EC2_PROJ_BASE_DIR/pmcoaXMLs/README.md`
    - Created directory structure documentation
 
 ## Validation Status
 
-**Test Output**: `/home/ec2-user/claude/pmcoaXMLs/oddpub_out/oddpub_results_all.parquet`
+**Test Output**: `$EC2_PROJ_BASE_DIR/pmcoaXMLs/oddpub_out/oddpub_results_all.parquet`
 
 **Validation Results**:
 - ✅ 20 records processed successfully

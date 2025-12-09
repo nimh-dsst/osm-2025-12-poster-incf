@@ -34,7 +34,7 @@ squeue -u $USER
 ssh curium
 
 # Navigate to repository
-cd /data/adamt/osm-2025-12-poster-incf
+cd $HPC_CONTAINER_BASE_DIR/osm-2025-12-poster-incf
 
 # Pull latest changes with timeout fix
 gh repo sync --branch develop
@@ -67,10 +67,10 @@ apptainer exec oddpub.sif R --version
 
 ```bash
 # Transfer to HPC via helix (data transfer node)
-scp oddpub.sif helix.nih.gov:/data/adamt/containers/
+scp oddpub.sif helix.nih.gov:$HPC_CONTAINER_BASE_DIR/containers/
 
 # Verify transfer
-ssh helix.nih.gov "ls -lh /data/adamt/containers/oddpub.sif"
+ssh helix.nih.gov "ls -lh $HPC_CONTAINER_BASE_DIR/containers/oddpub.sif"
 ```
 
 **Transfer time**: ~30 seconds (1.5 GB over 10 Gbps link)
@@ -83,7 +83,7 @@ ssh helix.nih.gov "ls -lh /data/adamt/containers/oddpub.sif"
 
 ```bash
 # Navigate to repository
-cd /data/adamt/osm-2025-12-poster-incf
+cd $HPC_CONTAINER_BASE_DIR/osm-2025-12-poster-incf
 
 # Pull latest changes
 gh repo sync --branch develop
@@ -99,18 +99,18 @@ ls -lh hpc_scripts/verify_and_retry_oddpub.sh
 **On HPC:**
 
 ```bash
-cd /data/adamt/osm-2025-12-poster-incf/hpc_scripts
+cd $HPC_CONTAINER_BASE_DIR/osm-2025-12-poster-incf/hpc_scripts
 
 # Run verification script
 bash verify_and_retry_oddpub.sh \
-    /data/NIMH_scratch/licc/pmcoa/files \
-    /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output \
-    /data/adamt/containers/oddpub.sif
+    $HPC_PMCOA_BASE_DIR/pmcoa/files \
+    $HPC_BASE_DIR/osm/osm-2025-12-poster-incf/output \
+    $HPC_CONTAINER_BASE_DIR/containers/oddpub.sif
 ```
 
 **Expected output:**
 ```
-Found 12 existing output files in /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output
+Found 12 existing output files in $HPC_BASE_DIR/osm/osm-2025-12-poster-incf/output
 
 Checking for missing outputs...
   [List of files with missing chunks]
@@ -146,7 +146,7 @@ swarm -f oddpub_retry_swarm.txt \
     --time 03:00:00 \
     --gres=lscratch:10 \
     --module apptainer \
-    --logdir /data/NIMH_scratch/adamt/osm/logs/oddpub_retry
+    --logdir $HPC_BASE_DIR/osm/logs/oddpub_retry
 ```
 
 **Resource allocation:**
@@ -172,10 +172,10 @@ swarm -f oddpub_retry_swarm.txt \
 jobload -u $USER
 
 # Count completed files (real-time)
-watch -n 30 'echo "Completed: $(ls -1 /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output/*.parquet 2>/dev/null | wc -l) / 7038"'
+watch -n 30 'echo "Completed: $(ls -1 $HPC_BASE_DIR/osm/osm-2025-12-poster-incf/output/*.parquet 2>/dev/null | wc -l) / 7038"'
 
 # Check for errors in logs
-cd /data/NIMH_scratch/adamt/osm/logs/oddpub_retry
+cd $HPC_BASE_DIR/osm/logs/oddpub_retry
 tail -f swarm_*.e | grep -i error
 ```
 
@@ -186,13 +186,13 @@ tail -f swarm_*.e | grep -i error
 **After all jobs finish:**
 
 ```bash
-cd /data/adamt/osm-2025-12-poster-incf/hpc_scripts
+cd $HPC_CONTAINER_BASE_DIR/osm-2025-12-poster-incf/hpc_scripts
 
 # Run verification again
 bash verify_and_retry_oddpub.sh \
-    /data/NIMH_scratch/licc/pmcoa/files \
-    /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output \
-    /data/adamt/containers/oddpub.sif
+    $HPC_PMCOA_BASE_DIR/pmcoa/files \
+    $HPC_BASE_DIR/osm/osm-2025-12-poster-incf/output \
+    $HPC_CONTAINER_BASE_DIR/containers/oddpub.sif
 ```
 
 **Expected output if all succeeded:**
@@ -219,10 +219,10 @@ No retry needed. You can proceed to merge results:
 . /usr/local/current/apptainer/app_conf/sing_binds
 
 # Merge all chunk results into final parquet file
-apptainer exec /data/adamt/containers/oddpub.sif \
+apptainer exec $HPC_CONTAINER_BASE_DIR/containers/oddpub.sif \
     python3 /scripts/merge_oddpub_results.py \
-    /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output \
-    /data/NIMH_scratch/adamt/osm/oddpub_results_final.parquet
+    $HPC_BASE_DIR/osm/osm-2025-12-poster-incf/output \
+    $HPC_BASE_DIR/osm/oddpub_results_final.parquet
 ```
 
 **Expected output:**
@@ -239,7 +239,7 @@ apptainer exec /data/adamt/containers/oddpub.sif \
 
 ```bash
 # Download final results via helix
-scp helix.nih.gov:/data/NIMH_scratch/adamt/osm/oddpub_results_final.parquet ~/
+scp helix.nih.gov:$HPC_BASE_DIR/osm/oddpub_results_final.parquet ~/
 
 # Verify download
 python3 -c "import pandas as pd; df = pd.read_parquet('~/oddpub_results_final.parquet'); print(f'{len(df)} records, {len(df.columns)} columns')"
@@ -254,7 +254,7 @@ python3 -c "import pandas as pd; df = pd.read_parquet('~/oddpub_results_final.pa
 **Error**: "no space left on device"
 ```bash
 # Set cache directory to larger disk
-export APPTAINER_CACHEDIR=/data/adamt/tmp
+export APPTAINER_CACHEDIR=$HPC_CONTAINER_BASE_DIR/tmp
 sudo apptainer build --force oddpub.sif oddpub.def
 ```
 
@@ -263,7 +263,7 @@ sudo apptainer build --force oddpub.sif oddpub.def
 **Error**: "permission denied"
 ```bash
 # Use helix (data transfer node) instead of biowulf
-scp oddpub.sif helix.nih.gov:/data/adamt/containers/
+scp oddpub.sif helix.nih.gov:$HPC_CONTAINER_BASE_DIR/containers/
 ```
 
 ### Jobs still timing out
@@ -274,7 +274,7 @@ scp oddpub.sif helix.nih.gov:/data/adamt/containers/
 ```bash
 # On HPC
 . /usr/local/current/apptainer/app_conf/sing_binds
-apptainer exec /data/adamt/containers/oddpub.sif \
+apptainer exec $HPC_CONTAINER_BASE_DIR/containers/oddpub.sif \
     grep "timeout=" /scripts/process_pmcoa_with_oddpub.py | head -5
 ```
 
@@ -289,10 +289,10 @@ If still 600: Container wasn't rebuilt with latest code. Go back to Step 2.
 **Diagnosis**: Check CSV file counts
 ```bash
 # Count XMLs in first tar.gz
-head -20 /data/NIMH_scratch/licc/pmcoa/files/oa_comm_xml.PMC000xxxxxx.baseline.2025-06-26.filelist.csv
+head -20 $HPC_PMCOA_BASE_DIR/pmcoa/files/oa_comm_xml.PMC000xxxxxx.baseline.2025-06-26.filelist.csv
 
 # Verify CSV line count matches expected
-wc -l /data/NIMH_scratch/licc/pmcoa/files/*.filelist.csv
+wc -l $HPC_PMCOA_BASE_DIR/pmcoa/files/*.filelist.csv
 ```
 
 ---
@@ -302,17 +302,17 @@ wc -l /data/NIMH_scratch/licc/pmcoa/files/*.filelist.csv
 ```bash
 # On curium (build)
 ssh curium
-cd /data/adamt/osm-2025-12-poster-incf && gh repo sync --branch develop
+cd $HPC_CONTAINER_BASE_DIR/osm-2025-12-poster-incf && gh repo sync --branch develop
 cd container && sudo apptainer build --force oddpub.sif oddpub.def
-scp oddpub.sif helix.nih.gov:/data/adamt/containers/
+scp oddpub.sif helix.nih.gov:$HPC_CONTAINER_BASE_DIR/containers/
 
 # On HPC (deploy and run)
 ssh biowulf.nih.gov
 scancel -u $USER --name=swarm
-cd /data/adamt/osm-2025-12-poster-incf && gh repo sync --branch develop
+cd $HPC_CONTAINER_BASE_DIR/osm-2025-12-poster-incf && gh repo sync --branch develop
 cd hpc_scripts
-bash verify_and_retry_oddpub.sh /data/NIMH_scratch/licc/pmcoa/files /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output /data/adamt/containers/oddpub.sif
-swarm -f oddpub_retry_swarm.txt -g 32 -t 8 --time 03:00:00 --gres=lscratch:10 --module apptainer --logdir /data/NIMH_scratch/adamt/osm/logs/oddpub_retry
+bash verify_and_retry_oddpub.sh $HPC_PMCOA_BASE_DIR/pmcoa/files $HPC_BASE_DIR/osm/osm-2025-12-poster-incf/output $HPC_CONTAINER_BASE_DIR/containers/oddpub.sif
+swarm -f oddpub_retry_swarm.txt -g 32 -t 8 --time 03:00:00 --gres=lscratch:10 --module apptainer --logdir $HPC_BASE_DIR/osm/logs/oddpub_retry
 ```
 
 ---

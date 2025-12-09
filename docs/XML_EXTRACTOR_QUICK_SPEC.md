@@ -135,9 +135,9 @@ WORKDIR /data
 
 ```bash
 # Generate simple swarm
-for f in /data/NIMH_scratch/licc/pmcoa/files/*baseline*.tar.gz; do
+for f in $HPC_PMCOA_BASE_DIR/pmcoa/files/*baseline*.tar.gz; do
     base=$(basename $f .tar.gz)
-    echo "python3 quick_journal_extractor.py $f /data/NIMH_scratch/adamt/osm/journal_extract/${base}.parquet"
+    echo "python3 quick_journal_extractor.py $f $HPC_BASE_DIR/osm/journal_extract/${base}.parquet"
 done > journal_extract_swarm.txt
 ```
 

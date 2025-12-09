@@ -337,11 +337,11 @@ def multi_field_merge(metadata_df, rtrans_df):
 
 ## Files Generated During Analysis
 
-- `/home/ec2-user/claude/pmcoaXMLs/rtrans_pmcids.pkl` - Set of PMCIDs from rtrans (6.53M)
-- `/home/ec2-user/claude/pmcoaXMLs/source_pmcids.pkl` - Set of PMCIDs from source CSVs (7.33M)
-- `/home/ec2-user/claude/pmcoaXMLs/missing_pmcids.pkl` - Set of PMCIDs in source but not rtrans (796K)
-- `/home/ec2-user/claude/pmcoaXMLs/metadata_pmids.pkl` - Set of valid PMIDs from metadata (4.99M)
-- `/home/ec2-user/claude/pmcoaXMLs/rtrans_pmids.pkl` - Set of PMIDs from rtrans (5.01M)
+- `$EC2_PROJ_BASE_DIR/pmcoaXMLs/rtrans_pmcids.pkl` - Set of PMCIDs from rtrans (6.53M)
+- `$EC2_PROJ_BASE_DIR/pmcoaXMLs/source_pmcids.pkl` - Set of PMCIDs from source CSVs (7.33M)
+- `$EC2_PROJ_BASE_DIR/pmcoaXMLs/missing_pmcids.pkl` - Set of PMCIDs in source but not rtrans (796K)
+- `$EC2_PROJ_BASE_DIR/pmcoaXMLs/metadata_pmids.pkl` - Set of valid PMIDs from metadata (4.99M)
+- `$EC2_PROJ_BASE_DIR/pmcoaXMLs/rtrans_pmids.pkl` - Set of PMIDs from rtrans (5.01M)
 
 ## Conclusion
 
@@ -356,4 +356,4 @@ The most impactful fix is implementing PMCID-based fallback matching, which coul
 
 **Analysis Date:** 2025-11-24
 **Analyst:** Claude Code
-**Data Location:** `/home/ec2-user/claude/pmcoaXMLs/`
+**Data Location:** `$EC2_PROJ_BASE_DIR/pmcoaXMLs/`

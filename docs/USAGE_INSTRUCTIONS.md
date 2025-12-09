@@ -6,7 +6,7 @@ This two-step process populates `is_open_code` and `is_open_data` fields in meta
 
 ## Prerequisites
 ```bash
-cd /home/ec2-user/rtransparent/extract-XML-metadata
+cd $EC2_RTRANSPARENT_DIR/extract-XML-metadata
 source venv/bin/activate
 ```
 

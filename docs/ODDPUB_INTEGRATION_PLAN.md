@@ -80,9 +80,9 @@ Keep both versions with `oddpub_` prefix for new columns to enable:
 ```bash
 # After HPC jobs complete
 python extraction_tools/merge_oddpub_results.py \
-  --new-dir /data/NIMH_scratch/adamt/osm/oddpub_output \
-  --old-dir /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output \
-  --output ~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet
+  --new-dir $HPC_BASE_DIR/osm/oddpub_output \
+  --old-dir $HPC_BASE_DIR/osm/osm-2025-12-poster-incf/output \
+  --output $EC2_PROJ_BASE_DIR/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet
 ```
 
 ### Step 2: Update create_compact_rtrans.py
@@ -159,7 +159,7 @@ df['oddpub_open_data_category'].value_counts()
 ## Output File Locations
 
 ```
-~/claude/pmcoaXMLs/
+$EC2_PROJ_BASE_DIR/pmcoaXMLs/
 ├── oddpub_merged/
 │   └── oddpub_v7.2.3_all.parquet  # Merged oddpub results
 ├── compact_rtrans/

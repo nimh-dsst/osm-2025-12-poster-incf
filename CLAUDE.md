@@ -36,7 +36,7 @@ pip install -r requirements-dev.txt
 ```
 
 **Important:** The compact dataset generation and analysis scripts have already been run on the full dataset (1,647 files). Results are in:
-- `~/claude/pmcoaXMLs/compact_rtrans/` - Compact parquet files (142 columns, 1.89M funder matches)
+- `$EC2_PROJ_BASE_DIR/pmcoaXMLs/compact_rtrans/` - Compact parquet files (142 columns, 1.89M funder matches)
 - `results/funder_data_sharing_full_*.{csv,png}` - Full analysis outputs
 
 ### Extract Metadata from PMC Archives
@@ -66,12 +66,12 @@ python process_pmcoa_with_oddpub.py \
   --pattern "oa_comm_xml.PMC012*.tar.gz" \
   --batch-size 50 \
   --max-files 20 \
-  ~/claude/pmcoaXMLs/raw_download/
+  $EC2_PROJ_BASE_DIR/pmcoaXMLs/raw_download/
 
 # Full production run (for HPC)
 python process_pmcoa_with_oddpub.py \
   --batch-size 500 \
-  ~/claude/pmcoaXMLs/raw_download/
+  $EC2_PROJ_BASE_DIR/pmcoaXMLs/raw_download/
 ```
 
 See `extraction_tools/README_ODDPUB.md` for complete documentation.
@@ -85,9 +85,9 @@ The main processing script combines rtransparent R package output with metadata 
 # Runtime: 21m 11s
 # Output: 1,647 files, 6.55M records, 1.89M funder matches
 python create_compact_rtrans.py \
-  --input-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
-  --metadata-dir ~/claude/pmcoaXMLs/extracted_metadata_parquet \
-  --output-dir ~/claude/pmcoaXMLs/compact_rtrans \
+  --input-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/rtrans_out_full_parquets \
+  --metadata-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/extracted_metadata_parquet \
+  --output-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/compact_rtrans \
   --overwrite
 
 # Test with limited files
@@ -107,18 +107,18 @@ python create_compact_rtrans.py \
 # Runtime: ~5 minutes
 # Output: 3 CSVs + 3 PNGs (counts, totals, percentages)
 python analysis/funder_data_sharing_trends.py \
-  --input-dir ~/claude/pmcoaXMLs/compact_rtrans \
+  --input-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/compact_rtrans \
   --output-prefix results/funder_data_sharing_full
 
 # Analyze code sharing instead of data sharing
 python analysis/funder_data_sharing_trends.py \
-  --input-dir ~/claude/pmcoaXMLs/compact_rtrans \
+  --input-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/compact_rtrans \
   --output-prefix results/funder_code_sharing_full \
   --metric is_open_code
 
 # Test with limited files
 python analysis/funder_data_sharing_trends.py \
-  --input-dir ~/claude/pmcoaXMLs/compact_rtrans \
+  --input-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/compact_rtrans \
   --output-prefix results/test \
   --limit 100
 ```
@@ -268,16 +268,16 @@ A DuckDB-based tracking system (`hpc_scripts/pmcid_registry.py`) tracks processi
 python hpc_scripts/pmcid_registry.py status
 
 # Update from oddpub output
-python hpc_scripts/pmcid_registry.py update-oddpub-v7 ~/claude/osm-oddpub-out/
+python hpc_scripts/pmcid_registry.py update-oddpub-v7 $EC2_PROJ_BASE_DIR/osm-oddpub-out/
 
 # Update article types from rtransparent parquet files
-python hpc_scripts/pmcid_registry.py update-article-type ~/claude/pmcoaXMLs/rtrans_out_full_parquets
+python hpc_scripts/pmcid_registry.py update-article-type $EC2_PROJ_BASE_DIR/pmcoaXMLs/rtrans_out_full_parquets
 
 # Generate retry swarm for missing PMCIDs
 python hpc_scripts/pmcid_registry.py generate-retry oddpub_v7 \
-    --xml-base-dir /data/NIMH_scratch/adamt/pmcoa \
-    --output-dir /data/NIMH_scratch/adamt/osm/oddpub_output \
-    --container /data/adamt/containers/oddpub_optimized.sif \
+    --xml-base-dir $HPC_BASE_DIR/pmcoa \
+    --output-dir $HPC_BASE_DIR/osm/oddpub_output \
+    --container $HPC_CONTAINER_BASE_DIR/containers/oddpub_optimized.sif \
     --batch-size 1000
 ```
 
@@ -288,16 +288,16 @@ Processing ~7M PMC articles with oddpub R package v7.2.3 on NIH Biowulf HPC:
 **Status (2025-12-02):** HPC processing largely complete. Merged results contain 6,994,457 articles with 374,906 (5.36%) having open data detected.
 
 **Output Locations:**
-- Primary: `/data/NIMH_scratch/adamt/osm/oddpub_output/` (PMC*_chunk*_results.parquet)
-- Legacy: `/data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/output/` (oa_*_xml.PMC*.baseline.*_results.parquet)
-- Local sync: `~/claude/osm-oddpub-out/`
+- Primary: `$HPC_BASE_DIR/osm/oddpub_output/` (PMC*_chunk*_results.parquet)
+- Legacy: `$HPC_BASE_DIR/osm/osm-2025-12-poster-incf/output/` (oa_*_xml.PMC*.baseline.*_results.parquet)
+- Local sync: `$EC2_PROJ_BASE_DIR/osm-oddpub-out/`
 
 **HPC Scripts:**
 - `hpc_scripts/pmcid_registry.py` - DuckDB registry for tracking processing status
 - `hpc_scripts/generate_oddpub_swarm_extracted_packed.sh` - Generate swarm file for extracted XMLs
 - `hpc_scripts/verify_and_retry_oddpub_extracted.sh` - Verify completion, generate retry swarm (legacy)
 
-**Container:** `/data/adamt/containers/oddpub_optimized.sif`
+**Container:** `$HPC_CONTAINER_BASE_DIR/containers/oddpub_optimized.sif`
 - R 4.3.2 with oddpub 7.2.3
 - Python script for processing extracted XMLs
 - 4 parallel jobs per swarm line
@@ -321,7 +321,7 @@ Analysis of publications with `is_open_data=true` from oddpub v7.2.3:
 - Total articles: 6,994,457 (93% of PMC Open Access)
 - Open data detected: 374,906 (5.36%)
 - Open code detected: 141,909 (2.03%)
-- Merged file: `~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet` (409 MB)
+- Merged file: `$EC2_PROJ_BASE_DIR/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet` (409 MB)
 
 **OpenSS Funder Discovery v2 (2025-12-02):**
 - Input: 374,906 open data articles from oddpub v7.2.3
@@ -373,19 +373,19 @@ See `results/openss_explore/OPENSS_FINDINGS_SUMMARY.md` for complete analysis.
 ```bash
 # Build dashboard data on HPC (15-20 min for 6.5M PMCIDs)
 python analysis/build_dashboard_data_duckdb.py \
-    --filelist-dir /data/NIMH_scratch/adamt/pmcoa/ \
-    --rtrans-dir /data/NIMH_scratch/adamt/osm/datafiles/rtrans_out_full_parquets \
-    --oddpub-file /data/NIMH_scratch/adamt/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
-    --output /data/NIMH_scratch/adamt/osm/datafiles/dashboard.parquet \
+    --filelist-dir $HPC_BASE_DIR/pmcoa/ \
+    --rtrans-dir $HPC_BASE_DIR/osm/datafiles/rtrans_out_full_parquets \
+    --oddpub-file $HPC_BASE_DIR/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --output $HPC_BASE_DIR/osm/datafiles/dashboard.parquet \
     --licenses comm,noncomm \
     --workers 32
 
 # Test with 1000 PMCIDs first (8 seconds)
 python analysis/build_dashboard_data_duckdb.py \
-    --filelist-dir /data/NIMH_scratch/adamt/pmcoa/ \
-    --rtrans-dir /data/NIMH_scratch/adamt/osm/datafiles/rtrans_out_full_parquets \
-    --oddpub-file /data/NIMH_scratch/adamt/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
-    --output /data/NIMH_scratch/adamt/osm/datafiles/dashboard_test.parquet \
+    --filelist-dir $HPC_BASE_DIR/pmcoa/ \
+    --rtrans-dir $HPC_BASE_DIR/osm/datafiles/rtrans_out_full_parquets \
+    --oddpub-file $HPC_BASE_DIR/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --output $HPC_BASE_DIR/osm/datafiles/dashboard_test.parquet \
     --licenses comm \
     --limit 1000 \
     --workers 4
@@ -406,13 +406,13 @@ The pmcid_registry has incorrect `source_tarball` values for noncomm/other PMCID
 # Dry run to see what would change
 python hpc_scripts/repair_pmcid_registry.py \
     --registry hpc_scripts/pmcid_registry.duckdb \
-    --filelist-dir ~/claude/pmcoaXMLs/raw_download \
+    --filelist-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/raw_download \
     --dry-run
 
 # Apply fixes (updates source_tarball and adds license column)
 python hpc_scripts/repair_pmcid_registry.py \
     --registry hpc_scripts/pmcid_registry.duckdb \
-    --filelist-dir ~/claude/pmcoaXMLs/raw_download
+    --filelist-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/raw_download
 ```
 
 ### Funder Trends Analysis (2025-12-07)
@@ -430,8 +430,8 @@ Script `analysis/openss_funder_trends.py` generates line graphs showing open dat
 ```bash
 # Generate both graphs with v3 funders and parent-child aggregation
 python analysis/openss_funder_trends.py \
-    --oddpub-file ~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
-    --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
+    --oddpub-file $EC2_PROJ_BASE_DIR/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --rtrans-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/rtrans_out_full_parquets \
     --registry hpc_scripts/pmcid_registry.duckdb \
     --funder-aliases funder_analysis/funder_aliases_v3.csv \
     --output-dir results/openss_funder_trends_v5 \
@@ -440,9 +440,9 @@ python analysis/openss_funder_trends.py \
 
 # HPC command (uses pmcids table automatically)
 python analysis/openss_funder_trends.py \
-    --oddpub-file /data/NIMH_scratch/adamt/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
-    --rtrans-dir /data/NIMH_scratch/adamt/osm/datafiles/rtrans_out_full_parquets \
-    --registry /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/hpc_scripts/pmcid_registry.duckdb \
+    --oddpub-file $HPC_BASE_DIR/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --rtrans-dir $HPC_BASE_DIR/osm/datafiles/rtrans_out_full_parquets \
+    --registry $HPC_BASE_DIR/osm/osm-2025-12-poster-incf/hpc_scripts/pmcid_registry.duckdb \
     --funder-aliases funder_analysis/funder_aliases_v3.csv \
     --output-dir results/openss_funder_trends_v5 \
     --graph both \
@@ -478,8 +478,8 @@ Script `analysis/funder_data_sharing_summary.py` calculates data sharing rates f
 ```bash
 # Local run with v3 funders and parent-child aggregation
 python analysis/funder_data_sharing_summary.py \
-    --oddpub-file ~/claude/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
-    --rtrans-dir ~/claude/pmcoaXMLs/rtrans_out_full_parquets \
+    --oddpub-file $EC2_PROJ_BASE_DIR/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --rtrans-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/rtrans_out_full_parquets \
     --registry hpc_scripts/pmcid_registry.duckdb \
     --funder-aliases funder_analysis/funder_aliases_v3.csv \
     --output results/funder_data_sharing_summary_v3.csv \
@@ -487,9 +487,9 @@ python analysis/funder_data_sharing_summary.py \
 
 # HPC run
 python analysis/funder_data_sharing_summary.py \
-    --oddpub-file /data/NIMH_scratch/adamt/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
-    --rtrans-dir /data/NIMH_scratch/adamt/osm/datafiles/rtrans_out_full_parquets \
-    --registry /data/NIMH_scratch/adamt/osm/osm-2025-12-poster-incf/hpc_scripts/pmcid_registry.duckdb \
+    --oddpub-file $HPC_BASE_DIR/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --rtrans-dir $HPC_BASE_DIR/osm/datafiles/rtrans_out_full_parquets \
+    --registry $HPC_BASE_DIR/osm/osm-2025-12-poster-incf/hpc_scripts/pmcid_registry.duckdb \
     --funder-aliases funder_analysis/funder_aliases_v3.csv \
     --output results/funder_data_sharing_summary_v3.csv \
     --aggregate-children
@@ -647,7 +647,7 @@ Complete schema documentation for all data outputs:
   - 15 columns for oddpub open data/code detection
   - Includes detection flags, categories, and extracted statements
 
-- **pmcoaXMLs directory structure**: `~/claude/pmcoaXMLs/README.md`
+- **pmcoaXMLs directory structure**: `$EC2_PROJ_BASE_DIR/pmcoaXMLs/README.md`
   - Documentation for all input and output directories
 
 ### Funder Database

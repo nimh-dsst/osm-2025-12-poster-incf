@@ -1,5 +1,9 @@
 # Tracking Data Sharing in Publications from Major Funders
 
+> **Note:** This is the development branch. For the curated public release, please see the [`main` branch version of this README`](https://github.com/nimh-dsst/osm-2025-12-poster-incf/blob/main/latex-poster/README.md).
+
+---
+
 LaTeX source files for poster #8 presented at [EBRAINS Summit 2025](https://summit2025.ebrains.eu/posters), Brussels, December 2025.
 
 ## Authors

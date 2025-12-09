@@ -1,0 +1,100 @@
+\documentclass{article}
+\input{preamble.tex}
+\title{Tracking Data Sharing in Publications from Major Funders}
+\authors{Christoph Li\textsuperscript{1}, Josh Lawrimore\textsuperscript{2}, Dustin Moraczewski\textsuperscript{1}, Adam Thomas\textsuperscript{1}}
+\affiliations{\textsuperscript{1}Data Science \& Sharing Team, National Institute of Mental Health, \textsuperscript{2}Clinical Monitoring Research Program Directorate, Frederick National Laboratory for Cancer Research.}
+\QRcode{10.5281/zenodo.NotYetRegistered}
+\addbibresource{2025-incf-brussels.bib}
+\begin{document}
+\begin{poster}
+    \posterbox[
+        title={Introduction},
+        pos={Start},
+        label={Intro},
+        color={COL1},
+        width={0.3\linewidth-2\Ppadding-\Poffset},
+    ]{
+        Funders throughout the world have sought to increase data sharing and transparency from their grantees using different approaches and incentives. In this project we compare the relative frequency of data sharing between major funders of biomedical science as measured using text mining in the full text from 6.7M publications available in the PubMed Open Access (PMCOA) collection.
+
+    }
+    \posterbox[
+        title={Methods},
+        pos={Intro.south-|Start},
+        label={Methods},
+        color={COL2},
+        width={0.3\linewidth-2\Ppadding-\Poffset},
+    ]{\begin{itemize}
+        \item 6.7 million publications from PubMed Central's Open Access (PMCOA) June 2025 baseline (comm \& noncomm licensing) were processed with rtransparent \cite{Serghiou2021-pl}
+        \item Non-research articles types (e.g. review, errata, commentary) were excluded leaving 5.5M pubs which were processed with OddPub~v7.2.3 \cite{Riedel2025-qq}
+        \item 375K research articles with open data (as determined by OddPub) were identified, approximately 6.8\%
+        \item 57 canonical funder names were extracted from these open-data research articles using Named Entity Recognition (NER) \& a 4$\sigma$ statistical threshold.
+        \item The total number of publications both with and without open data for each identified funder was counted across publication years 2010 to 2024 and used to calculate year-wise percentages of publications with open data.
+        \item All code used for this analysis is available under CC0 license on GitHub \cite{ThomasUnknown-lc}.
+        \item These results are also available via an online dashboard at https://opensciencemetrics.org
+        \item Claude Code was used extensively throughout the analysis
+    \end{itemize}    
+    }
+
+    \posterbox[
+        title={Discussion},
+        pos={Methods.south-|Start},
+        label={Discussion},
+        color={COL6},
+        width={0.3\linewidth-2\Ppadding-\Poffset},
+    ]{
+        \begin{itemize}
+            \item The current version of OddPub (v7.2.3) provides a lower and more accurate \cite{Hamilton2023-yz} estimate of the rate of data sharing in biomedical literature than earlier versions and previous reports (6.8\% vs. ~15\%) \cite{Serghiou2021-pl},
+            \item Recent mandates for data availability statements have decreased the sensitivity of tools like OddPub \cite{Iarkaeva2024-wo}
+            \item Our result can be used by funders to better understand what policies best incentivize data sharing.
+        \end{itemize}
+    }
+    
+    \posterbox[
+        title={References},
+        pos={Discussion.south-|Start},
+        label={References},
+        color={COL3},
+        width={0.3\linewidth-2\Ppadding-\Poffset},
+    ]{\AtNextBibliography{\fontsize{25pt}{30pt}\selectfont}\printbibliography[heading=none]}
+    \posterbox[
+        title={Takeaways},
+        pos={Intro.east|-Start},
+        label={Takeaways},
+        color={COL4},
+        width={0.7\linewidth-2.5\Ppadding},
+    ]{\begin{itemize}
+        \item We demonstrate that data sharing rates vary consistently by funder.
+        \item Our analysis can help funders learn what policies and practices are most effective in incentivizing data sharing from their grantees
+    \end{itemize}
+    }
+    \posterbox[
+        title={Results},
+        pos={Takeaways.south-|Intro.east},
+        label={Results},
+        color={COL5},
+        width={0.7\linewidth-2.5\Ppadding},
+    ]{
+        \begin{minipage}[t]{0.475\linewidth}\centering
+            \vspace{0pt}
+            \includegraphics[width=\linewidth]{figures/openss_funder_counts_by_year_v2.png}
+            \captionof{figure}{Total number of research articles with open data among 10 biomedical funders 2010--2024.} 
+        \end{minipage}\hfill{\color{COL5}\vline}\hfill\begin{minipage}[t]{0.475\linewidth}\centering
+            \vspace{0pt}
+            \includegraphics[width=\linewidth]{figures/openss_funder_percentages_by_year_v2.png}
+            \captionof{figure}{Percentage of research articles with open data among 10 top funders 2010--2024.}
+        \end{minipage}\par
+
+        \vspace{2\baselineskip}
+        \include{funder_table}
+        
+       
+        
+        
+        \begin{minipage}{0.6\linewidth}\raggedright
+            
+        \end{minipage}\hfill
+    }
+
+    
+\end{poster}
+\end{document}

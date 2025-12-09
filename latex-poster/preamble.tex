@@ -1,0 +1,115 @@
+\usepackage{etoolbox}
+\usepackage{qrcode}
+\usepackage{geometry}
+\geometry{a0paper,margin=1cm}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\setlist{leftmargin=*,nosep,noitemsep}
+\usepackage{anyfontsize}
+\usepackage[sfdefault]{roboto}
+\usepackage[T1]{fontenc}
+\usepackage{tikz}
+\pagestyle{empty}
+\usepackage{siunitx}
+\usepackage{booktabs}
+\sisetup{
+        % detect-all,
+        mode = match ,
+        propagate-math-font = true ,
+        reset-math-version = false ,
+        reset-text-family = false ,
+        reset-text-series = false ,
+        text-family-to-math = true ,
+        text-series-to-math = true ,
+        range-phrase=\,--\,,
+        group-separator={,},
+        group-minimum-digits=3,
+        group-digits=integer,
+    }
+\usepackage{caption}
+\DeclareCaptionFormat{paper}{\fontsize{20pt}{25pt}\selectfont#1#2#3}
+\captionsetup{format=paper}
+\usepackage{xurl}
+\usepackage{hyperref}
+\urlstyle{same}
+% Title, authors, affiliations
+    \newcommand{\dbtitle}{}        \renewcommand{\title}[1]{\renewcommand{\dbtitle}{#1}}
+    \newcommand{\dbauthors}{}      \newcommand{\authors}[1]{\renewcommand{\dbauthors}{#1}}
+    \newcommand{\dbaffiliations}{} \newcommand{\affiliations}[1]{\renewcommand{\dbaffiliations}{#1}}
+    \newcommand{\dbQRcode}{} \newcommand{\QRcode}[1]{\renewcommand{\dbQRcode}{#1}}
+%
+    \usepackage[table]{xcolor}
+    \definecolor{lightblue}{RGB}{189,215,238}
+    \definecolor{medblue}{RGB}{141,180,226}
+    \definecolor{darkblue}{RGB}{46,117,182}
+    \definecolor{lightorange}{RGB}{248,203,173}
+    \definecolor{medorange}{RGB}{244,176,132}
+    \definecolor{darkorange}{RGB}{237,125,49}
+% Colors
+    \definecolor{COLtitle}{HTML}{38761d}
+    \definecolor{COL1}{HTML}{8cc793}
+    \definecolor{COL2}{HTML}{6aa84f}
+    \definecolor{COL3}{HTML}{799b5d}
+    \definecolor{COL4}{HTML}{84cd34}
+    \definecolor{COL5}{HTML}{6eaca2}
+    \definecolor{COL6}{HTML}{69ba9f}
+    \definecolor{COL7}{HTML}{83bcf0}
+    \colorlet{COL1}{COLtitle}
+    \colorlet{COL2}{COLtitle}
+    \colorlet{COL3}{COLtitle}
+    \colorlet{COL4}{COLtitle}
+    \colorlet{COL5}{COLtitle}
+    \colorlet{COL6}{COLtitle}
+    \colorlet{COL7}{COLtitle}
+% Poster environment
+    \NewDocumentEnvironment{poster}{ +b }{\begin{tikzpicture}[remember picture,overlay,inner sep=0pt,outer sep=0pt]
+        %
+        \node[anchor=north west] (LOGO) at ([shift={(2cm,-3cm)}]current page.north west) {\includegraphics[width=15cm]{figures/EBrains.png}};
+        \node[anchor=east,font=\fontsize{50pt}{50pt}\mdseries\color{COLtitle}\selectfont] at ([shift={(-2cm,0pt)}]current page.north east|-LOGO.center) {EBRAINS Summit 2025};
+        %
+        \node[anchor=center,font=\fontsize{75pt}{85pt}\bfseries\color{COLtitle}\selectfont,text width=0.5\paperwidth,align=flush center] (TITLE) at (current page.north|-LOGO.center) {\dbtitle};
+        \node[anchor=north,font=\fontsize{50pt}{60pt}\mdseries\color{black!50}\selectfont,text width=0.75\paperwidth,align=flush center] (AUTH) at ([yshift=-1cm]TITLE.south) {\dbauthors};
+        \node[anchor=north,font=\fontsize{30pt}{40pt}\mdseries\color{black!50}\selectfont,text width=0.75\paperwidth,align=flush center] (AFFI) at ([yshift=-1cm]AUTH.south) {\dbaffiliations};
+        % Rule
+            \draw[COLtitle,line width=3pt] ([yshift=-2cm]current page.west|-AFFI.south) coordinate (Start) -- ([yshift=-2cm]current page.east|-AFFI.south);
+        % Foot
+            \node[anchor=south,font=\fontsize{20pt}{25pt}\mdseries\color{black}\selectfont,text width=0.66\paperwidth,align=flush left] (DISC) at ([yshift=1cm]current page.south) {This project was funded by the Intramural Research Program of the NIMH, grant numbers ZICMH002960. This project has been funded in whole or in part with federal funds from the National Cancer Institute, National Institutes of Health, under Contract No. 75N91019D00024. The content of this publication does not necessarily reflect the views of policies of the Department of Health and Human Services, nor does mention of trade names, commercial products, or organizations imply endorsement by the U.S. Government.};
+            \node[anchor=south,font=\fontsize{20pt}{25pt}\mdseries\color{black}\selectfont,text width=0.3\paperwidth,align=flush left] (DISC2) at ([yshift=1cm]DISC.north) {EBRAINS 2.0 has received funding from the European Union's Research and Innovation Program Horizon Europe under Grant Agreement No. 101147319.};
+            \node[anchor=south] (DL1) at ([shift={(-5cm,1cm)}]DISC2.north) {\includegraphics[height=3cm]{figures/NIH.png}};
+            \node[anchor=south] (DL2) at ([shift={(5cm,1cm)}]DISC2.north) {\includegraphics[height=3cm]{figures/DSST.png}};
+        % Rule foot
+            \draw[COLtitle,line width=3pt] ([yshift=1cm]current page.west|-DL1.north) coordinate (FOOTL) -- (current page.east|-FOOTL);
+        % Qr code
+            \path (current page.south west) -- (FOOTL)
+                coordinate[midway] (MidFoot)
+            ;
+            \node[left] (QRcode) at ([xshift=-2cm]MidFoot-|current page.east) {\qrcode[height=5cm]{\dbQRcode}};
+            \node[below] (QRcodetext) at ([yshift=-0.25cm]QRcode.south) {\resizebox{5cm}{!}{\dbQRcode}};
+        % Body
+        #1
+    \end{tikzpicture}}{}
+% Poster box
+\makeatletter
+    \define@key{Pbox}{title}{\csdef{Ptitle}{#1}}
+    \define@key{Pbox}{pos}{\csdef{Ppos}{#1}}
+    \define@key{Pbox}{label}{\csdef{Plabel}{#1}}
+    \define@key{Pbox}{color}{\csdef{Pcolor}{#1}}
+    \define@key{Pbox}{width}{\csdef{Pwidth}{#1}}
+\makeatother
+\setkeys{Pbox}{}
+\newlength{\Ppadding}\setlength{\Ppadding}{1cm}
+\newlength{\Ptpadding}\setlength{\Ptpadding}{0.1cm}
+\newlength{\Poffset}\setlength{\Poffset}{1cm}
+\newcommand{\posterbox}[2][]{
+    \csdef{Ptitle}{}
+    \csdef{Ppos}{}
+    \csdef{Plabel}{}
+    \csdef{Pcolor}{}
+    \csdef{Pwidth}{}
+    \setkeys{Pbox}{#1}
+    \node[anchor=north west,text width=\Pwidth,inner sep=\Ppadding,font=\fontsize{25pt}{30pt}\selectfont,align=flush left,draw=\Pcolor,line width=4pt,rounded corners=3pt] (\Plabel) at ([shift={(\Poffset,-2\Poffset)}]\Ppos) {\strut\\[-15pt]#2};
+    \node[anchor=west,text=\Pcolor,fill=white,inner xsep=\Ptpadding,font=\fontsize{50pt}{50pt}\bfseries\selectfont] at ([xshift=\Ppadding-\Ptpadding]\Plabel.north west) {\MakeUppercase{\Ptitle}};
+}
+
+% Bibliography
+\usepackage[backend=biber,style=science, maxcitenames=1, maxbibnames=1, isbn=false, sorting=none,doi=true,url=false]{biblatex}

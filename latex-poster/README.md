@@ -1,6 +1,6 @@
 # Tracking Data Sharing in Publications from Major Funders
 
-Poster #8 presented at [EBRAINS Summit 2025](https://summit2025.ebrains.eu/posters), Brussels, December 2025.
+LaTeX source files for poster #8 presented at [EBRAINS Summit 2025](https://summit2025.ebrains.eu/posters), Brussels, December 2025.
 
 ## Authors
 
@@ -28,48 +28,27 @@ Funders throughout the world have sought to increase data sharing and transparen
 4. 57 canonical funders identified via NER + statistical thresholding
 5. Year-wise analysis for 2010-2024
 
-## Repository Structure
+## Files
 
-```
-osm-2025-12-poster-incf/
-├── latex-poster/              # LaTeX source and compiled poster
-│   ├── poster.tex             # Main poster document
-│   ├── OSM_INCF_Poster_*.pdf  # Compiled poster
-│   └── figures/               # Poster graphics
-├── analysis/                  # Key analysis scripts
-│   ├── funder_data_sharing_summary.py
-│   ├── openss_funder_trends.py
-│   ├── funder_table_latex.py
-│   └── plot_funder_trends.py
-├── funder_analysis/           # Funder normalization
-│   ├── funder_aliases_v3.csv  # 57 canonical funders
-│   └── normalize_funders.py
-└── results/                   # Summary data files (CSV)
-```
-
-## Poster PDF
-
-The compiled poster is available at: [`latex-poster/OSM_INCF_Poster_Brussels_2025_12.pdf`](latex-poster/OSM_INCF_Poster_Brussels_2025_12.pdf)
+| File | Description |
+|------|-------------|
+| `poster.tex` | Main LaTeX document |
+| `preamble.tex` | Package imports and styling |
+| `funder_table.tex` | Auto-generated funder comparison table |
+| `2025-incf-brussels.bib` | BibTeX references |
+| `figures/` | PNG figures for the poster |
+| `OSM_INCF_Poster_Brussels_2025_12.pdf` | Final compiled poster |
 
 ## Data Sources
 
 - **PMC Open Access Subset**: PMC Open Access Subset [Internet]. Bethesda (MD): National Library of Medicine. 2003 - [cited 2025 06 26]. Available from https://pmc.ncbi.nlm.nih.gov/tools/openftlist/
+- **Analysis code**: [github.com/nimh-dsst/osm-2025-12-poster-incf](https://github.com/nimh-dsst/osm-2025-12-poster-incf)
 - **Dashboard**: [opensciencemetrics.org](https://opensciencemetrics.org)
-
-## Requirements
-
-```bash
-pip install -r requirements.txt
-```
-
-Key dependencies: pandas, pyarrow, duckdb, matplotlib
 
 ## Funding
 
 - NIMH Intramural Research Program (ZICMH002960)
 - National Cancer Institute (Contract No. 75N91019D00024)
-
-The content of this publication does not necessarily reflect the views or policies of the Department of Health and Human Services, nor does mention of trade names, commercial products, or organizations imply endorsement by the U.S. Government.
 
 ## License
 

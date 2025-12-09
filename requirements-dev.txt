@@ -1,0 +1,12 @@
+# Additional packages for interactive analysis and development
+# Usage: pip install -r requirements-dev.txt
+
+-r requirements.txt
+
+# Interactive analysis
+jupyter>=1.0.0
+jupyterlab>=3.0.0
+seaborn>=0.11.0
+
+# Additional scientific computing
+scipy>=1.7.0

@@ -81,6 +81,36 @@ def log_time(msg: str, start_time: float = None) -> float:
     return now
 
 
+def validate_output_directory(output_path: str) -> None:
+    """Validate that the output directory exists and is writable.
+
+    Args:
+        output_path: Path to the output file
+
+    Raises:
+        SystemExit: If directory doesn't exist or isn't writable
+    """
+    output_dir = Path(output_path).parent
+
+    # Check if directory exists
+    if not output_dir.exists():
+        print(f"ERROR: Output directory does not exist: {output_dir}")
+        print("Please create the directory first or specify a different output path.")
+        sys.exit(1)
+
+    # Check if directory is writable by attempting to create a temp file
+    import tempfile
+    try:
+        with tempfile.NamedTemporaryFile(dir=output_dir, delete=True) as tmp:
+            pass
+    except (OSError, PermissionError) as e:
+        print(f"ERROR: Output directory is not writable: {output_dir}")
+        print(f"  Reason: {e}")
+        sys.exit(1)
+
+    log_time(f"Output directory validated: {output_dir}")
+
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Build dashboard data file (DuckDB version - fastest)",
@@ -573,6 +603,9 @@ def main():
     if args.threads:
         print(f"  DuckDB threads: {args.threads}")
     print()
+
+    # Validate output directory before starting expensive operations
+    validate_output_directory(args.output)
 
     # Load and join data using DuckDB
     df = load_data_with_duckdb(

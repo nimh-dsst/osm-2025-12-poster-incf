@@ -370,12 +370,27 @@ See `results/openss_explore/OPENSS_FINDINGS_SUMMARY.md` for complete analysis.
 
 **Bug fix (2025-12-04):** Fixed PMCID join bug that caused all `is_open_data=false`. The script now uses the `pmcid` column directly from oddpub instead of extracting from `article` column with broken regex.
 
+**Updated 2025-12-10:** Added configurable funder aliases and parent-child aggregation:
+- `--funder-aliases` - Path to funder aliases CSV file (default: `funder_analysis/funder_aliases_v3.csv`)
+- `--aggregate-children` - Aggregate child funders into parent totals (e.g., NIH institutes → NIH)
+
 ```bash
 # Build dashboard data on HPC (15-20 min for 6.5M PMCIDs)
 python analysis/build_dashboard_data_duckdb.py \
     --filelist-dir $HPC_BASE_DIR/pmcoa/ \
     --rtrans-dir $HPC_BASE_DIR/osm/datafiles/rtrans_out_full_parquets \
     --oddpub-file $HPC_BASE_DIR/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --output $HPC_BASE_DIR/osm/datafiles/dashboard.parquet \
+    --licenses comm,noncomm \
+    --workers 32
+
+# With parent-child aggregation (recommended for poster)
+python analysis/build_dashboard_data_duckdb.py \
+    --filelist-dir $HPC_BASE_DIR/pmcoa/ \
+    --rtrans-dir $HPC_BASE_DIR/osm/datafiles/rtrans_out_full_parquets \
+    --oddpub-file $HPC_BASE_DIR/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --funder-aliases funder_analysis/funder_aliases_v3.csv \
+    --aggregate-children \
     --output $HPC_BASE_DIR/osm/datafiles/dashboard.parquet \
     --licenses comm,noncomm \
     --workers 32
@@ -395,6 +410,11 @@ python analysis/build_dashboard_data_duckdb.py \
 - Reads all 1647 parquet files with a single glob pattern (no per-file overhead)
 - Uses SQL JOINs instead of pandas `.isin()` with 6.5M elements
 - Data loading: ~5 seconds vs ~2 hours with pandas
+
+**Parent-child aggregation:** When `--aggregate-children` is used, child funders are rolled up:
+- NIH institutes (NCI, NHLBI, NIDDK, NIAID, NIGMS, NHGRI) → NIH
+- UK Research Councils (MRC, BBSRC, EPSRC, NERC) → UKRI
+- ERC → EC
 
 Output format (9 columns): pmid, journal, affiliation_country, is_open_data, is_open_code, year, funder (array), data_tags (array), created_at
 

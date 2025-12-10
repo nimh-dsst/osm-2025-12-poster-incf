@@ -15,13 +15,21 @@ Input sources:
 - Funder aliases CSV (for canonical funder matching)
 
 Usage:
-    # Full production run
+    # Full production run (uses funder_aliases_v3.csv by default)
     python build_dashboard_data_duckdb.py \
         --filelist-dir /data/pmcoaXMLs/raw_download \
         --rtrans-dir /data/pmcoaXMLs/rtrans_out_full_parquets \
         --oddpub-file /data/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
         --output /data/matches_dashboard.parquet \
         --licenses comm,noncomm
+
+    # Specify a different funder aliases file
+    python build_dashboard_data_duckdb.py \
+        --filelist-dir /data/pmcoaXMLs/raw_download \
+        --rtrans-dir /data/pmcoaXMLs/rtrans_out_full_parquets \
+        --oddpub-file /data/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
+        --funder-aliases funder_analysis/funder_aliases_v2.csv \
+        --output /data/matches_dashboard.parquet
 
     # Test with small subset
     python build_dashboard_data_duckdb.py \
@@ -143,6 +151,16 @@ Examples:
         type=int,
         default=None,
         help="Number of DuckDB threads (default: auto)",
+    )
+    parser.add_argument(
+        "--funder-aliases",
+        default=None,
+        help="Path to funder aliases CSV file (default: funder_analysis/funder_aliases_v3.csv)",
+    )
+    parser.add_argument(
+        "--aggregate-children",
+        action="store_true",
+        help="Aggregate child funders into parent totals (e.g., NIH institutes -> NIH)",
     )
     return parser.parse_args()
 
@@ -355,6 +373,59 @@ def build_funder_patterns(aliases_csv: Path) -> Dict[str, str]:
     return patterns
 
 
+def build_child_to_parent_map(aliases_csv: Path) -> Dict[str, str]:
+    """Build a mapping of child funders to their parent funders."""
+    from funder_analysis.normalize_funders import FunderNormalizer
+    normalizer = FunderNormalizer(str(aliases_csv))
+
+    child_to_parent = {}
+    for canonical in normalizer.get_all_canonical_names():
+        parent = normalizer.get_parent(canonical)
+        if parent:
+            child_to_parent[canonical] = parent
+
+    return child_to_parent
+
+
+def aggregate_funders_in_lists(
+    funder_lists: List[List[str]],
+    child_to_parent: Dict[str, str],
+) -> List[List[str]]:
+    """
+    Aggregate child funders into parent funders for each article's funder list.
+
+    For each article, if a child funder is found:
+    - Add the parent funder if not already present
+    - Remove the child funder from the list
+
+    Args:
+        funder_lists: List of funder lists (one per article)
+        child_to_parent: Dict mapping child funder names to parent names
+
+    Returns:
+        Modified funder lists with aggregation applied
+    """
+    aggregated_lists = []
+    for funders in funder_lists:
+        if not funders:
+            aggregated_lists.append([])
+            continue
+
+        # Start with a set of funders for efficient lookup
+        funder_set = set(funders)
+
+        # Add parent funders for any children found
+        for funder in list(funder_set):
+            parent = child_to_parent.get(funder)
+            if parent:
+                funder_set.add(parent)
+                funder_set.discard(funder)  # Remove child
+
+        aggregated_lists.append(list(funder_set))
+
+    return aggregated_lists
+
+
 def match_funders_parallel(
     texts: pd.Series,
     patterns: Dict[str, str],
@@ -484,10 +555,18 @@ def main():
     num_workers = args.workers or cpu_count()
     licenses = [l.strip() for l in args.licenses.split(',')]
 
+    # Determine funder aliases file
+    if args.funder_aliases:
+        funder_aliases_display = args.funder_aliases
+    else:
+        funder_aliases_display = "funder_analysis/funder_aliases_v3.csv (default)"
+
     print(f"\nConfiguration:")
     print(f"  Workers (funder matching): {num_workers}")
     print(f"  Chunk size: {args.chunk_size:,}")
     print(f"  Licenses: {licenses}")
+    print(f"  Funder aliases: {funder_aliases_display}")
+    print(f"  Aggregate children: {args.aggregate_children}")
     print(f"  Output: {args.output}")
     if args.limit:
         print(f"  Limit: {args.limit:,} PMCIDs (testing mode)")
@@ -506,10 +585,15 @@ def main():
     )
 
     # Build funder patterns
-    aliases_csv = Path(__file__).parent.parent / 'funder_analysis' / 'funder_aliases.csv'
+    if args.funder_aliases:
+        aliases_csv = Path(args.funder_aliases)
+    else:
+        # Default to v3 funder aliases
+        aliases_csv = Path(__file__).parent.parent / 'funder_analysis' / 'funder_aliases_v3.csv'
+
     if aliases_csv.exists():
         patterns = build_funder_patterns(aliases_csv)
-        log_time(f"Loaded {len(patterns)} canonical funder patterns")
+        log_time(f"Loaded {len(patterns)} canonical funder patterns from {aliases_csv}")
     else:
         log_time(f"Warning: Funder aliases file not found at {aliases_csv}")
         patterns = {}
@@ -521,6 +605,19 @@ def main():
         num_workers,
         args.chunk_size
     )
+
+    # Aggregate children into parents if requested
+    if args.aggregate_children and aliases_csv.exists():
+        agg_start = log_time("Aggregating child funders into parents...")
+        child_to_parent = build_child_to_parent_map(aliases_csv)
+        if child_to_parent:
+            log_time(f"  Found {len(child_to_parent)} child->parent relationships")
+            for child, parent in sorted(child_to_parent.items()):
+                log_time(f"    {child} -> {parent}")
+            funder_lists = aggregate_funders_in_lists(funder_lists, child_to_parent)
+            log_time("  Aggregation complete", agg_start)
+        else:
+            log_time("  No parent-child relationships found, skipping aggregation")
 
     # Build final output
     result = build_final_output(df, funder_lists)

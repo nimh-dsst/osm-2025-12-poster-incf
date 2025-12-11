@@ -91,6 +91,16 @@ Examples:
         --output /data/matches_dashboard.parquet \\
         --workers 32
 
+    # With journal/country filtering (for dashboard)
+    python build_dashboard_data_hpc.py \\
+        --filelist-dir /data/pmcoaXMLs/raw_download \\
+        --rtrans-dir /data/pmcoaXMLs/rtrans_out_full_parquets \\
+        --oddpub-file /data/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \\
+        --journals-csv results/openss_discovery_weibull/significant_journals.csv \\
+        --countries-csv results/openss_discovery_weibull/significant_countries.csv \\
+        --output /data/matches_dashboard.parquet \\
+        --workers 32
+
     # Test run with 1000 PMCIDs
     python build_dashboard_data_hpc.py \\
         --filelist-dir ~/pmcoaXMLs/raw_download \\
@@ -121,6 +131,16 @@ Examples:
         help="Output parquet file path",
     )
     parser.add_argument(
+        "--journals-csv",
+        default=None,
+        help="CSV file with selected journals (articles with other journals → 'Other')",
+    )
+    parser.add_argument(
+        "--countries-csv",
+        default=None,
+        help="CSV file with selected countries (articles with other countries → 'Other')",
+    )
+    parser.add_argument(
         "--licenses",
         default="comm,noncomm",
         help="Comma-separated list of license types to include (default: comm,noncomm)",
@@ -144,6 +164,41 @@ Examples:
         help="Chunk size for parallel processing (default: 100000)",
     )
     return parser.parse_args()
+
+
+def load_filter_sets(journals_csv: Optional[str], countries_csv: Optional[str]) -> Tuple[Optional[Set[str]], Optional[Set[str]]]:
+    """Load selected journals and countries from CSV files for filtering.
+
+    Articles with values not in these sets will have their values replaced with 'Other'.
+    If a CSV path is None, no filtering is applied for that field.
+
+    Returns:
+        Tuple of (selected_journals set or None, selected_countries set or None)
+    """
+    selected_journals = None
+    selected_countries = None
+
+    if journals_csv:
+        start = log_time(f"Loading selected journals from {journals_csv}...")
+        try:
+            df = pd.read_csv(journals_csv)
+            if 'journal' in df.columns:
+                selected_journals = set(df['journal'].dropna().unique())
+            log_time(f"  Loaded {len(selected_journals)} selected journals", start)
+        except Exception as e:
+            log_time(f"  Warning: Could not load journals CSV: {e}")
+
+    if countries_csv:
+        start = log_time(f"Loading selected countries from {countries_csv}...")
+        try:
+            df = pd.read_csv(countries_csv)
+            if 'country' in df.columns:
+                selected_countries = set(df['country'].dropna().unique())
+            log_time(f"  Loaded {len(selected_countries)} selected countries", start)
+        except Exception as e:
+            log_time(f"  Warning: Could not load countries CSV: {e}")
+
+    return selected_journals, selected_countries
 
 
 def load_pmcid_list(filelist_dir: str, licenses: List[str]) -> pd.DataFrame:
@@ -433,8 +488,14 @@ def build_dashboard_data(
     patterns: Dict[str, str],
     num_workers: int,
     chunk_size: int,
+    selected_journals: Optional[Set[str]] = None,
+    selected_countries: Optional[Set[str]] = None,
 ) -> pd.DataFrame:
-    """Merge all data sources and build final output."""
+    """Merge all data sources and build final output.
+
+    If selected_journals/selected_countries are provided, values not in those sets
+    are replaced with 'Other' to reduce cardinality for dashboard display.
+    """
     start = log_time("Building dashboard data...")
 
     # Start with PMCID list
@@ -479,6 +540,23 @@ def build_dashboard_data(
         result['year'] = pd.to_numeric(result['year'], errors='coerce')
     else:
         result['year'] = None
+
+    # Apply journal/country filtering (replace non-selected values with 'Other')
+    if selected_journals is not None and 'journal' in result.columns:
+        filter_start = log_time(f"  Filtering journals to {len(selected_journals)} selected values...")
+        original_unique = result['journal'].nunique()
+        result['journal'] = result['journal'].apply(
+            lambda x: x if pd.notna(x) and x in selected_journals else 'Other'
+        )
+        log_time(f"    Reduced from {original_unique:,} to {result['journal'].nunique():,} unique journals", filter_start)
+
+    if selected_countries is not None and 'affiliation_country' in result.columns:
+        filter_start = log_time(f"  Filtering countries to {len(selected_countries)} selected values...")
+        original_unique = result['affiliation_country'].nunique()
+        result['affiliation_country'] = result['affiliation_country'].apply(
+            lambda x: x if pd.notna(x) and x in selected_countries else 'Other'
+        )
+        log_time(f"    Reduced from {original_unique:,} to {result['affiliation_country'].nunique():,} unique countries", filter_start)
 
     # Combine funding text columns for funder matching
     combine_start = log_time("  Combining funding text columns...")
@@ -558,9 +636,18 @@ def main():
     print(f"  Chunk size: {args.chunk_size:,}")
     print(f"  Licenses: {licenses}")
     print(f"  Output: {args.output}")
+    if args.journals_csv:
+        print(f"  Journals filter: {args.journals_csv}")
+    if args.countries_csv:
+        print(f"  Countries filter: {args.countries_csv}")
     if args.limit:
         print(f"  Limit: {args.limit:,} PMCIDs (testing mode)")
     print()
+
+    # Load journal/country filter sets if provided
+    selected_journals, selected_countries = load_filter_sets(
+        args.journals_csv, args.countries_csv
+    )
 
     # Load PMCID list
     pmcid_df = load_pmcid_list(args.filelist_dir, licenses)
@@ -590,7 +677,8 @@ def main():
     # Build final dataset
     result = build_dashboard_data(
         pmcid_df, rtrans_df, oddpub_df, patterns,
-        num_workers, args.chunk_size
+        num_workers, args.chunk_size,
+        selected_journals, selected_countries
     )
 
     # Save output

@@ -177,6 +177,8 @@ After consolidation, apply final threshold:
 - Funder has meaningful presence in the literature
 - Approximately 50-80 final canonical funders
 
+> **⚠️ Limitation:** The merged_count >= 2,000 threshold is itself an arbitrary round number, which undermines the principled statistical approach used in Stage 1. While the 4σ threshold on individual entries (count >= 658) is statistically derived, the final threshold on *merged* counts is not. This inconsistency should be addressed in future versions. See [Next Steps](#future-improvements) for planned improvements.
+
 ## Output Format
 
 ### funder_aliases_v2.csv
@@ -244,11 +246,41 @@ python funder_analysis/build_canonical_funders.py \
 ```
 58,791 NER-discovered funders
   → 303 (4σ statistical threshold, count >= 658)
-  → 286 (noise removal: III, HHS, the Ministry, etc.)
-  → 264 (fragment removal: Science Foundation, Research Council, etc.)
-  → 142 (alias consolidation)
-  → 57 (final threshold: merged_count >= 2,000)
+  → 286 (noise removal: III, HHS, the Ministry, etc.)         [-17 entries]
+  → 264 (fragment removal: Science Foundation, etc.)          [-22 entries]
+  → 142 (alias consolidation: merge variants into canonical)  [-122 entries*]
+  → 57 (final threshold: merged_count >= 2,000)               [-85 entries]
 ```
+
+\* Alias consolidation doesn't "remove" entries—it merges multiple NER variants into single canonical funders (e.g., "DFG" + "German Research Foundation" → 1 canonical funder).
+
+### Reduction Breakdown
+
+| Stage | Count | Reduction | Cumulative % Remaining |
+|-------|-------|-----------|------------------------|
+| Input (NER discovered) | 58,791 | — | 100.0% |
+| 4σ threshold (count ≥ 658) | 303 | -58,488 | 0.52% |
+| Noise removal | 286 | -17 | 0.49% |
+| Fragment removal | 264 | -22 | 0.45% |
+| Alias consolidation | 142 | merged | 0.24% |
+| Final threshold (merged ≥ 2,000) | 57 | -85 | **0.10%** |
+
+### Coverage of is_open_data Subset
+
+The open data subset (is_open_data=true from oddpub v7.2.3) contains:
+- **374,906 articles** with open data detected
+- **335,457 articles** (89.5%) matched to rtrans metadata
+- **~1,880,000 total funder mentions** extracted by NER
+
+Coverage by selection stage:
+
+| Selection | Funders | % of Mentions | Cumulative Articles |
+|-----------|---------|---------------|---------------------|
+| All 58,791 NER entries | 58,791 | 100% | — |
+| 4σ threshold only | 303 | ~56% | ~188,000 articles |
+| Final 57 canonical | 57 | **~38%** | ~127,000 articles |
+
+**Key insight:** The final 57 canonical funders (0.1% of NER entries) account for approximately 38% of all funding acknowledgment mentions in the open data subset. This is less than the 50% coverage target but represents a practical tradeoff between completeness and data quality.
 
 ### Top 20 Canonical Funders
 
@@ -290,6 +322,25 @@ python funder_analysis/build_canonical_funders.py \
 
 - `funder_analysis/funder_aliases_v2.csv` - 81 rows, 57 canonical funders
 - `funder_analysis/funder_aliases_v2.stats.json` - Selection statistics
+
+## Future Improvements
+
+### Eliminate Arbitrary Final Threshold
+
+The current approach applies a statistically-derived 4σ threshold to *individual* NER entries, then an arbitrary ≥2,000 threshold to *merged* counts. This inconsistency should be addressed:
+
+**Proposed approach:**
+1. After alias consolidation, apply a **second 4σ threshold** on merged counts
+2. Calculate log-scale mean/std of the 142 consolidated funders
+3. Use `10^(mean + 4*std)` as the final threshold
+4. This would replace the arbitrary 2,000 cutoff with a principled statistical threshold
+
+**Benefits:**
+- Fully reproducible selection criteria
+- No arbitrary round numbers
+- Threshold adapts if corpus size changes
+
+**Implementation:** See `docs/NEXT_STEPS.md` for task tracking.
 
 ## References
 

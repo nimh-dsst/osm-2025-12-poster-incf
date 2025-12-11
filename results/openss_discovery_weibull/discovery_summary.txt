@@ -1,0 +1,135 @@
+======================================================================
+JOURNAL AND COUNTRY DISCOVERY (WEIBULL-BASED SELECTION)
+======================================================================
+
+Selection Method:
+  Fit Weibull distribution to count data
+  Threshold = scale parameter (λ)
+  F(λ) = 1 - e^(-1) ≈ 63.2% → selects top ~36.8% of entities
+
+JOURNALS
+----------------------------------------
+Total unique journals: 4,985
+Weibull shape (k): 0.4572
+Weibull scale (λ): 13.64
+Threshold: count >= 14
+Selected: 1,242 (24.9% of entities)
+Coverage: 96.4% of articles
+KS test: stat=0.2613, p=0.0000
+
+Coverage Analysis:
+  Top 10 journals: 29.63% of articles
+  Top 20 journals: 39.68% of articles
+  Top 30 journals: 46.52% of articles
+  Journals for 50% coverage: 37
+  Journals for 80% coverage: 223
+
+Top 30 Significant Journals:
+----------------------------------------
+  25,098  PLoS ONE
+  15,825  Scientific Reports
+  13,817  Frontiers in Microbiology
+   8,653  Nature Communications
+   6,697  Frontiers in Plant Science
+   6,437  BMC Genomics
+   6,137  Genome Announcements
+   5,847  Nucleic Acids Research
+   5,507  International Journal of Molecular Sciences
+   5,368  Frontiers in Immunology
+   4,581  iScience
+   4,027  Microbiology Resource Announcements
+   3,972  Scientific Data
+   3,879  eLife
+   3,487  Data in Brief
+   2,954  Mitochondrial DNA. Part B, Resources
+   2,835  Frontiers in Genetics
+   2,750  PeerJ
+   2,717  Microorganisms
+   2,514  bioRxiv
+   2,497  PLoS Genetics
+   2,492  PLOS ONE
+   2,477  Ecology and Evolution
+   2,416  Frontiers in Cellular and Infection Microbiology
+   2,350  Heliyon
+   2,247  Frontiers in Psychology
+   2,146  Viruses
+   2,144  Frontiers in Oncology
+   2,112  Microbiology Spectrum
+   2,077  Molecules
+
+COUNTRIES (Noise Removal + Weibull)
+----------------------------------------
+Stage 1 - Raw (after normalization): 637
+Stage 2 - After noise removal: 379 (-258 noise)
+Stage 3 - Weibull threshold:
+  Shape (k): 0.3420
+  Scale (λ): 37.39
+  Threshold: count >= 38
+  Selected: 96 (25.3% of entities)
+  Coverage: 99.1% of articles
+  KS test: stat=0.2516, p=0.0000
+
+Coverage Analysis:
+  Top 10 countries: 68.5% of articles
+  Top 20 countries: 83.61% of articles
+  Top 30 countries: 90.1% of articles
+  Countries for 50% coverage: 4
+  Countries for 80% coverage: 17
+
+Top 30 Significant Countries:
+----------------------------------------
+  36,714  China
+  28,886  USA
+  12,668  UK
+  11,519  Germany
+   5,934  France
+   5,170  Canada
+   4,946  Japan
+   4,663  Australia
+   4,568  Spain
+   4,355  Italy
+   4,214  Netherlands
+   3,543  Switzerland
+   3,053  Sweden
+   2,906  South Korea
+   2,595  India
+   2,416  Brazil
+   2,100  Denmark
+   2,010  Austria
+   1,987  Belgium
+   1,507  Norway
+   1,356  Poland
+   1,331  Czech Republic
+   1,269  Finland
+   1,198  Israel
+   1,108  Russia
+   1,087  Mexico
+   1,063  Portugal
+     980  Saudi Arabia
+     976  South Africa
+     958  Taiwan
+
+Sample Noise Removed (top 20 by count):
+----------------------------------------
+      21  California
+      19  Virginia
+       9  Nairobi, Kenya
+       7  Ljubljana, Slovenia
+       7  Texas
+       6  London
+       6  Pennsylvania
+       5  Belvaux, Luxembourg
+       5  Kampala, Uganda
+       4  Dakar, Senegal
+       4  Beijing
+       4  Roc
+       4  Maryland
+       4  Zagreb, Croatia
+       3  Sofia, Bulgaria
+       3  Illinois
+       3  Florida
+       2  Tanzania, United Republic Of
+       2  Mymensingh, Bangladesh
+       2  Peradeniya, Sri Lanka
+
+======================================================================

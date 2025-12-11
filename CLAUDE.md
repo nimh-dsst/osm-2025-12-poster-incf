@@ -519,6 +519,76 @@ python analysis/funder_data_sharing_summary.py \
 - `results/funder_data_sharing_summary_v4.csv` - Funders with ≥1,000 data sharing pubs (47 with aggregation)
 - `results/funder_data_sharing_summary_v4_all.csv` - All funders (regardless of threshold)
 
+### Journal/Country Discovery for Dashboard (2025-12-11)
+
+Script `analysis/discover_journals_countries.py` uses Weibull distribution fitting to select significant journals and countries from the open data subset. This reduces dashboard cardinality from thousands to manageable sets.
+
+**Weibull-based selection method:**
+- Fits Weibull distribution to count data (appropriate for power-law distributions)
+- Uses scale parameter (λ) as threshold where F(λ) = 1 - e^(-1) ≈ 63.2%
+- Selects entities above the 63.2nd percentile (~top 36.8%)
+
+```bash
+# Run journal/country discovery
+python analysis/discover_journals_countries.py \
+    --oddpub-file $EC2_PROJ_BASE_DIR/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --rtrans-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/rtrans_out_full_parquets \
+    --output-dir results/openss_discovery_weibull
+```
+
+**Results (2025-12-11):**
+
+| Entity | Total | Selected | Threshold | Coverage |
+|--------|-------|----------|-----------|----------|
+| Journals | 4,985 | 1,242 (24.9%) | count ≥ 14 | 96.4% |
+| Countries | 379* | 96 (25.3%) | count ≥ 38 | 99.1% |
+
+*After noise removal (258 invalid entries removed from 637 raw)
+
+**Output files:**
+- `significant_journals.csv` - 1,242 journals above threshold (with publisher)
+- `significant_countries.csv` - 96 countries above threshold
+- `all_journals.csv` - Complete list with counts
+- `all_countries.csv` - Complete list with counts
+- `discovery_summary.txt` - Detailed statistics
+
+**Top 10 journals (by open data article count):**
+1. PLoS ONE (25,098)
+2. Scientific Reports (15,825)
+3. Frontiers in Microbiology (13,817)
+4. Nature Communications (8,653)
+5. Frontiers in Plant Science (6,697)
+
+**Top 10 countries:**
+1. China (36,714)
+2. USA (28,886)
+3. UK (12,668)
+4. Germany (11,519)
+5. France (5,934)
+
+### Dashboard Data with Journal/Country Filtering (2025-12-11)
+
+Script `analysis/build_dashboard_data_hpc.py` now supports filtering journals and countries to reduce dashboard cardinality. Articles with values outside the selected subset have their values replaced with "Other".
+
+```bash
+# Build dashboard data with journal/country filtering
+python analysis/build_dashboard_data_hpc.py \
+    --input-dir $HPC_BASE_DIR/pmcoa/oa_comm_xml.*.tar.gz \
+    --rtrans-dir $HPC_BASE_DIR/osm/datafiles/rtrans_out_full_parquets \
+    --oddpub-file $HPC_BASE_DIR/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
+    --journals-csv results/openss_discovery_weibull/significant_journals.csv \
+    --countries-csv results/openss_discovery_weibull/significant_countries.csv \
+    --output dashboard_filtered.parquet
+```
+
+**New arguments:**
+- `--journals-csv` - CSV with selected journals (column: `journal`); others → "Other"
+- `--countries-csv` - CSV with selected countries (column: `country`); others → "Other"
+
+**Effect:** Reduces unique values for dashboard visualization:
+- Journals: 4,985 → 1,243 (1,242 + "Other")
+- Countries: 379 → 97 (96 + "Other")
+
 ### Funder Table LaTeX Generator (2025-12-08)
 
 Script `analysis/funder_table_latex.py` generates publication-ready LaTeX tables from funder summary CSVs.

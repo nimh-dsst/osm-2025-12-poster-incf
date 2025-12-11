@@ -1,7 +1,24 @@
 # Next Steps for INCF Poster Analysis
 
-**Last Updated:** 2025-12-08
-**Status:** V3 funder aliases with parent-child aggregation running on HPC
+**Last Updated:** 2025-12-11
+**Status:** Poster presented Dec 11. Analysis ready to freeze for new repo.
+
+## Completed (2025-12-11)
+
+1. ✅ Created Weibull-based journal/country discovery script
+   - `analysis/discover_journals_countries.py`
+   - Selects significant journals/countries using Weibull scale parameter (λ)
+   - Much better for power-law distributions than σ-based thresholds
+
+2. ✅ Journal/country discovery results:
+   - **Journals:** 1,242 selected from 4,985 (24.9%), covering 96.4% of articles
+   - **Countries:** 96 selected from 379 (25.3%), covering 99.1% of articles
+   - Output: `results/openss_discovery_weibull/`
+
+3. ✅ Added journal/country filtering to `build_dashboard_data_hpc.py`:
+   - `--journals-csv` - Filter journals to selected subset (others → "Other")
+   - `--countries-csv` - Filter countries to selected subset (others → "Other")
+   - Reduces dashboard cardinality for visualization performance
 
 ## Completed (2025-12-08)
 
@@ -116,16 +133,41 @@
 
 ## In Progress
 
-1. ⏳ Dashboard data build running on Biowulf HPC (6.57M PMCIDs from comm + noncomm)
-2. ⏳ Final poster figure generation
+1. ⏳ Rebuild dashboard parquet with journal/country filtering (required for dashboard performance)
 
 ## Next Steps
 
-1. Verify dashboard data build output
-2. Run repair script to fix registry source_tarball and add license column
-3. Process remaining ~490K articles with oddpub (7% missing)
-4. Create final poster figures with updated data
-5. (Post-poster) Update Python version in venv and container
+1. Rebuild dashboard parquet on HPC with `--journals-csv` and `--countries-csv` flags
+2. Freeze this repo - poster presentation complete
+3. Start fresh repo for ongoing work with lessons learned
+4. (Future) Process remaining ~490K articles with oddpub (7% missing)
+5. (Future) Update Python version in venv and container
+
+## Future Work (Post-Poster)
+
+### Design Principled Funder Selection Strategy
+
+**Problem:** The current funder selection uses a statistically-derived 4σ threshold for individual NER entries (count ≥ 658), but then applies an arbitrary ≥2,000 threshold on merged counts. This is inconsistent and undermines the principled approach.
+
+**Current pipeline:**
+```
+58,791 NER entries → 303 (4σ) → 286 (noise) → 264 (fragments) → 142 (consolidated) → 57 (merged ≥ 2,000)
+```
+
+**Proposed solution:**
+1. Apply 4σ threshold to *merged* counts after alias consolidation
+2. Calculate log-scale mean/std of the 142 consolidated funders
+3. Use `10^(mean + 4*std)` as the statistically-derived final threshold
+4. Document expected threshold value and how it changes with corpus size
+
+**Implementation tasks:**
+- [ ] Calculate what the 4σ threshold would be on merged counts (142 funders)
+- [ ] Compare resulting funder list with current 57-funder list
+- [ ] Evaluate coverage impact (currently ~38% of mentions)
+- [ ] Update `build_canonical_funders.py` with optional `--merged-threshold-sigma` parameter
+- [ ] Create funder_aliases_v5.csv with fully statistical selection
+
+**See also:** `docs/CANONICAL_FUNDER_SELECTION.md` → Future Improvements section
 
 ---
 

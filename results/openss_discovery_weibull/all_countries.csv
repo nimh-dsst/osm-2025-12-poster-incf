@@ -1,0 +1,385 @@
+country,count
+China,36714
+USA,28886
+UK,12668
+Germany,11519
+France,5934
+Canada,5170
+Japan,4946
+Australia,4663
+Spain,4568
+Italy,4355
+Netherlands,4214
+Switzerland,3543
+Sweden,3053
+South Korea,2906
+India,2595
+Brazil,2416
+Denmark,2100
+Austria,2010
+Belgium,1987
+Norway,1507
+Poland,1356
+Czech Republic,1331
+Finland,1269
+Israel,1198
+Russia,1108
+Mexico,1087
+Portugal,1063
+Saudi Arabia,980
+South Africa,976
+Taiwan,958
+Singapore,883
+Ireland,853
+New Zealand,831
+Thailand,798
+Chile,752
+Egypt,715
+Pakistan,648
+Iran,588
+Hungary,586
+Argentina,578
+Greece,515
+Colombia,504
+Malaysia,472
+Turkey,424
+Vietnam,329
+Kenya,305
+Bangladesh,279
+Hong Kong,268
+Slovenia,261
+Indonesia,251
+Estonia,225
+Nigeria,219
+Croatia,218
+Romania,214
+United Arab Emirates,208
+Slovakia,176
+Philippines,163
+Peru,159
+Ecuador,153
+Ethiopia,151
+Serbia,146
+Luxembourg,138
+Qatar,132
+Uruguay,129
+Tunisia,125
+Ghana,125
+Iceland,125
+Uganda,120
+Lithuania,116
+Ukraine,113
+Morocco,106
+Tanzania,96
+Bulgaria,95
+Costa Rica,95
+Lebanon,87
+Cameroon,86
+Sri Lanka,77
+Nepal,72
+Panama,71
+Iraq,70
+Jordan,65
+Latvia,60
+Malawi,60
+Kuwait,58
+Georgia,56
+Madagascar,53
+Oman,50
+Cambodia,50
+Puerto Rico,48
+Algeria,48
+Kazakhstan,47
+Cuba,43
+Zambia,41
+Venezuela,39
+Mongolia,38
+Sudan,38
+Zimbabwe,35
+Namibia,34
+Republic Of Panama,34
+"United
+States",33
+Burkina Faso,32
+Armenia,32
+Senegal,31
+Mozambique,31
+Perú,29
+Mali,28
+Bolivia,28
+Benin,27
+Uae,27
+Gabon,27
+Rwanda,26
+Malta,26
+Myanmar,26
+Papua New Guinea,26
+Uzbekistan,25
+New Caledonia,25
+Palestine,24
+Slovak Republic,24
+French Polynesia,23
+Gambia,23
+The Gambia,21
+Bosnia And Herzegovina,20
+"United
+Kingdom",19
+Monaco,18
+Botswana,17
+Fiji,16
+Azerbaijan,16
+French Guiana,16
+Panamá,15
+Saint Kitts And Nevis,15
+Seychelles,14
+Guatemala,14
+Bermuda,13
+Guinea,13
+Niger,13
+U.K,13
+Democratic Republic Of Congo,13
+Yemen,12
+Trinidad And Tobago,12
+Albania,12
+Democratic Republic Of The Congo,11
+Gibraltar,11
+Central African Republic,11
+Faroe Islands,11
+Bahrain,10
+Montenegro,10
+Turkiye,10
+Togo,9
+North Macedonia,9
+Greenland,9
+Algérie,9
+Kyrgyzstan,9
+United States,9
+Macedonia,9
+Côte D'Ivoire,9
+Honduras,8
+Sénégal,8
+United Republic Of Tanzania,8
+Guyana,7
+Paraguay,7
+Laos,7
+Côte D’Ivoire,7
+Liberia,6
+Dominican Republic,6
+Solomon Islands,6
+Cabo Verde,6
+Lao People'S Democratic Republic,6
+Unites States,6
+Barbados,6
+Samoa,6
+Liechtenstein,6
+Libya,6
+Tunisie,5
+West Indies,5
+Nicaragua,5
+Bhutan,5
+Lao Pdr,5
+Macau,5
+Sierra Leone,5
+Jamaica,5
+Mauritania,5
+Grenada,5
+Curaçao,5
+Republic Of Serbia,5
+Republic Of Moldova,4
+Republic Of Seychelles,4
+Congo,4
+United Kingdom,4
+Guam,4
+Republic Of North Macedonia,4
+Syria,4
+Angola,4
+Moldova,4
+Republic Of Uzbekistan,4
+Afghanistan,4
+German,4
+Cayman Islands,4
+Falkland Islands,4
+Guinea-Bissau,4
+Republic Of Congo,3
+Suriname,3
+Cote D'Ivoire,3
+And The,3
+Sultanate Of Oman,3
+República De Panamá,3
+Bénin,3
+Equatorial Guinea,3
+Cameroun,3
+Ivory Coast,3
+New-Caledonia,3
+Republic Of Benin,3
+Chad,3
+Kosovo,3
+America,3
+El Salvador,3
+Polynésie Française,3
+Cook Islands,3
+Bahamas,3
+New Zealand,3
+Tajikistan,3
+Cape Verde,3
+New Caledonia (Fr),2
+Eritrea,2
+Belgique,2
+"South
+Africa",2
+"New
+Zealand",2
+Moçambique,2
+South-Africa,2
+United State,2
+The Netherland,2
+Republic Of Panamá,2
+Eswatini,2
+American Samoa,2
+Haiti,2
+Columbia,2
+Kingdom Of Bahrain,2
+Central Africa,2
+Suisse,2
+Europe,2
+Trinidad And Tobago – West Indies,2
+Comoros,2
+United Kindom,2
+Maldives,2
+Lesotho,2
+Luxemburg,2
+Brunei,2
+Brazi,2
+Maroc,2
+Guinea‐Bissau,2
+Burundi,2
+Jersey,2
+Réunion,1
+São Tomé And Príncipe,1
+Nsw 2568,1
+Grece,1
+Andorra,1
+Palestinian Territories,1
+Marshall Islands,1
+Valdivia 5110566,1
+Isreal,1
+Beijing 100850,1
+Virgina,1
+Tomé E Príncipe,1
+République Centrafricaine,1
+Republic Of Kore,1
+Elche,1
+Republic Of Macedonia,1
+State Of Qatar,1
+Swede,1
+Densmark,1
+La Réunion,1
+Principality Of Monaco,1
+D. R. Congo,1
+French,1
+Federated States Of Micronesia,1
+New Jersy,1
+South Africa,1
+Argentine,1
+Ortugal,1
+Caribbean,1
+South Sudan,1
+French Guyana,1
+Burkina‐Faso,1
+Martinique,1
+Commonwealth Of Dominica,1
+United Kingdon,1
+Hawai'I,1
+Unites States Of America,1
+Balears,1
+R Serbia,1
+U.S,1
+Cananda,1
+Maryland 20993,1
+Ermany,1
+Djibouti,1
+Republic Of Suriname,1
+California 92037,1
+Crete,1
+Polska,1
+Itay,1
+Kingdom Of Saudia Arabia,1
+South America,1
+U.A.E,1
+Republic Of Cape Verde,1
+"Papua New
+Guinea",1
+East-Timor,1
+New-Calédonia,1
+Eroupe,1
+Uinted Kingdom,1
+Trinidad,1
+Hong Kong,1
+Czeck Republic,1
+Untited States,1
+Untied States,1
+Untited Kingdom,1
+Hubei,1
+Svalbard And Jan Mayen,1
+Ching,1
+Guadeloupe,1
+Saudi Arabi,1
+St. Kitts And Nevis,1
+Republic Of The Congo,1
+Reino Unido,1
+Finlândia,1
+New Zealand,1
+Sichuan,1
+Egyp,1
+Barrio El Triunfo,1
+Yelizovo,1
+Chian,1
+Republic Of Ko,1
+Gypt,1
+Federation Of Saint Christopher And Nevis,1
+Belize,1
+Cuba.,1
+Thanjavur-613 401,1
+Hefei 230036,1
+Republic Of North Macedonia,1
+R. Moldova,1
+Mauritanie,1
+Ltaly,1
+Meéxico,1
+United Arab Emirtes,1
+Congo.,1
+Estados Unidos,1
+Tchad,1
+Niue,1
+Micronesia,1
+United Arabs Emirates,1
+Virgin Islands,1
+Bosnia And Herzegovina,1
+Republic Of Kosovo,1
+Saint Vincent And The Grenadines,1
+Congo (The Democratic Republic Of The),1
+Saudi Arabia,1
+Turks And Caicos Islands,1
+Saudi‐Arabia,1
+Ny 10023,1
+Itlay,1
+Guinée,1
+R.O.C.,1
+Algéria,1
+Saudia Arabia,1
+Slovenija,1
+Republic Of Djibouti,1
+Republic Of San Marino,1
+Guiné-Bissau,1
+Republic Of Guinea,1
+State Of Kuwait,1
+Jiangxi,1
+Demark,1
+Somalia,1
+Netherland,1
+Bulgaria.,1
+French West Indies,1
+Hongkong,1
+Chain,1
+România,1
+State Of Palestine,1

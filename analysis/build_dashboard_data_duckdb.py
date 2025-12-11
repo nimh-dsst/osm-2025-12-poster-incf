@@ -581,6 +581,56 @@ def match_funders_parallel(
     return all_funders
 
 
+def normalize_country(value: str, selected_countries: Set[str]) -> str:
+    """Normalize a country value by extracting the first unique country.
+
+    Handles:
+    - Empty/blank strings -> keep as-is (empty string)
+    - Single country names -> check if in selected set
+    - Semicolon-separated duplicates like "China; China" -> extract first unique country
+
+    Args:
+        value: Raw country value (may be semicolon-separated)
+        selected_countries: Set of selected country names
+
+    Returns:
+        Normalized country name, 'Other', or empty string
+    """
+    if pd.isna(value):
+        return value
+
+    # Convert to string and strip
+    value_str = str(value).strip()
+
+    # Keep empty/blank strings as-is
+    if not value_str:
+        return value_str
+
+    # Check if it's a direct match first (most common case)
+    if value_str in selected_countries:
+        return value_str
+
+    # Handle semicolon-separated values (e.g., "China; China; China")
+    if ';' in value_str:
+        # Split and get unique non-empty countries
+        parts = [p.strip() for p in value_str.split(';') if p.strip()]
+        unique_countries = []
+        seen = set()
+        for part in parts:
+            if part not in seen:
+                seen.add(part)
+                unique_countries.append(part)
+
+        # Take the first unique country
+        if unique_countries:
+            first_country = unique_countries[0]
+            if first_country in selected_countries:
+                return first_country
+
+    # Not in selected set -> 'Other'
+    return 'Other'
+
+
 def apply_journal_country_filtering(
     df: pd.DataFrame,
     selected_journals: Optional[Set[str]],
@@ -589,6 +639,9 @@ def apply_journal_country_filtering(
     """Apply journal and country filtering to reduce dashboard cardinality.
 
     Articles with values not in the selected sets have their values replaced with 'Other'.
+    Empty/blank values are kept as-is.
+    Semicolon-separated country values (e.g., "China; China") are normalized to the first
+    unique country before filtering.
 
     Args:
         df: DataFrame with 'journal' and 'affiliation_country' columns
@@ -603,7 +656,7 @@ def apply_journal_country_filtering(
     if selected_journals is not None:
         before_unique = df['journal'].nunique()
         df['journal'] = df['journal'].apply(
-            lambda x: x if pd.isna(x) or x in selected_journals else 'Other'
+            lambda x: x if pd.isna(x) or x == '' or x in selected_journals else 'Other'
         )
         after_unique = df['journal'].nunique()
         other_count = (df['journal'] == 'Other').sum()
@@ -611,12 +664,14 @@ def apply_journal_country_filtering(
 
     if selected_countries is not None:
         before_unique = df['affiliation_country'].nunique()
+        # Use normalize_country to handle semicolon-separated and empty values
         df['affiliation_country'] = df['affiliation_country'].apply(
-            lambda x: x if pd.isna(x) or x in selected_countries else 'Other'
+            lambda x: normalize_country(x, selected_countries)
         )
         after_unique = df['affiliation_country'].nunique()
         other_count = (df['affiliation_country'] == 'Other').sum()
-        log_time(f"  Countries: {before_unique:,} -> {after_unique:,} unique values ({other_count:,} set to 'Other')")
+        empty_count = (df['affiliation_country'] == '').sum() + df['affiliation_country'].isna().sum()
+        log_time(f"  Countries: {before_unique:,} -> {after_unique:,} unique values ({other_count:,} set to 'Other', {empty_count:,} empty/null)")
 
     log_time("  Filtering complete", start)
     return df

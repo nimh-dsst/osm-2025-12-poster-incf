@@ -1,0 +1,1451 @@
+{
+  "version": "4.0",
+  "description": "Canonical funder aliases with parent-child relationships, discovery tracking, and funder types",
+  "total_funders": 75,
+  "discovery_methods": {
+    "ner_pipeline": "Discovered via Named Entity Recognition pipeline with 4\u03c3 statistical threshold on open data subset (~375k articles)",
+    "manual": "Added manually to ensure completeness (primarily NIH institutes with lower NER counts)"
+  },
+  "funder_types": {
+    "government": "Government-funded agencies (taxpayer-funded)",
+    "philanthropy": "Private foundations and philanthropic organizations",
+    "supranational": "International/supranational organizations (e.g., EU)"
+  },
+  "corpus_note": "Counts (variant_count) are from NER discovery on the is_open_data=true subset (~375k articles). Future versions may include full corpus counts (~5.5M articles).",
+  "funders": {
+    "National Natural Science Foundation of China": {
+      "name": "National Natural Science Foundation of China",
+      "country": "China",
+      "funder_type": "government",
+      "merged_count": 99031,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "National Natural Science Foundation",
+          "type": "alias",
+          "count": 89214
+        },
+        {
+          "variant": "NSFC",
+          "type": "acronym",
+          "count": 7224
+        },
+        {
+          "variant": "grants from the National Natural Science Foundation",
+          "type": "alias",
+          "count": 2593
+        },
+        {
+          "variant": "NNSFC",
+          "type": "acronym_manual",
+          "count": 0
+        },
+        {
+          "variant": "Natural Science Foundation of China",
+          "type": "alias_manual",
+          "count": 0
+        }
+      ]
+    },
+    "National Institutes of Health": {
+      "name": "National Institutes of Health",
+      "country": "USA",
+      "funder_type": "government",
+      "merged_count": 71044,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "NIH",
+          "type": "acronym",
+          "count": 71044
+        }
+      ],
+      "children": {
+        "National Cancer Institute": {
+          "name": "National Cancer Institute",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 11148,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "National Cancer Institute",
+              "type": "primary",
+              "count": 11148
+            },
+            {
+              "variant": "NCI",
+              "type": "acronym_manual",
+              "count": 0
+            }
+          ]
+        },
+        "National Institute of Allergy and Infectious Diseases": {
+          "name": "National Institute of Allergy and Infectious Diseases",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 7857,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NIAID",
+              "type": "acronym",
+              "count": 7857
+            }
+          ]
+        },
+        "National Institute of General Medical Sciences": {
+          "name": "National Institute of General Medical Sciences",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 5583,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NIGMS",
+              "type": "acronym",
+              "count": 5583
+            }
+          ]
+        },
+        "National Human Genome Research Institute": {
+          "name": "National Human Genome Research Institute",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 3913,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "National Human Genome Research Institute",
+              "type": "primary",
+              "count": 2365
+            },
+            {
+              "variant": "NHGRI",
+              "type": "acronym",
+              "count": 1548
+            }
+          ]
+        },
+        "National Heart Lung and Blood Institute": {
+          "name": "National Heart Lung and Blood Institute",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 3180,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NHLBI",
+              "type": "acronym",
+              "count": 3180
+            },
+            {
+              "variant": "Blood Institute",
+              "type": "alias_manual",
+              "count": 0
+            }
+          ]
+        },
+        "Eunice Kennedy Shriver National Institute of Child Health and Human Development": {
+          "name": "Eunice Kennedy Shriver National Institute of Child Health and Human Development",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 2534,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NICHD",
+              "type": "acronym",
+              "count": 1214
+            },
+            {
+              "variant": "Eunice Kennedy Shriver National Institute",
+              "type": "alias",
+              "count": 1320
+            },
+            {
+              "variant": "National Institute of Child Health",
+              "type": "alias_manual",
+              "count": 0
+            }
+          ]
+        },
+        "National Institute of Neurological Disorders and Stroke": {
+          "name": "National Institute of Neurological Disorders and Stroke",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 1968,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NINDS",
+              "type": "acronym",
+              "count": 1968
+            }
+          ]
+        },
+        "National Institute of Diabetes and Digestive and Kidney Diseases": {
+          "name": "National Institute of Diabetes and Digestive and Kidney Diseases",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 1908,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NIDDK",
+              "type": "acronym",
+              "count": 1908
+            }
+          ]
+        },
+        "National Institute on Aging": {
+          "name": "National Institute on Aging",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 1616,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NIA",
+              "type": "acronym",
+              "count": 1616
+            },
+            {
+              "variant": "Institute on Aging",
+              "type": "alias_manual",
+              "count": 0
+            }
+          ]
+        },
+        "National Institute of Mental Health": {
+          "name": "National Institute of Mental Health",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 1568,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NIMH",
+              "type": "acronym",
+              "count": 1568
+            }
+          ]
+        },
+        "National Eye Institute": {
+          "name": "National Eye Institute",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 1157,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "National Eye Institute",
+              "type": "primary",
+              "count": 1157
+            },
+            {
+              "variant": "NEI",
+              "type": "acronym_manual",
+              "count": 0
+            },
+            {
+              "variant": "Eye Institute",
+              "type": "alias_manual",
+              "count": 0
+            }
+          ]
+        },
+        "National Institute of Environmental Health Sciences": {
+          "name": "National Institute of Environmental Health Sciences",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 1045,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NIEHS",
+              "type": "acronym",
+              "count": 1045
+            }
+          ]
+        },
+        "National Center for Advancing Translational Sciences": {
+          "name": "National Center for Advancing Translational Sciences",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 878,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NCATS",
+              "type": "acronym",
+              "count": 878
+            }
+          ]
+        },
+        "National Institute of Dental and Craniofacial Research": {
+          "name": "National Institute of Dental and Craniofacial Research",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 855,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NIDCR",
+              "type": "acronym",
+              "count": 855
+            }
+          ]
+        },
+        "Fogarty International Center": {
+          "name": "Fogarty International Center",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 721,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "Fogarty International Center",
+              "type": "primary",
+              "count": 551
+            },
+            {
+              "variant": "FIC",
+              "type": "acronym",
+              "count": 170
+            },
+            {
+              "variant": "Fogarty",
+              "type": "alias_manual",
+              "count": 0
+            }
+          ]
+        },
+        "National Institute on Drug Abuse": {
+          "name": "National Institute on Drug Abuse",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 706,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NIDA",
+              "type": "acronym",
+              "count": 706
+            }
+          ]
+        },
+        "National Institute of Arthritis and Musculoskeletal and Skin Diseases": {
+          "name": "National Institute of Arthritis and Musculoskeletal and Skin Diseases",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 649,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NIAMS",
+              "type": "acronym",
+              "count": 649
+            }
+          ]
+        },
+        "National Institute on Deafness and Other Communication Disorders": {
+          "name": "National Institute on Deafness and Other Communication Disorders",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 445,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NIDCD",
+              "type": "acronym",
+              "count": 445
+            }
+          ]
+        },
+        "National Library of Medicine": {
+          "name": "National Library of Medicine",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 438,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NLM",
+              "type": "acronym",
+              "count": 435
+            },
+            {
+              "variant": "National Library of Medicine",
+              "type": "primary",
+              "count": 3
+            }
+          ]
+        },
+        "National Institute on Alcohol Abuse and Alcoholism": {
+          "name": "National Institute on Alcohol Abuse and Alcoholism",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 408,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NIAAA",
+              "type": "acronym",
+              "count": 408
+            }
+          ]
+        },
+        "National Institute of Biomedical Imaging and Bioengineering": {
+          "name": "National Institute of Biomedical Imaging and Bioengineering",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 334,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NIBIB",
+              "type": "acronym",
+              "count": 334
+            }
+          ]
+        },
+        "National Center for Complementary and Integrative Health": {
+          "name": "National Center for Complementary and Integrative Health",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 133,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NCCIH",
+              "type": "acronym",
+              "count": 108
+            },
+            {
+              "variant": "NCCAM",
+              "type": "alias",
+              "count": 25
+            }
+          ]
+        },
+        "National Institute of Nursing Research": {
+          "name": "National Institute of Nursing Research",
+          "country": "USA",
+          "funder_type": "government",
+          "merged_count": 48,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "NINR",
+              "type": "acronym",
+              "count": 48
+            }
+          ]
+        }
+      }
+    },
+    "National Science Foundation": {
+      "name": "National Science Foundation",
+      "country": "USA",
+      "funder_type": "government",
+      "merged_count": 45566,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "National Science Foundation",
+          "type": "primary",
+          "count": 30741
+        },
+        {
+          "variant": "NSF",
+          "type": "acronym",
+          "count": 14825
+        },
+        {
+          "variant": "US National Science Foundation",
+          "type": "alias_manual",
+          "count": 0
+        }
+      ]
+    },
+    "Japan Society for the Promotion of Science": {
+      "name": "Japan Society for the Promotion of Science",
+      "country": "Japan",
+      "funder_type": "government",
+      "merged_count": 21489,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "Japan Society",
+          "type": "alias",
+          "count": 11390
+        },
+        {
+          "variant": "JSPS",
+          "type": "acronym",
+          "count": 10099
+        }
+      ]
+    },
+    "Deutsche Forschungsgemeinschaft": {
+      "name": "Deutsche Forschungsgemeinschaft",
+      "country": "Germany",
+      "funder_type": "government",
+      "merged_count": 21342,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "DFG",
+          "type": "acronym",
+          "count": 12851
+        },
+        {
+          "variant": "German Research Foundation",
+          "type": "alias",
+          "count": 8491
+        }
+      ]
+    },
+    "Wellcome Trust": {
+      "name": "Wellcome Trust",
+      "country": "UK",
+      "funder_type": "philanthropy",
+      "merged_count": 21058,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "Wellcome Trust",
+          "type": "primary",
+          "count": 20201
+        },
+        {
+          "variant": "a Wellcome Trust",
+          "type": "alias",
+          "count": 857
+        },
+        {
+          "variant": "Wellcome",
+          "type": "alias_manual",
+          "count": 0
+        }
+      ]
+    },
+    "National Research Foundation of Korea": {
+      "name": "National Research Foundation of Korea",
+      "country": "Korea",
+      "funder_type": "government",
+      "merged_count": 20271,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "National Research Foundation",
+          "type": "alias",
+          "count": 10876
+        },
+        {
+          "variant": "NRF",
+          "type": "acronym",
+          "count": 9395
+        },
+        {
+          "variant": "Korea National Research Foundation",
+          "type": "alias_manual",
+          "count": 0
+        }
+      ]
+    },
+    "Agence Nationale de la Recherche": {
+      "name": "Agence Nationale de la Recherche",
+      "country": "France",
+      "funder_type": "government",
+      "merged_count": 15083,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "ANR",
+          "type": "acronym",
+          "count": 13195
+        },
+        {
+          "variant": "French National Research Agency",
+          "type": "alias",
+          "count": 1888
+        }
+      ]
+    },
+    "European Regional Development Fund": {
+      "name": "European Regional Development Fund",
+      "country": "EU",
+      "funder_type": "supranational",
+      "merged_count": 14188,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "FEDER",
+          "type": "acronym",
+          "count": 6417
+        },
+        {
+          "variant": "European Regional Development Fund",
+          "type": "primary",
+          "count": 5071
+        },
+        {
+          "variant": "ERDF",
+          "type": "acronym",
+          "count": 2700
+        }
+      ]
+    },
+    "Swiss National Science Foundation": {
+      "name": "Swiss National Science Foundation",
+      "country": "Switzerland",
+      "funder_type": "government",
+      "merged_count": 8624,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "Swiss National Science Foundation",
+          "type": "primary",
+          "count": 6817
+        },
+        {
+          "variant": "SNF",
+          "type": "acronym",
+          "count": 907
+        },
+        {
+          "variant": "SNSF",
+          "type": "acronym",
+          "count": 900
+        }
+      ]
+    },
+    "United States Department of Agriculture": {
+      "name": "United States Department of Agriculture",
+      "country": "USA",
+      "funder_type": "government",
+      "merged_count": 7773,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "USDA",
+          "type": "acronym",
+          "count": 7773
+        }
+      ]
+    },
+    "Ministerio de Economia y Competitividad": {
+      "name": "Ministerio de Economia y Competitividad",
+      "country": "Spain",
+      "funder_type": "government",
+      "merged_count": 7743,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "Spanish Ministry",
+          "type": "alias",
+          "count": 5709
+        },
+        {
+          "variant": "MINECO",
+          "type": "acronym",
+          "count": 2034
+        }
+      ]
+    },
+    "Japan Agency for Medical Research and Development": {
+      "name": "Japan Agency for Medical Research and Development",
+      "country": "Japan",
+      "funder_type": "government",
+      "merged_count": 7405,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "Japan Agency",
+          "type": "alias",
+          "count": 3825
+        },
+        {
+          "variant": "AMED",
+          "type": "acronym",
+          "count": 3580
+        }
+      ]
+    },
+    "Austrian Science Fund": {
+      "name": "Austrian Science Fund",
+      "country": "Austria",
+      "funder_type": "government",
+      "merged_count": 7133,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "Austrian Science Fund",
+          "type": "primary",
+          "count": 4257
+        },
+        {
+          "variant": "FWF",
+          "type": "acronym",
+          "count": 2876
+        }
+      ]
+    },
+    "Bundesministerium fur Bildung und Forschung": {
+      "name": "Bundesministerium fur Bildung und Forschung",
+      "country": "Germany",
+      "funder_type": "government",
+      "merged_count": 6976,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "BMBF",
+          "type": "acronym",
+          "count": 3971
+        },
+        {
+          "variant": "German Federal Ministry",
+          "type": "alias",
+          "count": 3005
+        }
+      ]
+    },
+    "National Institute for Health Research": {
+      "name": "National Institute for Health Research",
+      "country": "UK",
+      "funder_type": "government",
+      "merged_count": 6747,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "NIHR",
+          "type": "acronym",
+          "count": 6747
+        }
+      ]
+    },
+    "Swedish Research Council": {
+      "name": "Swedish Research Council",
+      "country": "Sweden",
+      "funder_type": "government",
+      "merged_count": 6286,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "Swedish Research Council",
+          "type": "primary",
+          "count": 6286
+        },
+        {
+          "variant": "VR",
+          "type": "acronym_manual",
+          "count": 0
+        },
+        {
+          "variant": "Vetenskapsradet",
+          "type": "alias_manual",
+          "count": 0
+        }
+      ]
+    },
+    "Howard Hughes Medical Institute": {
+      "name": "Howard Hughes Medical Institute",
+      "country": "USA",
+      "funder_type": "philanthropy",
+      "merged_count": 5972,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "Howard Hughes Medical Institute",
+          "type": "primary",
+          "count": 4454
+        },
+        {
+          "variant": "HHMI",
+          "type": "acronym",
+          "count": 1518
+        }
+      ]
+    },
+    "Australian Research Council": {
+      "name": "Australian Research Council",
+      "country": "Australia",
+      "funder_type": "government",
+      "merged_count": 5642,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "Australian Research Council",
+          "type": "primary",
+          "count": 5642
+        },
+        {
+          "variant": "ARC",
+          "type": "acronym_manual",
+          "count": 0
+        }
+      ]
+    },
+    "Ministry of Education, Culture, Sports, Science and Technology": {
+      "name": "Ministry of Education, Culture, Sports, Science and Technology",
+      "country": "Japan",
+      "funder_type": "government",
+      "merged_count": 5523,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "MEXT",
+          "type": "acronym",
+          "count": 5523
+        }
+      ]
+    },
+    "Natural Sciences and Engineering Research Council of Canada": {
+      "name": "Natural Sciences and Engineering Research Council of Canada",
+      "country": "Canada",
+      "funder_type": "government",
+      "merged_count": 5302,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "NSERC",
+          "type": "acronym",
+          "count": 5302
+        }
+      ]
+    },
+    "Department of Energy": {
+      "name": "Department of Energy",
+      "country": "USA",
+      "funder_type": "government",
+      "merged_count": 5122,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "DOE",
+          "type": "acronym",
+          "count": 5122
+        }
+      ]
+    },
+    "Fundacao para a Ciencia e a Tecnologia": {
+      "name": "Fundacao para a Ciencia e a Tecnologia",
+      "country": "Portugal",
+      "funder_type": "government",
+      "merged_count": 5010,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "FCT",
+          "type": "acronym",
+          "count": 5010
+        }
+      ]
+    },
+    "Coordenacao de Aperfeicoamento de Pessoal de Nivel Superior": {
+      "name": "Coordenacao de Aperfeicoamento de Pessoal de Nivel Superior",
+      "country": "Brazil",
+      "funder_type": "government",
+      "merged_count": 5006,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "CAPES",
+          "type": "acronym",
+          "count": 5006
+        }
+      ]
+    },
+    "European Commission": {
+      "name": "European Commission",
+      "country": "EU",
+      "funder_type": "supranational",
+      "merged_count": 4798,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "European Commission",
+          "type": "primary",
+          "count": 4798
+        },
+        {
+          "variant": "EC",
+          "type": "acronym_manual",
+          "count": 0
+        },
+        {
+          "variant": "EU",
+          "type": "acronym_manual",
+          "count": 0
+        },
+        {
+          "variant": "European Union",
+          "type": "alias_manual",
+          "count": 0
+        }
+      ],
+      "children": {
+        "European Research Council": {
+          "name": "European Research Council",
+          "country": "EU",
+          "funder_type": "supranational",
+          "merged_count": 25664,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "European Research Council",
+              "type": "primary",
+              "count": 15744
+            },
+            {
+              "variant": "ERC",
+              "type": "acronym",
+              "count": 9920
+            }
+          ]
+        }
+      }
+    },
+    "Fundacao de Amparo a Pesquisa do Estado de Sao Paulo": {
+      "name": "Fundacao de Amparo a Pesquisa do Estado de Sao Paulo",
+      "country": "Brazil",
+      "funder_type": "government",
+      "merged_count": 4778,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "FAPESP",
+          "type": "acronym",
+          "count": 4778
+        },
+        {
+          "variant": "Sao Paulo Research Foundation",
+          "type": "alias_manual",
+          "count": 0
+        }
+      ]
+    },
+    "Bill and Melinda Gates Foundation": {
+      "name": "Bill and Melinda Gates Foundation",
+      "country": "USA",
+      "funder_type": "philanthropy",
+      "merged_count": 4661,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "Melinda Gates Foundation",
+          "type": "alias",
+          "count": 4661
+        },
+        {
+          "variant": "BMGF",
+          "type": "acronym_manual",
+          "count": 0
+        },
+        {
+          "variant": "Gates Foundation",
+          "type": "alias_manual",
+          "count": 0
+        }
+      ]
+    },
+    "National Health and Medical Research Council": {
+      "name": "National Health and Medical Research Council",
+      "country": "Australia",
+      "funder_type": "government",
+      "merged_count": 4286,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "NHMRC",
+          "type": "acronym",
+          "count": 4286
+        }
+      ]
+    },
+    "Italian Ministry": {
+      "name": "Italian Ministry",
+      "country": "Italy",
+      "funder_type": "government",
+      "merged_count": 4283,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "Italian Ministry",
+          "type": "primary",
+          "count": 4283
+        }
+      ]
+    },
+    "China Postdoctoral Science Foundation": {
+      "name": "China Postdoctoral Science Foundation",
+      "country": "China",
+      "funder_type": "government",
+      "merged_count": 4214,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "China Postdoctoral Science Foundation",
+          "type": "primary",
+          "count": 4214
+        }
+      ]
+    },
+    "China Scholarship Council": {
+      "name": "China Scholarship Council",
+      "country": "China",
+      "funder_type": "government",
+      "merged_count": 3677,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "China Scholarship Council",
+          "type": "primary",
+          "count": 2522
+        },
+        {
+          "variant": "CSC",
+          "type": "acronym",
+          "count": 1155
+        }
+      ]
+    },
+    "Ministry of Science and Technology": {
+      "name": "Ministry of Science and Technology",
+      "country": "Taiwan",
+      "funder_type": "government",
+      "merged_count": 3672,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "MOST",
+          "type": "acronym",
+          "count": 3672
+        }
+      ]
+    },
+    "Netherlands Organisation for Scientific Research": {
+      "name": "Netherlands Organisation for Scientific Research",
+      "country": "Netherlands",
+      "funder_type": "government",
+      "merged_count": 3634,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "NWO",
+          "type": "acronym",
+          "count": 3634
+        },
+        {
+          "variant": "Dutch Research Council",
+          "type": "alias_manual",
+          "count": 0
+        }
+      ]
+    },
+    "Russian Science Foundation": {
+      "name": "Russian Science Foundation",
+      "country": "Russia",
+      "funder_type": "government",
+      "merged_count": 3632,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "Russian Science Foundation",
+          "type": "primary",
+          "count": 3632
+        },
+        {
+          "variant": "RSF",
+          "type": "acronym_manual",
+          "count": 0
+        }
+      ]
+    },
+    "Royal Society": {
+      "name": "Royal Society",
+      "country": "UK",
+      "funder_type": "philanthropy",
+      "merged_count": 3623,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "Royal Society",
+          "type": "primary",
+          "count": 3623
+        }
+      ]
+    },
+    "Canadian Institutes of Health Research": {
+      "name": "Canadian Institutes of Health Research",
+      "country": "Canada",
+      "funder_type": "government",
+      "merged_count": 3454,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "CIHR",
+          "type": "acronym",
+          "count": 3454
+        }
+      ]
+    },
+    "Centre National de la Recherche Scientifique": {
+      "name": "Centre National de la Recherche Scientifique",
+      "country": "France",
+      "funder_type": "government",
+      "merged_count": 3019,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "CNRS",
+          "type": "acronym",
+          "count": 3019
+        }
+      ]
+    },
+    "Research Foundation Flanders": {
+      "name": "Research Foundation Flanders",
+      "country": "Belgium",
+      "funder_type": "philanthropy",
+      "merged_count": 2686,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "FWO",
+          "type": "acronym",
+          "count": 2686
+        }
+      ]
+    },
+    "National Key Research and Development Program": {
+      "name": "National Key Research and Development Program",
+      "country": "China",
+      "funder_type": "government",
+      "merged_count": 2660,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "National Key Research and Development Program",
+          "type": "primary",
+          "count": 2660
+        }
+      ]
+    },
+    "National Science Centre": {
+      "name": "National Science Centre",
+      "country": "Poland",
+      "funder_type": "government",
+      "merged_count": 2583,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "National Science Centre",
+          "type": "primary",
+          "count": 2583
+        },
+        {
+          "variant": "NCN",
+          "type": "acronym_manual",
+          "count": 0
+        }
+      ]
+    },
+    "American Heart Association": {
+      "name": "American Heart Association",
+      "country": "USA",
+      "funder_type": "philanthropy",
+      "merged_count": 2557,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "American Heart Association",
+          "type": "primary",
+          "count": 2557
+        },
+        {
+          "variant": "AHA",
+          "type": "acronym_manual",
+          "count": 0
+        }
+      ]
+    },
+    "Department of Biotechnology": {
+      "name": "Department of Biotechnology",
+      "country": "India",
+      "funder_type": "government",
+      "merged_count": 2402,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "DBT",
+          "type": "acronym",
+          "count": 2402
+        }
+      ]
+    },
+    "Japan Science and Technology Agency": {
+      "name": "Japan Science and Technology Agency",
+      "country": "Japan",
+      "funder_type": "government",
+      "merged_count": 2363,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "JST",
+          "type": "acronym",
+          "count": 2363
+        }
+      ]
+    },
+    "Max Planck Society": {
+      "name": "Max Planck Society",
+      "country": "Germany",
+      "funder_type": "philanthropy",
+      "merged_count": 2232,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "Max Planck Society",
+          "type": "primary",
+          "count": 2232
+        },
+        {
+          "variant": "Max Planck",
+          "type": "alias_manual",
+          "count": 0
+        },
+        {
+          "variant": "MPG",
+          "type": "acronym_manual",
+          "count": 0
+        }
+      ]
+    },
+    "Czech Science Foundation": {
+      "name": "Czech Science Foundation",
+      "country": "Czech Republic",
+      "funder_type": "government",
+      "merged_count": 2130,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "Czech Science Foundation",
+          "type": "primary",
+          "count": 2130
+        },
+        {
+          "variant": "GACR",
+          "type": "acronym_manual",
+          "count": 0
+        }
+      ]
+    },
+    "UK Research and Innovation": {
+      "name": "UK Research and Innovation",
+      "country": "UK",
+      "funder_type": "government",
+      "merged_count": 2069,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "UKRI",
+          "type": "acronym",
+          "count": 2069
+        }
+      ],
+      "children": {
+        "Medical Research Council": {
+          "name": "Medical Research Council",
+          "country": "UK",
+          "funder_type": "government",
+          "merged_count": 23913,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "Medical Research Council",
+              "type": "primary",
+              "count": 16958
+            },
+            {
+              "variant": "MRC",
+              "type": "acronym",
+              "count": 6955
+            },
+            {
+              "variant": "UK Medical Research Council",
+              "type": "alias_manual",
+              "count": 0
+            }
+          ]
+        },
+        "Biotechnology and Biological Sciences Research Council": {
+          "name": "Biotechnology and Biological Sciences Research Council",
+          "country": "UK",
+          "funder_type": "government",
+          "merged_count": 16877,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "Biological Sciences Research Council",
+              "type": "alias",
+              "count": 8471
+            },
+            {
+              "variant": "BBSRC",
+              "type": "acronym",
+              "count": 7583
+            },
+            {
+              "variant": "Biotechnology and Biological Sciences Research Council",
+              "type": "primary",
+              "count": 823
+            }
+          ]
+        },
+        "Engineering and Physical Sciences Research Council": {
+          "name": "Engineering and Physical Sciences Research Council",
+          "country": "UK",
+          "funder_type": "government",
+          "merged_count": 9922,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "Engineering Research Council",
+              "type": "alias",
+              "count": 7912
+            },
+            {
+              "variant": "EPSRC",
+              "type": "acronym",
+              "count": 2010
+            }
+          ]
+        },
+        "Natural Environment Research Council": {
+          "name": "Natural Environment Research Council",
+          "country": "UK",
+          "funder_type": "government",
+          "merged_count": 3382,
+          "selection_method": "4.0sigma+consolidation",
+          "discovery_method": "ner_pipeline",
+          "aliases": [
+            {
+              "variant": "Natural Environment Research Council",
+              "type": "primary",
+              "count": 1736
+            },
+            {
+              "variant": "NERC",
+              "type": "acronym",
+              "count": 1646
+            }
+          ]
+        }
+      }
+    },
+    "Associazione Italiana per la Ricerca sul Cancro": {
+      "name": "Associazione Italiana per la Ricerca sul Cancro",
+      "country": "Italy",
+      "funder_type": "philanthropy",
+      "merged_count": 2000,
+      "selection_method": "4.0sigma+consolidation",
+      "discovery_method": "ner_pipeline",
+      "aliases": [
+        {
+          "variant": "AIRC",
+          "type": "acronym",
+          "count": 2000
+        }
+      ]
+    }
+  },
+  "statistics": {
+    "total_funders": 75,
+    "top_level_funders": 47,
+    "child_funders": 28,
+    "ner_discovered": 75,
+    "manually_added": 0,
+    "parent_organizations": 3,
+    "by_funder_type": {
+      "government": 64,
+      "supranational": 3,
+      "philanthropy": 8
+    }
+  }
+}

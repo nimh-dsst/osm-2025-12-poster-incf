@@ -370,8 +370,8 @@ See `results/openss_explore/OPENSS_FINDINGS_SUMMARY.md` for complete analysis.
 
 **Bug fix (2025-12-04):** Fixed PMCID join bug that caused all `is_open_data=false`. The script now uses the `pmcid` column directly from oddpub instead of extracting from `article` column with broken regex.
 
-**Updated 2025-12-10:** Added configurable funder aliases and parent-child aggregation:
-- `--funder-aliases` - Path to funder aliases CSV file (default: `funder_analysis/funder_aliases_v3.csv`)
+**Updated 2025-12-11:** Added configurable funder aliases and parent-child aggregation:
+- `--funder-aliases` - Path to funder aliases CSV file (default: `funder_analysis/funder_aliases_v4.csv`)
 - `--aggregate-children` - Aggregate child funders into parent totals (e.g., NIH institutes → NIH)
 
 ```bash
@@ -389,7 +389,7 @@ python analysis/build_dashboard_data_duckdb.py \
     --filelist-dir $HPC_BASE_DIR/pmcoa/ \
     --rtrans-dir $HPC_BASE_DIR/osm/datafiles/rtrans_out_full_parquets \
     --oddpub-file $HPC_BASE_DIR/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
-    --funder-aliases funder_analysis/funder_aliases_v3.csv \
+    --funder-aliases funder_analysis/funder_aliases_v4.csv \
     --aggregate-children \
     --output $HPC_BASE_DIR/osm/datafiles/dashboard.parquet \
     --licenses comm,noncomm \
@@ -439,21 +439,21 @@ python hpc_scripts/repair_pmcid_registry.py \
 
 Script `analysis/openss_funder_trends.py` generates line graphs showing open data trends by funder.
 
-**Updated 2025-12-08:** Upgraded to v3 funder aliases with parent-child aggregation:
-- Uses v3 funder aliases (57 canonical funders) via `--funder-aliases` argument
+**Updated 2025-12-11:** Upgraded to v4 funder aliases with parent-child aggregation:
+- Uses v4 funder aliases (75 canonical funders, 23 NIH institutes) via `--funder-aliases` argument
 - Supports `--aggregate-children` flag to roll up child funders into parent totals (e.g., NIH institutes → NIH, MRC → UKRI, ERC → EC)
 - Requires `--registry` argument for article type filtering (research articles only)
 - Research article filter matches `funder_data_sharing_summary.py`: research-article, brief-report, data-paper, systematic-review, other, blank
-- CSV outputs include all funders (47 with aggregation, 57 without); graphs show top 10 by data sharing count
+- CSV outputs include all funders (47 with aggregation, 75 without); graphs show top 10 by data sharing count
 - HPC compatible: auto-detects registry table name (`pmcid_registry` vs `pmcids`)
 
 ```bash
-# Generate both graphs with v3 funders and parent-child aggregation
+# Generate both graphs with v4 funders and parent-child aggregation
 python analysis/openss_funder_trends.py \
     --oddpub-file $EC2_PROJ_BASE_DIR/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
     --rtrans-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/rtrans_out_full_parquets \
     --registry hpc_scripts/pmcid_registry.duckdb \
-    --funder-aliases funder_analysis/funder_aliases_v3.csv \
+    --funder-aliases funder_analysis/funder_aliases_v4.csv \
     --output-dir results/openss_funder_trends_v5 \
     --graph both \
     --aggregate-children
@@ -463,14 +463,14 @@ python analysis/openss_funder_trends.py \
     --oddpub-file $HPC_BASE_DIR/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
     --rtrans-dir $HPC_BASE_DIR/osm/datafiles/rtrans_out_full_parquets \
     --registry $HPC_BASE_DIR/osm/osm-2025-12-poster-incf/hpc_scripts/pmcid_registry.duckdb \
-    --funder-aliases funder_analysis/funder_aliases_v3.csv \
+    --funder-aliases funder_analysis/funder_aliases_v4.csv \
     --output-dir results/openss_funder_trends_v5 \
     --graph both \
     --aggregate-children
 ```
 
 **Output (results/openss_funder_trends_v5/):**
-- `openss_funder_counts_by_year.csv` - All funders (47 aggregated or 57 raw), counts 2010-2024
+- `openss_funder_counts_by_year.csv` - All funders (47 aggregated or 75 raw), counts 2010-2024
 - `openss_funder_counts_by_year.png` - Top 10 funders by count
 - `openss_funder_percentages_by_year.csv` - All funders, percentages
 - `openss_funder_percentages_by_year.png` - Top 10 funders by percentage
@@ -490,19 +490,19 @@ Script `analysis/funder_data_sharing_summary.py` calculates data sharing rates f
 
 **Key features:**
 - Filters to research article types only (same filter as `openss_funder_trends.py`)
-- Supports v3 funder aliases via `--funder-aliases` argument
+- Supports v4 funder aliases via `--funder-aliases` argument
 - Supports `--aggregate-children` flag for parent-child aggregation
 - HPC compatible with auto-detected registry table names
 - Outputs funders with ≥1,000 data sharing publications (configurable via `--min-data-sharing`)
 
 ```bash
-# Local run with v3 funders and parent-child aggregation
+# Local run with v4 funders and parent-child aggregation
 python analysis/funder_data_sharing_summary.py \
     --oddpub-file $EC2_PROJ_BASE_DIR/pmcoaXMLs/oddpub_merged/oddpub_v7.2.3_all.parquet \
     --rtrans-dir $EC2_PROJ_BASE_DIR/pmcoaXMLs/rtrans_out_full_parquets \
     --registry hpc_scripts/pmcid_registry.duckdb \
-    --funder-aliases funder_analysis/funder_aliases_v3.csv \
-    --output results/funder_data_sharing_summary_v3.csv \
+    --funder-aliases funder_analysis/funder_aliases_v4.csv \
+    --output results/funder_data_sharing_summary_v4.csv \
     --aggregate-children
 
 # HPC run
@@ -510,21 +510,21 @@ python analysis/funder_data_sharing_summary.py \
     --oddpub-file $HPC_BASE_DIR/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
     --rtrans-dir $HPC_BASE_DIR/osm/datafiles/rtrans_out_full_parquets \
     --registry $HPC_BASE_DIR/osm/osm-2025-12-poster-incf/hpc_scripts/pmcid_registry.duckdb \
-    --funder-aliases funder_analysis/funder_aliases_v3.csv \
-    --output results/funder_data_sharing_summary_v3.csv \
+    --funder-aliases funder_analysis/funder_aliases_v4.csv \
+    --output results/funder_data_sharing_summary_v4.csv \
     --aggregate-children
 ```
 
 **Output:**
-- `results/funder_data_sharing_summary_v3.csv` - Funders with ≥1,000 data sharing pubs (47 with aggregation)
-- `results/funder_data_sharing_summary_v3_all.csv` - All funders (regardless of threshold)
+- `results/funder_data_sharing_summary_v4.csv` - Funders with ≥1,000 data sharing pubs (47 with aggregation)
+- `results/funder_data_sharing_summary_v4_all.csv` - All funders (regardless of threshold)
 
 ### Funder Table LaTeX Generator (2025-12-08)
 
 Script `analysis/funder_table_latex.py` generates publication-ready LaTeX tables from funder summary CSVs.
 
 **Features:**
-- Country column populated from funder_aliases_v3.csv
+- Country column populated from funder_aliases_v4.csv
 - Sort by total_pubs, data_sharing_pubs, or data_sharing_pct
 - Optional conditional formatting (blue-white-red color scale):
   - `--color-pubs`: Log scale for total publications
@@ -536,15 +536,15 @@ Script `analysis/funder_table_latex.py` generates publication-ready LaTeX tables
 ```bash
 # Basic table sorted by total publications
 python analysis/funder_table_latex.py \
-    --input results/funder_data_sharing_summary_v3_all.csv \
-    --aliases funder_analysis/funder_aliases_v3.csv \
+    --input results/funder_data_sharing_summary_v4_all.csv \
+    --aliases funder_analysis/funder_aliases_v4.csv \
     --sort-by total_pubs \
     --output results/funder_table.tex
 
 # With conditional formatting on both columns
 python analysis/funder_table_latex.py \
-    --input results/funder_data_sharing_summary_v3_all.csv \
-    --aliases funder_analysis/funder_aliases_v3.csv \
+    --input results/funder_data_sharing_summary_v4_all.csv \
+    --aliases funder_analysis/funder_aliases_v4.csv \
     --sort-by data_sharing_pct \
     --color-pubs \
     --color-pct \
@@ -552,8 +552,8 @@ python analysis/funder_table_latex.py \
 
 # Top 20 funders only
 python analysis/funder_table_latex.py \
-    --input results/funder_data_sharing_summary_v3_all.csv \
-    --aliases funder_analysis/funder_aliases_v3.csv \
+    --input results/funder_data_sharing_summary_v4_all.csv \
+    --aliases funder_analysis/funder_aliases_v4.csv \
     --sort-by data_sharing_pct \
     --limit 20 \
     --output results/funder_table_top20.tex
@@ -676,39 +676,48 @@ Complete schema documentation for all data outputs:
 - 22 NIH institutes (NCI, NHLBI, NIMH, etc.)
 - Columns: Name, Acronym
 
-### Funder Alias Mapping (2025-12-08)
+### Funder Alias Mapping (2025-12-11)
 
 To handle funder name variants and avoid double-counting:
 
-- **Alias file (v3):** `funder_analysis/funder_aliases_v3.csv`
-  - 57 canonical funders with 81 variant mappings
-  - Columns: canonical_name, variant, variant_type, country, **parent_funder**, variant_count, merged_count, selection_method
+- **Alias file (v4):** `funder_analysis/funder_aliases_v4.csv`
+  - 75 canonical funders with 134 variant mappings
+  - Columns: canonical_name, variant, variant_type, country, parent_funder, **funder_type**, variant_count, merged_count, selection_method, discovery_method
   - Handles: acronyms (NSF), full names, spelling variants, translations
-  - **New in v3:** parent_funder column enables parent-child aggregation
+  - **New in v4:**
+    - `funder_type` field: government (64), philanthropy (8), supranational (3)
+    - `discovery_method` field: ner_pipeline vs manual
+    - All 23 NIH institutes with NER-derived counts
+    - Complete data dictionary: `funder_analysis/FUNDER_ALIASES_DATA_DICTIONARY.md`
 
-- **Parent-child relationships (10 total):**
-  - NIH children: NCI, NHLBI, NIDDK, NIAID, NIMH
-  - UKRI children: MRC, BBSRC, EPSRC
-  - EC children: ERC, Horizon 2020
+- **Funder type classification:**
+  - `government` - Taxpayer-funded agencies (NIH, NSF, DFG, NSFC, etc.)
+  - `philanthropy` - Private foundations (HHMI, Wellcome Trust, Gates Foundation, etc.)
+  - `supranational` - International organizations (European Commission, ERC, ERDF)
+
+- **Parent-child relationships (28 children):**
+  - NIH: 23 institutes (NCI, NHLBI, NIMH, NINDS, NIA, NICHD, etc.)
+  - UKRI: MRC, BBSRC, EPSRC, NERC
+  - EC: ERC
 
 - **Selection strategy:** `docs/CANONICAL_FUNDER_SELECTION.md`
   - Principled 4σ statistical threshold on log-scale (count >= 658)
   - Multi-stage pipeline: statistical threshold → noise removal → fragment removal → alias consolidation → final threshold (merged_count >= 2,000)
-  - Reduces 58,791 NER-discovered funders → 57 canonical funders
+  - Reduces 58,791 NER-discovered funders → 75 canonical funders
   - Reproducible via `funder_analysis/build_canonical_funders.py`
 
 - **Build script:** `funder_analysis/build_canonical_funders.py`
   - Input: NER-discovered funders from `results/openss_explore_v2/all_potential_funders.csv`
   - Uses explicit alias groups (not fuzzy matching) for reliable consolidation
-  - Outputs both CSV (with parent_funder column) and statistics JSON
+  - Outputs both CSV and JSON with hierarchical nesting
 
 - **Normalizer module:** `funder_analysis/normalize_funders.py`
   - `FunderNormalizer` class for alias lookups
   - `mentions_funder(text, canonical)` - searches for any variant at article level
-  - `get_parent(canonical)` - returns parent funder if exists (new in v3)
+  - `get_parent(canonical)` - returns parent funder if exists
   - Avoids double-counting when article mentions both "NSF" and "National Science Foundation"
 
-**Top 10 canonical funders (by merged_count):**
+**Top 10 canonical funders (by merged_count from open data subset):**
 1. NSFC - National Natural Science Foundation of China (99,031)
 2. NIH - National Institutes of Health (71,044)
 3. NSF - National Science Foundation (45,566)
@@ -719,6 +728,8 @@ To handle funder name variants and avoid double-counting:
 8. Wellcome Trust (21,058)
 9. NRF - National Research Foundation of Korea (20,271)
 10. BBSRC - Biotechnology and Biological Sciences Research Council (16,877)
+
+**Note:** Counts are from NER discovery on the is_open_data=true subset (~375k articles). See data dictionary for corpus definition.
 
 ## Migration Context
 

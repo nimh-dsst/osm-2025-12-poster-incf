@@ -568,12 +568,12 @@ python analysis/discover_journals_countries.py \
 
 ### Dashboard Data with Journal/Country Filtering (2025-12-11)
 
-Script `analysis/build_dashboard_data_hpc.py` now supports filtering journals and countries to reduce dashboard cardinality. Articles with values outside the selected subset have their values replaced with "Other".
+Script `analysis/build_dashboard_data_duckdb.py` now supports filtering journals and countries to reduce dashboard cardinality. Articles with values outside the selected subset have their values replaced with "Other".
 
 ```bash
 # Build dashboard data with journal/country filtering
-python analysis/build_dashboard_data_hpc.py \
-    --input-dir $HPC_BASE_DIR/pmcoa/oa_comm_xml.*.tar.gz \
+python analysis/build_dashboard_data_duckdb.py \
+    --filelist-dir $HPC_BASE_DIR/pmcoa/ \
     --rtrans-dir $HPC_BASE_DIR/osm/datafiles/rtrans_out_full_parquets \
     --oddpub-file $HPC_BASE_DIR/osm/datafiles/oddpub_merged/oddpub_v7.2.3_all.parquet \
     --journals-csv results/openss_discovery_weibull/significant_journals.csv \
@@ -584,6 +584,8 @@ python analysis/build_dashboard_data_hpc.py \
 **New arguments:**
 - `--journals-csv` - CSV with selected journals (column: `journal`); others → "Other"
 - `--countries-csv` - CSV with selected countries (column: `country`); others → "Other"
+
+**Funder aggregation behavior:** When `--aggregate-children` is used, child funders are kept in the funder list alongside parent funders (both are retained, not rolled up).
 
 **Effect:** Reduces unique values for dashboard visualization:
 - Journals: 4,985 → 1,243 (1,242 + "Other")

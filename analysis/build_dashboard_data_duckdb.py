@@ -51,7 +51,7 @@ from datetime import datetime
 from glob import glob
 from multiprocessing import cpu_count
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Set
 
 import duckdb
 import numpy as np
@@ -109,6 +109,48 @@ def validate_output_directory(output_path: str) -> None:
         sys.exit(1)
 
     log_time(f"Output directory validated: {output_dir}")
+
+
+def load_filter_sets(
+    journals_csv: Optional[str],
+    countries_csv: Optional[str],
+) -> Tuple[Optional[Set[str]], Optional[Set[str]]]:
+    """Load selected journals and countries from CSV files for filtering.
+
+    Articles with values not in these sets will have their values replaced with 'Other'.
+    If a CSV path is None, no filtering is applied for that field.
+
+    Returns:
+        Tuple of (selected_journals set or None, selected_countries set or None)
+    """
+    selected_journals = None
+    selected_countries = None
+
+    if journals_csv:
+        start = log_time(f"Loading selected journals from {journals_csv}...")
+        try:
+            df = pd.read_csv(journals_csv)
+            if 'journal' in df.columns:
+                selected_journals = set(df['journal'].dropna().unique())
+                log_time(f"  Loaded {len(selected_journals)} selected journals", start)
+            else:
+                log_time(f"  Warning: 'journal' column not found in {journals_csv}")
+        except Exception as e:
+            log_time(f"  Warning: Could not load journals CSV: {e}")
+
+    if countries_csv:
+        start = log_time(f"Loading selected countries from {countries_csv}...")
+        try:
+            df = pd.read_csv(countries_csv)
+            if 'country' in df.columns:
+                selected_countries = set(df['country'].dropna().unique())
+                log_time(f"  Loaded {len(selected_countries)} selected countries", start)
+            else:
+                log_time(f"  Warning: 'country' column not found in {countries_csv}")
+        except Exception as e:
+            log_time(f"  Warning: Could not load countries CSV: {e}")
+
+    return selected_journals, selected_countries
 
 
 def parse_args():
@@ -191,6 +233,16 @@ Examples:
         "--aggregate-children",
         action="store_true",
         help="Aggregate child funders into parent totals (e.g., NIH institutes -> NIH)",
+    )
+    parser.add_argument(
+        "--journals-csv",
+        default=None,
+        help="CSV file with selected journals (articles with other journals -> 'Other')",
+    )
+    parser.add_argument(
+        "--countries-csv",
+        default=None,
+        help="CSV file with selected countries (articles with other countries -> 'Other')",
     )
     return parser.parse_args()
 
@@ -426,7 +478,7 @@ def aggregate_funders_in_lists(
 
     For each article, if a child funder is found:
     - Add the parent funder if not already present
-    - Remove the child funder from the list
+    - Keep the child funder in the list (both child and parent are retained)
 
     Args:
         funder_lists: List of funder lists (one per article)
@@ -444,12 +496,12 @@ def aggregate_funders_in_lists(
         # Start with a set of funders for efficient lookup
         funder_set = set(funders)
 
-        # Add parent funders for any children found
+        # Add parent funders for any children found (keep child in list)
         for funder in list(funder_set):
             parent = child_to_parent.get(funder)
             if parent:
                 funder_set.add(parent)
-                funder_set.discard(funder)  # Remove child
+                # Note: child funder is NOT removed - both parent and child are kept
 
         aggregated_lists.append(list(funder_set))
 
@@ -529,6 +581,47 @@ def match_funders_parallel(
     return all_funders
 
 
+def apply_journal_country_filtering(
+    df: pd.DataFrame,
+    selected_journals: Optional[Set[str]],
+    selected_countries: Optional[Set[str]],
+) -> pd.DataFrame:
+    """Apply journal and country filtering to reduce dashboard cardinality.
+
+    Articles with values not in the selected sets have their values replaced with 'Other'.
+
+    Args:
+        df: DataFrame with 'journal' and 'affiliation_country' columns
+        selected_journals: Set of selected journal names (or None to skip filtering)
+        selected_countries: Set of selected country names (or None to skip filtering)
+
+    Returns:
+        DataFrame with filtered journal and affiliation_country values
+    """
+    start = log_time("Applying journal/country filtering...")
+
+    if selected_journals is not None:
+        before_unique = df['journal'].nunique()
+        df['journal'] = df['journal'].apply(
+            lambda x: x if pd.isna(x) or x in selected_journals else 'Other'
+        )
+        after_unique = df['journal'].nunique()
+        other_count = (df['journal'] == 'Other').sum()
+        log_time(f"  Journals: {before_unique:,} -> {after_unique:,} unique values ({other_count:,} set to 'Other')")
+
+    if selected_countries is not None:
+        before_unique = df['affiliation_country'].nunique()
+        df['affiliation_country'] = df['affiliation_country'].apply(
+            lambda x: x if pd.isna(x) or x in selected_countries else 'Other'
+        )
+        after_unique = df['affiliation_country'].nunique()
+        other_count = (df['affiliation_country'] == 'Other').sum()
+        log_time(f"  Countries: {before_unique:,} -> {after_unique:,} unique values ({other_count:,} set to 'Other')")
+
+    log_time("  Filtering complete", start)
+    return df
+
+
 def build_final_output(
     df: pd.DataFrame,
     funder_lists: List[List[str]],
@@ -597,6 +690,8 @@ def main():
     print(f"  Licenses: {licenses}")
     print(f"  Funder aliases: {funder_aliases_display}")
     print(f"  Aggregate children: {args.aggregate_children}")
+    print(f"  Journals CSV: {args.journals_csv or 'None (no filtering)'}")
+    print(f"  Countries CSV: {args.countries_csv or 'None (no filtering)'}")
     print(f"  Output: {args.output}")
     if args.limit:
         print(f"  Limit: {args.limit:,} PMCIDs (testing mode)")
@@ -651,6 +746,13 @@ def main():
             log_time("  Aggregation complete", agg_start)
         else:
             log_time("  No parent-child relationships found, skipping aggregation")
+
+    # Load and apply journal/country filtering
+    selected_journals, selected_countries = load_filter_sets(
+        args.journals_csv, args.countries_csv
+    )
+    if selected_journals is not None or selected_countries is not None:
+        df = apply_journal_country_filtering(df, selected_journals, selected_countries)
 
     # Build final output
     result = build_final_output(df, funder_lists)

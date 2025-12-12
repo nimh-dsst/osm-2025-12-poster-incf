@@ -142,6 +142,7 @@
 3. Start fresh repo for ongoing work with lessons learned
 4. (Future) Process remaining ~490K articles with oddpub (7% missing)
 5. (Future) Update Python version in venv and container
+6. (Future) Improve affiliation_country coverage via OpenAlex cross-referencing (see `docs/AFFILIATION_COUNTRY_COVERAGE.md`)
 
 ## Future Work (Post-Poster)
 
